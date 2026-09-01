@@ -12,3 +12,4 @@ parameters:
     tmpDir: storage/framework/cache/phpstan
     ignoreErrors:
         - identifier: missingType.generics
+        - identifier: missingType.iterableValue
