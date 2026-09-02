@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Monitoring\Console\MaintainCheckStorageCommand;
 use App\Monitoring\Settings\MonitoringSettings;
 use App\Monitoring\Settings\MonitoringSettingsParser;
 use App\Shared\Settings\InvalidSettingException;
@@ -23,5 +24,12 @@ final class MonitoringServiceProvider extends ServiceProvider
 
             return (new MonitoringSettingsParser)->parse(self::SETTINGS_SOURCE, $values);
         });
+    }
+
+    public function boot(): void
+    {
+        $this->commands([
+            MaintainCheckStorageCommand::class,
+        ]);
     }
 }
