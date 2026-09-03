@@ -8,4 +8,12 @@ enum CheckOutcome: string
 {
     case Up = 'up';
     case Down = 'down';
+
+    public function confirmedState(): MonitorState
+    {
+        return match ($this) {
+            self::Up => MonitorState::Up,
+            self::Down => MonitorState::Down,
+        };
+    }
 }
