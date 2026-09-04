@@ -10,6 +10,7 @@ parameters:
         - database
         - routes
     tmpDir: storage/framework/cache/phpstan
+    parseModelCastsMethod: true
     ignoreErrors:
         - identifier: missingType.generics
         - identifier: missingType.iterableValue

@@ -7,6 +7,7 @@ namespace App\Monitoring\Models;
 use App\Monitoring\Enums\HttpMethod;
 use App\Monitoring\Enums\MonitorState;
 use App\Monitoring\Values\AcceptedStatusCodes;
+use App\Monitoring\Values\ProbeRequest;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,6 +29,11 @@ final class Monitor extends Model
 {
     use HasFactory;
     use HasUlids;
+
+    public function probeRequest(): ProbeRequest
+    {
+        return new ProbeRequest($this->url, $this->method, $this->timeout_seconds, $this->follow_redirects);
+    }
 
     public function acceptedStatusCodes(): AcceptedStatusCodes
     {

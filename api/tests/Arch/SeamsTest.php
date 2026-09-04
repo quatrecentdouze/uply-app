@@ -39,6 +39,11 @@ foreach (array_keys($seams) as $family) {
         ->not->toUse(['Illuminate\Database', 'Illuminate\Http', "App\\{$family}\\Models", "App\\{$family}\\Storage", "App\\{$family}\\Jobs", "App\\{$family}\\Console"]);
 }
 
+arch('only the http probe knows the http client')
+    ->expect('App')
+    ->not->toUse(['Illuminate\Http\Client', 'GuzzleHttp', 'Psr\Http'])
+    ->ignoring('App\Monitoring\Probe\HttpProbe');
+
 it('keeps the clock out of every rules class', function (): void {
     $rulesFiles = glob(dirname(__DIR__, 2).'/app/*/Rules/*.php') ?: [];
 
