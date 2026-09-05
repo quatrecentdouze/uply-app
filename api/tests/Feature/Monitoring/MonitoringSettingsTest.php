@@ -15,6 +15,7 @@ it('resolves the parsed settings from the shipped file', function (): void {
 
 it('fails with the file and key when the config is invalid', function (): void {
     config(['monitoring.confirmation.recheck_delay_seconds' => 'soon']);
+    app()->forgetInstance(MonitoringSettings::class);
 
     expect(fn () => app(MonitoringSettings::class))
         ->toThrow(InvalidSettingException::class, 'config/monitoring.php: confirmation.recheck_delay_seconds must be an integer of at least 1');

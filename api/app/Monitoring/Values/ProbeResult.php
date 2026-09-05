@@ -37,4 +37,9 @@ final readonly class ProbeResult
     {
         return new self($httpStatus, $failureKind, $timings, $errorMessage);
     }
+
+    public function responseMs(): ?int
+    {
+        return $this->httpStatus === null ? null : $this->timings->totalMs;
+    }
 }

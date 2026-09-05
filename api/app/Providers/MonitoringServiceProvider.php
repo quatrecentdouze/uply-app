@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Monitoring\Console\DispatchChecksCommand;
 use App\Monitoring\Console\MaintainCheckStorageCommand;
 use App\Monitoring\Probe\DnsTargetGuard;
 use App\Monitoring\Probe\HostResolver;
@@ -43,6 +44,7 @@ final class MonitoringServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->commands([
+            DispatchChecksCommand::class,
             MaintainCheckStorageCommand::class,
         ]);
     }

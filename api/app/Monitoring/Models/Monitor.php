@@ -7,7 +7,9 @@ namespace App\Monitoring\Models;
 use App\Monitoring\Enums\HttpMethod;
 use App\Monitoring\Enums\MonitorState;
 use App\Monitoring\Values\AcceptedStatusCodes;
+use App\Monitoring\Values\MonitorStateSnapshot;
 use App\Monitoring\Values\ProbeRequest;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -40,6 +42,28 @@ final class Monitor extends Model
         $texts = $this->getAttribute('accepted_status_codes');
 
         return AcceptedStatusCodes::parse(is_array($texts) ? $texts : []);
+    }
+
+    public function stateSnapshot(): MonitorStateSnapshot
+    {
+        return new MonitorStateSnapshot(
+            $this->state,
+            $this->consecutive_failures,
+            $this->consecutive_successes,
+            $this->streak_started_at,
+            $this->state_changed_at,
+        );
+    }
+
+    public function applyCheck(MonitorStateSnapshot $snapshot, CarbonImmutable $checkedAt, CarbonImmutable $nextCheckAt): void
+    {
+        $this->state = $snapshot->state;
+        $this->consecutive_failures = $snapshot->consecutiveFailures;
+        $this->consecutive_successes = $snapshot->consecutiveSuccesses;
+        $this->streak_started_at = $snapshot->streakStartedAt;
+        $this->state_changed_at = $snapshot->stateChangedAt;
+        $this->last_checked_at = $checkedAt;
+        $this->next_check_at = $nextCheckAt;
     }
 
     protected function casts(): array

@@ -28,6 +28,11 @@ final class CheckScheduleRules
         return $recheck->lessThan($regular) ? $recheck : $regular;
     }
 
+    public static function slotIsOpen(?CarbonImmutable $lastCheckedAt, CarbonImmutable $scheduledAt): bool
+    {
+        return $lastCheckedAt === null || $lastCheckedAt->lessThan($scheduledAt);
+    }
+
     private static function nextSlot(CarbonImmutable $scheduledAt, CarbonImmutable $checkedAt, int $intervalSeconds): CarbonImmutable
     {
         $late = max(0, $checkedAt->getTimestamp() - $scheduledAt->getTimestamp());
