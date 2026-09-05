@@ -15,4 +15,11 @@ final readonly class IntervalSettings
     {
         return in_array($seconds, $this->allowedSeconds, true);
     }
+
+    public function shortestSeconds(): int
+    {
+        $shortest = $this->allowedSeconds[0] ?? null;
+
+        return is_int($shortest) ? $shortest : $this->defaultSeconds;
+    }
 }
