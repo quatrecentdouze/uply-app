@@ -21,8 +21,8 @@ It is a portfolio project built like a real multi tenant product.
 
 | # | Milestone | State |
 |---|---|---|
-| 1 | Monitoring engine (API) | in progress |
-| 2 | Alerts and real time (API) | planned |
+| 1 | Monitoring engine (API) | done |
+| 2 | Alerts and real time (API) | next |
 | 3 | Auth, organizations, REST API and status pages backend (API) | planned |
 | 4 | App shell, dashboard and management screens (Web) | planned |
 | 5 | Public status pages and polish (Web) | planned |
@@ -61,6 +61,16 @@ One dispatch tick and the storage maintenance can also run by hand:
 php artisan checks:dispatch
 php artisan monitoring:maintain
 ```
+
+## Demo
+
+The demo seeder adds an organization and a monitor on `http://127.0.0.1:8090/health`, checked every 30 seconds:
+
+```bash
+php artisan db:seed --class=DemoSeeder
+```
+
+Serve any page on that port, run the scheduler and a worker, then change the status code the page returns. On the dev PC an outage was confirmed 59 seconds after it started and the recovery 59 seconds after it, which is the next check, the 20 second recheck and the 10 second dispatch tick.
 
 ## Test
 
