@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Monitoring\Console\DispatchChecksCommand;
 use App\Monitoring\Console\MaintainCheckStorageCommand;
+use App\Monitoring\Contracts\MonitorDirectory;
 use App\Monitoring\Probe\DnsTargetGuard;
 use App\Monitoring\Probe\HostResolver;
 use App\Monitoring\Probe\HttpProbe;
@@ -15,6 +16,7 @@ use App\Monitoring\Probe\TargetGuard;
 use App\Monitoring\Settings\MonitoringSettings;
 use App\Monitoring\Settings\MonitoringSettingsParser;
 use App\Monitoring\Settings\ProbeSettings;
+use App\Monitoring\Storage\DatabaseMonitorDirectory;
 use App\Shared\Settings\InvalidSettingException;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +25,7 @@ final class MonitoringServiceProvider extends ServiceProvider
     private const string SETTINGS_SOURCE = 'config/monitoring.php';
 
     public array $bindings = [
+        MonitorDirectory::class => DatabaseMonitorDirectory::class,
         Probe::class => HttpProbe::class,
         TargetGuard::class => DnsTargetGuard::class,
         HostResolver::class => SystemHostResolver::class,

@@ -57,7 +57,9 @@ it('opens an incident at the first failure of the streak', function (): void {
     expect($opened->kind->value)->toBe('opened')
         ->and($opened->data)->toEqual(['failure_kind' => 'http_status', 'http_status' => 503, 'message' => null]);
     Event::assertDispatched(IncidentOpenedEvent::class, fn (IncidentOpenedEvent $event): bool => $event->incidentId === $incident->id
-        && $event->startedAt->toTimeString() === '12:01:20');
+        && $event->startedAt->toTimeString() === '12:01:20'
+        && $event->causeFailureKind === 'http_status'
+        && $event->causeHttpStatus === 503);
 });
 
 it('resolves the open incident at the first success of the recovery', function (): void {

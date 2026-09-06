@@ -53,7 +53,14 @@ final readonly class IncidentRecorder
                     'message' => $opening->causeMessage,
                 ],
             ]);
-            $this->events->dispatch(new IncidentOpenedEvent($incidentId, $opening->organizationId, $opening->monitorId, $opening->startedAt));
+            $this->events->dispatch(new IncidentOpenedEvent(
+                $incidentId,
+                $opening->organizationId,
+                $opening->monitorId,
+                $opening->startedAt,
+                $opening->causeFailureKind,
+                $opening->causeHttpStatus,
+            ));
         });
     }
 
