@@ -41,6 +41,19 @@ final readonly class SettingsReader
         return $value;
     }
 
+    public function optionalText(string $key): ?string
+    {
+        $value = $this->value($key);
+        if ($value === null) {
+            return null;
+        }
+        if (! is_string($value) || trim($value) === '') {
+            throw $this->invalid($key, 'must be a non empty string or null');
+        }
+
+        return $value;
+    }
+
     public function integerList(string $key, int $minimum): array
     {
         $value = $this->value($key);
