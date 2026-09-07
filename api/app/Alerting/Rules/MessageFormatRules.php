@@ -10,6 +10,10 @@ final class MessageFormatRules
 {
     private const string ELLIPSIS = '…';
 
+    private const string URL_PATTERN = '~[a-z][a-z0-9+.-]*://\S+~i';
+
+    private const string URL_PLACEHOLDER = '[url]';
+
     private const array SLACK_TEXT_ESCAPES = ['&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
 
     private const array SLACK_URL_ESCAPES = ['&' => '&amp;', '<' => '%3C', '>' => '%3E', '|' => '%7C'];
@@ -19,6 +23,11 @@ final class MessageFormatRules
     private const string DISCORD_TIMESTAMP_STYLE = 'f';
 
     private const string MARKDOWN_SPECIALS_PATTERN = '/([\\\\`*_{}\[\]()#+\-.!|~])/';
+
+    public static function withoutUrls(string $text): string
+    {
+        return trim((string) preg_replace(self::URL_PATTERN, self::URL_PLACEHOLDER, $text));
+    }
 
     public static function cut(string $text, int $maxLength): string
     {

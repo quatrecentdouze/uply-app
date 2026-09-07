@@ -29,6 +29,14 @@ it('fails at once and disables the channel when the webhook is rejected', functi
         ->and($decision->lastError)->toBe("HTTP {$status} Unknown Webhook");
 })->with([401, 403, 404, 410]);
 
+it('fails at once when the channel settings cannot be used', function (): void {
+    $decision = DeliveryRules::decide(SendReport::refused('invalid channel settings'), 1, shippedRetryPolicy());
+
+    expect($decision->outcome)->toBe(DecisionOutcome::Failed)
+        ->and($decision->disablesChannel)->toBeFalse()
+        ->and($decision->lastError)->toBe('invalid channel settings');
+});
+
 it('fails at once without disabling on any other client error or a redirect', function (int $status): void {
     $decision = DeliveryRules::decide(SendReport::responded($status, null, 'invalid_payload'), 1, shippedRetryPolicy());
 

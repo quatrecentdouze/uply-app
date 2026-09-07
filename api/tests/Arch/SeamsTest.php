@@ -42,10 +42,15 @@ foreach ($seams as $family => $allowed) {
     }
 }
 
-arch('only the http probe knows the http client')
+arch('only the http probe and the webhook senders know the http client')
     ->expect('App')
     ->not->toUse(['Illuminate\Http\Client', 'GuzzleHttp', 'Psr\Http'])
-    ->ignoring('App\Monitoring\Probe\HttpProbe');
+    ->ignoring(['App\Monitoring\Probe\HttpProbe', 'App\Alerting\Senders\DiscordSender', 'App\Alerting\Senders\SlackSender']);
+
+arch('only the mail sender knows the mail transport')
+    ->expect('App')
+    ->not->toUse(['Illuminate\Contracts\Mail', 'Symfony\Component\Mailer'])
+    ->ignoring('App\Alerting\Senders\MailSender');
 
 it('keeps the clock out of every rules class', function (): void {
     $rulesFiles = glob(dirname(__DIR__, 2).'/app/*/Rules/*.php') ?: [];

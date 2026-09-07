@@ -29,6 +29,9 @@ final class DeliveryRules
             return DeliveryDecision::sent();
         }
         $lastError = self::lastError($report);
+        if ($report->permanent) {
+            return DeliveryDecision::failed($lastError);
+        }
         if ($status === self::TOO_MANY_REQUESTS) {
             return self::retryOrFail($attemptsMade, $policy, $lastError, $report->retryAfterSeconds);
         }
