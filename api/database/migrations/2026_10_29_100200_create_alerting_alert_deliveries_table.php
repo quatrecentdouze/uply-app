@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Alerting\Enums\DeliveryKind;
 use App\Alerting\Enums\DeliveryStatus;
-use App\Alerting\Models\AlertDelivery;
+use App\Alerting\Values\DeliveryDecision;
 use App\Shared\Database\EnumValues;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('kind', 16);
             $table->string('status', 16)->default(DeliveryStatus::Pending->value);
             $table->integer('attempts')->default(0);
-            $table->string('last_error', AlertDelivery::MAX_LAST_ERROR_LENGTH)->nullable();
+            $table->string('last_error', DeliveryDecision::MAX_LAST_ERROR_LENGTH)->nullable();
             $table->timestampTz('sent_at')->nullable();
             $table->timestampsTz();
             $table->unique(['alert_channel_id', 'incident_id', 'kind']);

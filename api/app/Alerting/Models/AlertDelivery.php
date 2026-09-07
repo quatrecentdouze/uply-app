@@ -17,8 +17,6 @@ final class AlertDelivery extends Model
     use HasFactory;
     use HasUlids;
 
-    public const int MAX_LAST_ERROR_LENGTH = 500;
-
     public function isPending(): bool
     {
         return $this->status === DeliveryStatus::Pending;
