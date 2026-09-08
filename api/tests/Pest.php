@@ -15,7 +15,7 @@ pest()->extend(TestCase::class)
 
 function freezeClock(string $moment): FrozenClock
 {
-    $clock = FrozenClock::at($moment);
+    $clock = FrozenClock::at($moment, freezesLaravelTime: true);
     app()->instance(Clock::class, $clock);
 
     return $clock;

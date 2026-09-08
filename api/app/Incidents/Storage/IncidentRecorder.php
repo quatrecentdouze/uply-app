@@ -64,6 +64,19 @@ final readonly class IncidentRecorder
         });
     }
 
+    public function recordAlert(string $incidentId, bool $sent, CarbonImmutable $occurredAt, array $data): void
+    {
+        if (! Incident::query()->whereKey($incidentId)->exists()) {
+            return;
+        }
+        IncidentEvent::query()->create([
+            'incident_id' => $incidentId,
+            'kind' => $sent ? IncidentEventKind::AlertSent : IncidentEventKind::AlertFailed,
+            'occurred_at' => $occurredAt,
+            'data' => $data,
+        ]);
+    }
+
     public function resolve(string $monitorId, CarbonImmutable $recoveredAt): void
     {
         $this->database->transaction(function () use ($monitorId, $recoveredAt): void {

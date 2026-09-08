@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Alerting\Events\AlertDeliveredEvent;
 use App\Incidents\Listeners\OpenIncidentOnMonitorDown;
+use App\Incidents\Listeners\RecordAlertInTimeline;
 use App\Incidents\Listeners\ResolveIncidentOnMonitorRecovered;
 use App\Monitoring\Events\MonitorRecoveredEvent;
 use App\Monitoring\Events\MonitorWentDownEvent;
@@ -17,5 +19,6 @@ final class IncidentsServiceProvider extends ServiceProvider
     {
         Event::listen(MonitorWentDownEvent::class, OpenIncidentOnMonitorDown::class);
         Event::listen(MonitorRecoveredEvent::class, ResolveIncidentOnMonitorRecovered::class);
+        Event::listen(AlertDeliveredEvent::class, RecordAlertInTimeline::class);
     }
 }
