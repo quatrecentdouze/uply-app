@@ -22,8 +22,8 @@ It is a portfolio project built like a real multi tenant product.
 | # | Milestone | State |
 |---|---|---|
 | 1 | Monitoring engine (API) | done |
-| 2 | Alerts and real time (API) | next |
-| 3 | Auth, organizations, REST API and status pages backend (API) | planned |
+| 2 | Alerts and real time (API) | done |
+| 3 | Auth, organizations, REST API and status pages backend (API) | next |
 | 4 | App shell, dashboard and management screens (Web) | planned |
 | 5 | Public status pages and polish (Web) | planned |
 
@@ -34,6 +34,14 @@ It is a portfolio project built like a real multi tenant product.
 - Pure rules judge the result, confirm a state after 2 consecutive results with a fast recheck after 20 seconds, and plan the next check from its scheduled time.
 - Raw results live in daily PostgreSQL partitions kept 30 days, hourly stats are kept 400 days.
 - Incidents open at the first failure of a confirmed outage and resolve at the first success of the recovery.
+
+## Alerts and real time
+
+- An opened incident creates one `down` delivery per enabled channel linked to the monitor, a resolved one an `up` delivery. A unique key per channel, incident and kind means a replayed event never sends twice.
+- Each delivery is a queued job on the `alerts` queue that carries its message, so a retry sends the same text. Discord gets an embed that pings nobody, Slack an attachment with escaped texts and reader time zones, email a Markdown mail.
+- Pure rules read each answer: 2xx is sent, 429 waits the delay the provider asks, 401, 403, 404 and 410 disable the channel, 5xx and transport errors retry 5 times with a growing delay. At most one message per second goes to a webhook, without spending a try.
+- Webhook URLs are stored encrypted and never logged.
+- Reverb broadcasts `monitor.checked`, `monitor.state-changed`, `incident.opened` and `incident.resolved` on the private channel `organization.{id}` through the `realtime` queue.
 
 ## Run the API locally
 
@@ -47,30 +55,32 @@ php artisan key:generate
 php artisan migrate
 ```
 
-Set `MONITORING_ALLOW_PRIVATE_TARGETS=true` in `.env` to monitor local addresses. Then start the processes, each in its own terminal:
+Set `MONITORING_ALLOW_PRIVATE_TARGETS=true` in `.env` to monitor local addresses, and give `REVERB_APP_ID`, `REVERB_APP_KEY` and `REVERB_APP_SECRET` random values of your own. Mail goes to the SMTP server of `.env`, Mailpit on port 1025 locally. Then start the processes, each in its own terminal:
 
 ```bash
 php artisan serve
+php artisan reverb:start --host=127.0.0.1 --port=6001
 php artisan schedule:work
 php artisan queue:work --queue=alerts,realtime,checks,default
 ```
 
-One dispatch tick and the storage maintenance can also run by hand:
+One dispatch tick, the storage maintenance and a test alert for one channel can also run by hand:
 
 ```bash
 php artisan checks:dispatch
 php artisan monitoring:maintain
+php artisan alerting:test 01jexamplechannelid0000000
 ```
 
 ## Demo
 
-The demo seeder adds an organization and a monitor on `http://127.0.0.1:8090/health`, checked every 30 seconds:
+The demo seeder adds an organization, a monitor on `http://127.0.0.1:8090/health` checked every 30 seconds, and an email channel to `demo@uply.test`. It adds a Discord and a Slack channel when `DEMO_ALERT_CHANNELS_FILE` points to a local JSON file with their webhook URLs:
 
 ```bash
 php artisan db:seed --class=DemoSeeder
 ```
 
-Serve any page on that port, run the scheduler and a worker, then change the status code the page returns. On the dev PC an outage was confirmed 59 seconds after it started and the recovery 59 seconds after it, which is the next check, the 20 second recheck and the 10 second dispatch tick.
+Serve any page on that port, run the scheduler, a worker and Reverb, then change the status code the page returns. On the dev PC an outage was confirmed 59 seconds after it started, which is the next check, the 20 second recheck and the 10 second dispatch tick. The alert mail and the `incident.opened` event both arrived less than a second after the confirming check.
 
 ## Test
 
