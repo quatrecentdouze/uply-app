@@ -29,6 +29,12 @@ it('builds the password reset mail from the texts', function (): void {
         ->and($mail->outroLines[0] ?? '')->toContain('45');
 });
 
+it('greets without a name when none is known', function (): void {
+    $mail = app(AccountMailBuilder::class)->verification(null, 'http://localhost:5173/v', 60);
+
+    expect($mail->greeting)->toBe(__('organizations.mail.greeting_anonymous'));
+});
+
 it('leaves no raw text key in the account mails', function (MailMessage $mail): void {
     foreach (mailTexts($mail) as $text) {
         expect($text)->toBeString()->not->toStartWith('organizations.');

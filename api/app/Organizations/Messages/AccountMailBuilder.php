@@ -11,14 +11,14 @@ final readonly class AccountMailBuilder
 {
     public function __construct(private Translator $translator) {}
 
-    public function verification(string $name, string $url, int $minutes): MailMessage
+    public function verification(?string $name, string $url, int $minutes): MailMessage
     {
-        return $this->mail('verify', $this->text('organizations.mail.greeting', ['name' => $name]), $url, ['minutes' => $minutes]);
+        return $this->mail('verify', $this->greeting($name), $url, ['minutes' => $minutes]);
     }
 
-    public function passwordReset(string $name, string $url, int $minutes): MailMessage
+    public function passwordReset(?string $name, string $url, int $minutes): MailMessage
     {
-        return $this->mail('reset', $this->text('organizations.mail.greeting', ['name' => $name]), $url, ['minutes' => $minutes]);
+        return $this->mail('reset', $this->greeting($name), $url, ['minutes' => $minutes]);
     }
 
     private function mail(string $kind, string $greeting, string $url, array $parameters): MailMessage
@@ -30,6 +30,13 @@ final readonly class AccountMailBuilder
             ->action($this->text("organizations.mail.{$kind}.action", $parameters), $url)
             ->line($this->text("organizations.mail.{$kind}.outro", $parameters))
             ->salutation($this->text('organizations.mail.salutation'));
+    }
+
+    private function greeting(?string $name): string
+    {
+        return $name === null
+            ? $this->text('organizations.mail.greeting_anonymous')
+            : $this->text('organizations.mail.greeting', ['name' => $name]);
     }
 
     private function text(string $key, array $parameters = []): string

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Organizations\Models;
 
+use App\Organizations\Notifications\VerifyEmailNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -19,6 +20,11 @@ final class User extends Authenticatable implements MustVerifyEmail
     use HasFactory;
     use HasUlids;
     use Notifiable;
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailNotification);
+    }
 
     protected function casts(): array
     {
