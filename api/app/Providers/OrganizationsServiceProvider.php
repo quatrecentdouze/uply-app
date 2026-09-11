@@ -17,6 +17,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -25,6 +26,20 @@ use Laravel\Fortify\Fortify;
 final class OrganizationsServiceProvider extends ServiceProvider
 {
     private const string SETTINGS_SOURCE = 'config/organizations.php';
+
+    private const string PASSWORD_CONFIRMATION_MIDDLEWARE = 'password.confirm';
+
+    private const array FORTIFY_ROUTES_FOR_VERIFIED_USERS = [
+        'password.confirmation',
+        'password.confirm.store',
+        'two-factor.enable',
+        'two-factor.confirm',
+        'two-factor.disable',
+        'two-factor.qr-code',
+        'two-factor.secret-key',
+        'two-factor.recovery-codes',
+        'two-factor.regenerate-recovery-codes',
+    ];
 
     public function register(): void
     {
@@ -52,6 +67,24 @@ final class OrganizationsServiceProvider extends ServiceProvider
             ->by(Str::lower($request->string(Fortify::username())->toString()).'|'.$request->ip()));
         RateLimiter::for('two-factor', fn (Request $request): Limit => Limit::perMinute($this->settings()->rateLimits->twoFactorPerMinute)
             ->by($this->pendingLoginId($request).'|'.$request->ip()));
+
+        $this->app->booted(fn () => $this->requireVerifiedEmailOnFortifyAccountRoutes());
+    }
+
+    private function requireVerifiedEmailOnFortifyAccountRoutes(): void
+    {
+        foreach (Route::getRoutes()->getRoutes() as $route) {
+            if (! in_array($route->getName(), self::FORTIFY_ROUTES_FOR_VERIFIED_USERS, true)) {
+                continue;
+            }
+            $middleware = array_filter((array) ($route->action['middleware'] ?? []), 'is_string');
+            $confirmsPassword = in_array(self::PASSWORD_CONFIRMATION_MIDDLEWARE, $middleware, true);
+            $route->action['middleware'] = [
+                ...array_diff($middleware, [self::PASSWORD_CONFIRMATION_MIDDLEWARE]),
+                'verified',
+                ...($confirmsPassword ? [self::PASSWORD_CONFIRMATION_MIDDLEWARE] : []),
+            ];
+        }
     }
 
     private function pendingLoginId(Request $request): string
