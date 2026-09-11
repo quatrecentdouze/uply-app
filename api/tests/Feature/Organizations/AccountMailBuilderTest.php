@@ -20,10 +20,11 @@ it('builds the verification mail from the texts', function (): void {
         ->and($mail->salutation)->toBe(__('organizations.mail.salutation'));
 });
 
-it('builds the password reset mail from the texts', function (): void {
-    $mail = app(AccountMailBuilder::class)->passwordReset('Ada', 'http://localhost:5173/reset-password?token=t&email=e', 45);
+it('builds the password reset mail with its frontend link', function (): void {
+    $mail = app(AccountMailBuilder::class)->passwordReset('Ada', 'ada+ops@example.com', 'reset-token', 45);
 
-    expect($mail->subject)->toBe(__('organizations.mail.reset.subject'))
+    expect($mail->actionUrl)->toBe('http://localhost:5173/reset-password?token=reset-token&email=ada%2Bops%40example.com')
+        ->and($mail->subject)->toBe(__('organizations.mail.reset.subject'))
         ->and($mail->introLines)->toBe([__('organizations.mail.reset.intro')])
         ->and($mail->actionText)->toBe(__('organizations.mail.reset.action'))
         ->and($mail->outroLines[0] ?? '')->toContain('45');
@@ -41,5 +42,5 @@ it('leaves no raw text key in the account mails', function (MailMessage $mail): 
     }
 })->with([
     'verification' => fn (): MailMessage => app(AccountMailBuilder::class)->verification('Ada', 'http://localhost:5173/v', 60),
-    'password reset' => fn (): MailMessage => app(AccountMailBuilder::class)->passwordReset('Ada', 'http://localhost:5173/r', 60),
+    'password reset' => fn (): MailMessage => app(AccountMailBuilder::class)->passwordReset('Ada', 'ada@example.com', 'reset-token', 60),
 ]);

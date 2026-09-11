@@ -11,6 +11,7 @@ use App\Organizations\Models\User;
 use App\Organizations\Settings\OrganizationsSettings;
 use App\Organizations\Settings\OrganizationsSettingsParser;
 use App\Shared\Settings\InvalidSettingException;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Laravel\Fortify\Fortify;
 
 final class OrganizationsServiceProvider extends ServiceProvider
@@ -42,7 +44,9 @@ final class OrganizationsServiceProvider extends ServiceProvider
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
         VerifyEmail::toMailUsing(fn (mixed $notifiable, string $url): MailMessage => $this->mails()
-            ->verification($this->nameOf($notifiable), $url, config()->integer('auth.verification.expire')));
+            ->verification($this->user($notifiable)->name, $url, config()->integer('auth.verification.expire')));
+        ResetPassword::toMailUsing(fn (mixed $notifiable, string $token): MailMessage => $this->mails()
+            ->passwordReset($this->user($notifiable)->name, $this->user($notifiable)->email, $token, config()->integer('auth.passwords.users.expire')));
 
         RateLimiter::for('login', fn (Request $request): Limit => Limit::perMinute($this->settings()->rateLimits->loginPerMinute)
             ->by(Str::lower($request->string(Fortify::username())->toString()).'|'.$request->ip()));
@@ -57,9 +61,9 @@ final class OrganizationsServiceProvider extends ServiceProvider
         return is_string($loginId) || is_int($loginId) ? (string) $loginId : '';
     }
 
-    private function nameOf(mixed $notifiable): ?string
+    private function user(mixed $notifiable): User
     {
-        return $notifiable instanceof User ? $notifiable->name : null;
+        return $notifiable instanceof User ? $notifiable : throw new InvalidArgumentException('account mails go to users only');
     }
 
     private function mails(): AccountMailBuilder

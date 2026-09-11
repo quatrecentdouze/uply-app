@@ -4,20 +4,29 @@ declare(strict_types=1);
 
 namespace App\Organizations\Messages;
 
+use App\Organizations\Settings\OrganizationsSettings;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Notifications\Messages\MailMessage;
+use SensitiveParameter;
 
 final readonly class AccountMailBuilder
 {
-    public function __construct(private Translator $translator) {}
+    private const string RESET_PATH = '/reset-password';
+
+    public function __construct(
+        private Translator $translator,
+        private OrganizationsSettings $settings,
+    ) {}
 
     public function verification(?string $name, string $url, int $minutes): MailMessage
     {
         return $this->mail('verify', $this->greeting($name), $url, ['minutes' => $minutes]);
     }
 
-    public function passwordReset(?string $name, string $url, int $minutes): MailMessage
+    public function passwordReset(?string $name, string $email, #[SensitiveParameter] string $token, int $minutes): MailMessage
     {
+        $url = $this->settings->frontendLink(self::RESET_PATH.'?'.http_build_query(['token' => $token, 'email' => $email]));
+
         return $this->mail('reset', $this->greeting($name), $url, ['minutes' => $minutes]);
     }
 
