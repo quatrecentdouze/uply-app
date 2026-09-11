@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -30,6 +31,11 @@ final class User extends Authenticatable implements MustVerifyEmail
         'two_factor_recovery_codes' => null,
         'two_factor_confirmed_at' => null,
     ];
+
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(Membership::class);
+    }
 
     public function sendEmailVerificationNotification(): void
     {

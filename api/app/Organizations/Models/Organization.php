@@ -8,12 +8,18 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['name', 'slug'])]
 final class Organization extends Model
 {
     use HasFactory;
     use HasUlids;
+
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(Membership::class);
+    }
 
     protected function casts(): array
     {
