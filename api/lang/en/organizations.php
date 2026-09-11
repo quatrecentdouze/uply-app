@@ -26,6 +26,17 @@ return [
             'outro' => 'The invitation expires on :expires UTC.',
         ],
     ],
+    'errors' => [
+        'sole_owner' => 'You are the only owner of an organization that has other members. Make another member owner or delete the organization first.',
+        'last_owner' => 'An organization always keeps at least one owner.',
+        'organization_limit_reached' => 'You already own the most organizations allowed (:max).',
+        'role_not_allowed' => 'Your role cannot give or change this role.',
+        'invitation_email_mismatch' => 'This invitation was sent to another email address.',
+        'invitation_expired' => 'This invitation has expired.',
+        'invitation_pending' => 'An invitation is already pending for this email address.',
+        'already_member' => 'This person is already a member of the organization.',
+        'invitation_limit_reached' => 'This organization already has the most pending invitations allowed (:max).',
+    ],
     'roles' => [
         'owner' => 'owner',
         'admin' => 'admin',
