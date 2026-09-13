@@ -8,7 +8,11 @@ use App\Organizations\Actions\CreateUser;
 use App\Organizations\Actions\ResetUserPassword;
 use App\Organizations\Contracts\OrganizationAccess;
 use App\Organizations\Messages\AccountMailBuilder;
+use App\Organizations\Models\Membership;
+use App\Organizations\Models\Organization;
 use App\Organizations\Models\User;
+use App\Organizations\Policies\MembershipPolicy;
+use App\Organizations\Policies\OrganizationPolicy;
 use App\Organizations\Settings\OrganizationsSettings;
 use App\Organizations\Settings\OrganizationsSettingsParser;
 use App\Organizations\Settings\RoleRegistry;
@@ -19,6 +23,7 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -65,6 +70,9 @@ final class OrganizationsServiceProvider extends ServiceProvider
     {
         Fortify::createUsersUsing(CreateUser::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+
+        Gate::policy(Organization::class, OrganizationPolicy::class);
+        Gate::policy(Membership::class, MembershipPolicy::class);
 
         VerifyEmail::toMailUsing(fn (mixed $notifiable, string $url): MailMessage => $this->mails()
             ->verification($this->user($notifiable)->name, $url, config()->integer('auth.verification.expire')));
