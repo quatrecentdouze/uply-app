@@ -6,10 +6,13 @@ namespace App\Providers;
 
 use App\Organizations\Actions\CreateUser;
 use App\Organizations\Actions\ResetUserPassword;
+use App\Organizations\Contracts\OrganizationAccess;
 use App\Organizations\Messages\AccountMailBuilder;
 use App\Organizations\Models\User;
 use App\Organizations\Settings\OrganizationsSettings;
 use App\Organizations\Settings\OrganizationsSettingsParser;
+use App\Organizations\Settings\RoleRegistry;
+use App\Organizations\Storage\DatabaseOrganizationAccess;
 use App\Shared\Settings\InvalidSettingException;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -41,6 +44,10 @@ final class OrganizationsServiceProvider extends ServiceProvider
         'two-factor.regenerate-recovery-codes',
     ];
 
+    public array $bindings = [
+        OrganizationAccess::class => DatabaseOrganizationAccess::class,
+    ];
+
     public function register(): void
     {
         $this->app->singleton(OrganizationsSettings::class, function (): OrganizationsSettings {
@@ -51,6 +58,7 @@ final class OrganizationsServiceProvider extends ServiceProvider
 
             return (new OrganizationsSettingsParser)->parse(self::SETTINGS_SOURCE, $values);
         });
+        $this->app->bind(RoleRegistry::class, fn (): RoleRegistry => $this->settings()->roles);
     }
 
     public function boot(): void
