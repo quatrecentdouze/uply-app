@@ -13,4 +13,9 @@ final readonly class OrganizationLimits
         public int $slugMinLength,
         public int $slugMaxLength,
     ) {}
+
+    public function nameRules(): array
+    {
+        return ['required', 'string', 'min:'.$this->nameMinLength, 'max:'.$this->nameMaxLength];
+    }
 }
