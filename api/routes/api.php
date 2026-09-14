@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use App\Organizations\Http\Controllers\MeController;
+use App\Organizations\Http\Controllers\MemberController;
 use App\Organizations\Http\Controllers\MePasswordController;
 use App\Organizations\Http\Controllers\OrganizationController;
+use App\Organizations\Models\Membership;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function (): void {
@@ -26,5 +28,17 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::delete('organizations/{organization}', [OrganizationController::class, 'destroy'])
             ->can('delete', 'organization')
             ->name('organizations.destroy');
+
+        Route::scopeBindings()->group(function (): void {
+            Route::get('organizations/{organization}/members', [MemberController::class, 'index'])
+                ->can('viewAny', [Membership::class, 'organization'])
+                ->name('members.index');
+            Route::patch('organizations/{organization}/members/{membership}', [MemberController::class, 'update'])
+                ->can('update', 'membership')
+                ->name('members.update');
+            Route::delete('organizations/{organization}/members/{membership}', [MemberController::class, 'destroy'])
+                ->can('delete', 'membership')
+                ->name('members.destroy');
+        });
     });
 });
