@@ -8,9 +8,11 @@ use App\Organizations\Actions\CreateUser;
 use App\Organizations\Actions\ResetUserPassword;
 use App\Organizations\Contracts\OrganizationAccess;
 use App\Organizations\Messages\AccountMailBuilder;
+use App\Organizations\Models\Invitation;
 use App\Organizations\Models\Membership;
 use App\Organizations\Models\Organization;
 use App\Organizations\Models\User;
+use App\Organizations\Policies\InvitationPolicy;
 use App\Organizations\Policies\MembershipPolicy;
 use App\Organizations\Policies\OrganizationPolicy;
 use App\Organizations\Settings\OrganizationsSettings;
@@ -73,6 +75,7 @@ final class OrganizationsServiceProvider extends ServiceProvider
 
         Gate::policy(Organization::class, OrganizationPolicy::class);
         Gate::policy(Membership::class, MembershipPolicy::class);
+        Gate::policy(Invitation::class, InvitationPolicy::class);
 
         VerifyEmail::toMailUsing(fn (mixed $notifiable, string $url): MailMessage => $this->mails()
             ->verification($this->user($notifiable)->name, $url, config()->integer('auth.verification.expire')));
