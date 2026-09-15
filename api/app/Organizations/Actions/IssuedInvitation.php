@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Organizations\Values;
+namespace App\Organizations\Actions;
 
 use App\Organizations\Models\Invitation;
 use SensitiveParameter;

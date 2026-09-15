@@ -14,7 +14,6 @@ use App\Organizations\Models\User;
 use App\Organizations\Rules\InvitationTokenRules;
 use App\Organizations\Settings\InvitationSettings;
 use App\Organizations\Settings\OrganizationsSettings;
-use App\Organizations\Values\IssuedInvitation;
 use App\Shared\Clock;
 use App\Shared\Errors\DomainError;
 use Carbon\CarbonImmutable;
