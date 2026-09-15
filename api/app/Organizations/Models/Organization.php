@@ -21,6 +21,11 @@ final class Organization extends Model
         return $this->hasMany(Membership::class);
     }
 
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(Invitation::class);
+    }
+
     protected function casts(): array
     {
         return [
