@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Organizations\Contracts\Role;
 use App\Organizations\Messages\AccountMailBuilder;
+use Carbon\CarbonImmutable;
 use Illuminate\Notifications\Messages\MailMessage;
 
 function mailTexts(MailMessage $mail): array
@@ -36,11 +38,26 @@ it('greets without a name when none is known', function (): void {
     expect($mail->greeting)->toBe(__('organizations.mail.greeting_anonymous'));
 });
 
+it('builds the invitation mail with its frontend link', function (): void {
+    $mail = app(AccountMailBuilder::class)->invitation('Ada Lovelace', 'Analytical Engines', Role::Admin, CarbonImmutable::parse('2026-11-05 10:30:00'), 'invitation-token');
+
+    expect($mail->actionUrl)->toBe('http://localhost:5173/invitations/invitation-token')
+        ->and($mail->greeting)->toBe(__('organizations.mail.greeting_anonymous'))
+        ->and($mail->subject)->toBe(__('organizations.mail.invitation.subject', ['inviter' => 'Ada Lovelace', 'organization' => 'Analytical Engines']))
+        ->and($mail->introLines)->toBe([__('organizations.mail.invitation.intro', [
+            'inviter' => 'Ada Lovelace',
+            'organization' => 'Analytical Engines',
+            'role' => __('organizations.roles.admin'),
+        ])])
+        ->and($mail->outroLines)->toBe([__('organizations.mail.invitation.outro', ['expires' => '2026-11-05 10:30'])]);
+});
+
 it('leaves no raw text key in the account mails', function (MailMessage $mail): void {
     foreach (mailTexts($mail) as $text) {
-        expect($text)->toBeString()->not->toStartWith('organizations.');
+        expect($text)->toBeString()->not->toStartWith('organizations.')->not->toMatch('/:[a-z]+/');
     }
 })->with([
     'verification' => fn (): MailMessage => app(AccountMailBuilder::class)->verification('Ada', 'http://localhost:5173/v', 60),
     'password reset' => fn (): MailMessage => app(AccountMailBuilder::class)->passwordReset('Ada', 'ada@example.com', 'reset-token', 60),
+    'invitation' => fn (): MailMessage => app(AccountMailBuilder::class)->invitation('Ada', 'Acme', Role::Viewer, CarbonImmutable::parse('2026-11-05 10:30:00'), 'token'),
 ]);

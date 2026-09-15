@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Organizations\Messages;
 
+use App\Organizations\Contracts\Role;
 use App\Organizations\Settings\OrganizationsSettings;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Notifications\Messages\MailMessage;
 use SensitiveParameter;
@@ -12,6 +14,10 @@ use SensitiveParameter;
 final readonly class AccountMailBuilder
 {
     private const string RESET_PATH = '/reset-password';
+
+    private const string INVITATION_PATH = '/invitations';
+
+    private const string UTC_FORMAT = 'Y-m-d H:i';
 
     public function __construct(
         private Translator $translator,
@@ -28,6 +34,16 @@ final readonly class AccountMailBuilder
         $url = $this->settings->frontendLink(self::RESET_PATH.'?'.http_build_query(['token' => $token, 'email' => $email]));
 
         return $this->mail('reset', $this->greeting($name), $url, ['minutes' => $minutes]);
+    }
+
+    public function invitation(string $inviterName, string $organizationName, Role $role, CarbonImmutable $expiresAt, #[SensitiveParameter] string $token): MailMessage
+    {
+        return $this->mail('invitation', $this->greeting(null), $this->settings->frontendLink(self::INVITATION_PATH.'/'.$token), [
+            'inviter' => $inviterName,
+            'organization' => $organizationName,
+            'role' => $this->text('organizations.roles.'.$role->value),
+            'expires' => $expiresAt->utc()->format(self::UTC_FORMAT),
+        ]);
     }
 
     private function mail(string $kind, string $greeting, string $url, array $parameters): MailMessage
