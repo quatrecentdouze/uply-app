@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Organizations\Http\Controllers\InvitationController;
+use App\Organizations\Http\Controllers\InvitationTokenController;
 use App\Organizations\Http\Controllers\MeController;
 use App\Organizations\Http\Controllers\MemberController;
 use App\Organizations\Http\Controllers\MePasswordController;
@@ -11,6 +12,10 @@ use App\Organizations\Models\Invitation;
 use App\Organizations\Models\Membership;
 use Illuminate\Support\Facades\Route;
 
+Route::get('invitations/{token}', [InvitationTokenController::class, 'show'])
+    ->where('token', InvitationTokenController::TOKEN_PATTERN)
+    ->name('invitations.public.show');
+
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('me', [MeController::class, 'show'])->name('me.show');
     Route::delete('me', [MeController::class, 'destroy'])->name('me.destroy');
@@ -18,6 +23,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::middleware('verified')->group(function (): void {
         Route::patch('me', [MeController::class, 'update'])->name('me.update');
         Route::put('me/password', [MePasswordController::class, 'update'])->name('me.password.update');
+
+        Route::post('invitations/{token}/accept', [InvitationTokenController::class, 'accept'])
+            ->where('token', InvitationTokenController::TOKEN_PATTERN)
+            ->name('invitations.accept');
 
         Route::get('organizations', [OrganizationController::class, 'index'])->name('organizations.index');
         Route::post('organizations', [OrganizationController::class, 'store'])->name('organizations.store');
