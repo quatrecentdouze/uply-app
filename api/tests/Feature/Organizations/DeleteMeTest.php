@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Monitoring\Models\Monitor;
 use App\Organizations\Contracts\Role;
+use App\Organizations\Models\Invitation;
 use App\Organizations\Models\Membership;
 use App\Organizations\Models\Organization;
 use App\Organizations\Models\User;
@@ -77,6 +78,17 @@ it('lets a co owner leave an organization by deleting the account', function ():
     $this->actingAs($this->user)->deleteJson('/api/v1/me', ['password' => 'password'])->assertNoContent();
 
     expect(Membership::query()->where('organization_id', $organization->id)->pluck('user_id')->all())->toBe([$coOwner->id]);
+});
+
+it('keeps the invitations sent by a deleted account without their inviter', function (): void {
+    $organization = Organization::factory()->create();
+    joinOrganization($this->user, $organization, Role::Admin);
+    joinOrganization(User::factory()->create(), $organization, Role::Owner);
+    $invitation = Invitation::factory()->for($organization)->create(['invited_by_user_id' => $this->user->id]);
+
+    $this->actingAs($this->user)->deleteJson('/api/v1/me', ['password' => 'password'])->assertNoContent();
+
+    expect($invitation->refresh()->invited_by_user_id)->toBeNull();
 });
 
 it('lets an unverified user delete the account', function (): void {
