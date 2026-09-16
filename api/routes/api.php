@@ -10,7 +10,10 @@ use App\Organizations\Http\Controllers\MePasswordController;
 use App\Organizations\Http\Controllers\OrganizationController;
 use App\Organizations\Models\Invitation;
 use App\Organizations\Models\Membership;
+use App\Shared\Http\MetaController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('meta', MetaController::class)->name('meta');
 
 Route::get('invitations/{token}', [InvitationTokenController::class, 'show'])
     ->where('token', InvitationTokenController::TOKEN_PATTERN)

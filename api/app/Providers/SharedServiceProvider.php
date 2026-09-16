@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Shared\Clock;
+use App\Shared\Meta\ApiMetaSection;
+use App\Shared\Meta\MetaSection;
 use App\Shared\Settings\ApiSettings;
 use App\Shared\Settings\ApiSettingsParser;
 use App\Shared\Settings\InvalidSettingException;
@@ -35,6 +37,7 @@ final class SharedServiceProvider extends ServiceProvider
             return (new ApiSettingsParser)->parse(self::API_SETTINGS_SOURCE, $values);
         });
         $this->app->bind(PaginationSettings::class, fn (): PaginationSettings => $this->app->make(ApiSettings::class)->pagination);
+        $this->app->tag(ApiMetaSection::class, MetaSection::TAG);
     }
 
     public function boot(): void
