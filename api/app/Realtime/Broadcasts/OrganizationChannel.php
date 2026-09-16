@@ -8,6 +8,8 @@ use Illuminate\Broadcasting\PrivateChannel;
 
 final class OrganizationChannel
 {
+    public const string PATTERN = self::PREFIX.'{organizationId}';
+
     private const string PREFIX = 'organization.';
 
     public static function of(string $organizationId): PrivateChannel
