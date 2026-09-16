@@ -11,9 +11,12 @@ use App\Shared\Settings\InvalidSettingException;
 use App\Shared\Settings\PaginationSettings;
 use App\Shared\SystemClock;
 use Carbon\CarbonImmutable;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 final class SharedServiceProvider extends ServiceProvider
@@ -39,5 +42,15 @@ final class SharedServiceProvider extends ServiceProvider
         Date::use(CarbonImmutable::class);
         Model::shouldBeStrict(! $this->app->isProduction());
         DB::prohibitDestructiveCommands($this->app->isProduction());
+
+        RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute($this->app->make(ApiSettings::class)->rateLimitPerMinute)
+            ->by($this->apiClientKey($request)));
+    }
+
+    private function apiClientKey(Request $request): string
+    {
+        $userId = $request->user()?->getAuthIdentifier();
+
+        return is_string($userId) ? 'user:'.$userId : 'ip:'.$request->ip();
     }
 }
