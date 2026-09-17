@@ -23,7 +23,8 @@ It is a portfolio project built like a real multi tenant product.
 |---|---|---|
 | 1 | Monitoring engine (API) | done |
 | 2 | Alerts and real time (API) | done |
-| 3 | Auth, organizations, REST API and status pages backend (API) | next |
+| 3a | Auth, two factor, account, organizations, members, invitations, roles (API) | done |
+| 3b | Product REST API and status pages backend (API) | next |
 | 4 | App shell, dashboard and management screens (Web) | planned |
 | 5 | Public status pages and polish (Web) | planned |
 
@@ -42,6 +43,16 @@ It is a portfolio project built like a real multi tenant product.
 - Pure rules read each answer: 2xx is sent, 429 waits the delay the provider asks, 401, 403, 404 and 410 disable the channel, 5xx and transport errors retry 5 times with a growing delay. At most one message per second goes to a webhook, without spending a try.
 - Webhook URLs are stored encrypted and never logged.
 - Reverb broadcasts `monitor.checked`, `monitor.state-changed`, `incident.opened` and `incident.resolved` on the private channel `organization.{id}` through the `realtime` queue.
+
+## Auth and organizations
+
+- The SPA logs in with a Sanctum session cookie. Fortify runs headless under `/api/v1/auth`: sign up, a verified email before anything else, password reset, and TOTP two factor with recovery codes, set up behind a confirmed password.
+- Mails are queued notifications whose links point at the web app, the verification link is a signed URL under the same origin.
+- An organization has four fixed roles, `owner`, `admin`, `member` and `viewer`, mapped to abilities in `config/organizations.php`. Every route goes through a policy: a non member gets 404, a member without the ability 403. The last owner can neither leave nor be demoted, an admin never grants owner.
+- Invitations go by mail and expire after 7 days. Only the SHA-256 of their token is stored.
+- Domain errors answer `{"message": "...", "code": "last_owner"}` with a stable code. The API allows 120 requests per minute per user, per address for guests.
+- `POST /api/broadcasting/auth` signs the private channel `organization.{id}` for its members only.
+- `GET /api/v1/meta` gives the forms their limits: intervals, timeouts, methods, roles and abilities, channel types and lengths.
 
 ## Run the API locally
 
@@ -74,7 +85,7 @@ php artisan alerting:test 01jexamplechannelid0000000
 
 ## Demo
 
-The demo seeder adds an organization, a monitor on `http://127.0.0.1:8090/health` checked every 30 seconds, and an email channel to `demo@uply.test`. It adds a Discord and a Slack channel when `DEMO_ALERT_CHANNELS_FILE` points to a local JSON file with their webhook URLs:
+The demo seeder runs in the `local` environment only. It adds the verified users `demo@uply.test` (owner) and `viewer@uply.test` (viewer) with the local password `password`, an organization, a monitor on `http://127.0.0.1:8090/health` checked every 30 seconds, and an email channel to `demo@uply.test`. It adds a Discord and a Slack channel when `DEMO_ALERT_CHANNELS_FILE` points to a local JSON file with their webhook URLs:
 
 ```bash
 php artisan db:seed --class=DemoSeeder
@@ -91,6 +102,16 @@ composer test
 ```
 
 `lint` runs Pint, `analyse` runs Larastan at the max level, `test` runs Pest on the PostgreSQL database `uply_test`.
+
+## OpenAPI
+
+`api/openapi.json` describes every route, Fortify's included. Scramble writes it from the routes, form requests and resources:
+
+```bash
+php artisan scramble:export --path=openapi.json
+```
+
+A test exports the document again and fails when the committed file is stale. Locally Scramble also serves a browsable copy at `/docs/api`.
 
 ## License
 

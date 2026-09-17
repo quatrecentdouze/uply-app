@@ -37,7 +37,7 @@ it('cites only artisan commands that exist', function (): void {
         }
     }
 
-    expect($cited)->toContain('checks:dispatch')->toContain('monitoring:maintain');
+    expect($cited)->toContain('checks:dispatch')->toContain('monitoring:maintain')->toContain('scramble:export');
     foreach ($cited as $command) {
         expect($commands)->toContain($command);
     }
