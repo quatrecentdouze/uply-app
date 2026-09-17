@@ -23,6 +23,11 @@ final class MonitoringSettingsParser
             confirmation: $this->confirmation($reader),
             dispatch: $this->dispatch($reader),
             retention: $this->retention($reader),
+            limits: new MonitorLimits(
+                maxMonitorsPerOrganization: $reader->integer('limits.max_monitors_per_organization', 1),
+                nameMaxLength: $reader->integer('limits.name_max_length', 1),
+                urlMaxLength: $reader->integer('limits.url_max_length', 1),
+            ),
         );
     }
 

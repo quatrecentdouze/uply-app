@@ -29,6 +29,11 @@ return [
         'tick_seconds' => 10,
         'batch_size' => 500,
     ],
+    'limits' => [
+        'max_monitors_per_organization' => 100,
+        'name_max_length' => 100,
+        'url_max_length' => 2048,
+    ],
     'retention' => [
         'raw_results_days' => 30,
         'partitions_ahead_days' => 3,

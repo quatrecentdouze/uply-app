@@ -32,7 +32,10 @@ it('parses the shipped monitoring file', function (): void {
         ->and($settings->dispatch->batchSize)->toBe(500)
         ->and($settings->retention->rawResultsDays)->toBe(30)
         ->and($settings->retention->partitionsAheadDays)->toBe(3)
-        ->and($settings->retention->hourlyStatsDays)->toBe(400);
+        ->and($settings->retention->hourlyStatsDays)->toBe(400)
+        ->and($settings->limits->maxMonitorsPerOrganization)->toBe(100)
+        ->and($settings->limits->nameMaxLength)->toBe(100)
+        ->and($settings->limits->urlMaxLength)->toBe(2048);
 });
 
 it('rejects an invalid setting with its file and key', function (string $key, mixed $value): void {
@@ -71,6 +74,9 @@ it('rejects an invalid setting with its file and key', function (string $key, mi
     'raw retention zero' => ['retention.raw_results_days', 0],
     'partitions ahead zero' => ['retention.partitions_ahead_days', 0],
     'stats retention zero' => ['retention.hourly_stats_days', 0],
+    'monitor limit zero' => ['limits.max_monitors_per_organization', 0],
+    'name length zero' => ['limits.name_max_length', 0],
+    'url length as text' => ['limits.url_max_length', 'long'],
 ]);
 
 it('reports a missing key by its full path', function (): void {
