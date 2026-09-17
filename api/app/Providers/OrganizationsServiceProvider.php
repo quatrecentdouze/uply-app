@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Organizations\Actions\CreateUser;
 use App\Organizations\Actions\ResetUserPassword;
 use App\Organizations\Contracts\OrganizationAccess;
+use App\Organizations\Http\OrganizationsMetaSection;
 use App\Organizations\Messages\AccountMailBuilder;
 use App\Organizations\Models\Invitation;
 use App\Organizations\Models\Membership;
@@ -19,6 +20,7 @@ use App\Organizations\Settings\OrganizationsSettings;
 use App\Organizations\Settings\OrganizationsSettingsParser;
 use App\Organizations\Settings\RoleRegistry;
 use App\Organizations\Storage\DatabaseOrganizationAccess;
+use App\Shared\Meta\MetaSection;
 use App\Shared\Settings\InvalidSettingException;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -66,6 +68,7 @@ final class OrganizationsServiceProvider extends ServiceProvider
             return (new OrganizationsSettingsParser)->parse(self::SETTINGS_SOURCE, $values);
         });
         $this->app->bind(RoleRegistry::class, fn (): RoleRegistry => $this->settings()->roles);
+        $this->app->tag(OrganizationsMetaSection::class, MetaSection::TAG);
     }
 
     public function boot(): void

@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 use App\Shared\Settings\ApiSettings;
 
 it('describes the api to anyone', function (): void {
