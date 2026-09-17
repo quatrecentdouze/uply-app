@@ -7,7 +7,10 @@ use App\Alerting\Models\AlertChannel;
 use App\Alerting\Settings\AlertingSettings;
 use App\Monitoring\Enums\MonitorState;
 use App\Monitoring\Models\Monitor;
+use App\Organizations\Contracts\Role;
+use App\Organizations\Models\Membership;
 use App\Organizations\Models\Organization;
+use App\Organizations\Models\User;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Support\Facades\DB;
 
@@ -21,6 +24,8 @@ function useDemoWebhookFile(?string $content): void
     config(['alerting.demo_channels_file' => $path]);
     app()->forgetInstance(AlertingSettings::class);
 }
+
+beforeEach(fn () => app()->detectEnvironment(fn (): string => 'local'));
 
 function linkedChannelTypes(): array
 {
@@ -75,3 +80,31 @@ it('skips a missing key or a url outside the provider', function (): void {
 
     expect(linkedChannelTypes())->toBe(['email']);
 });
+
+it('seeds the verified demo owner and viewer with the local password', function (): void {
+    useDemoWebhookFile(null);
+
+    $this->artisan('db:seed', ['--class' => DemoSeeder::class])->expectsOutputToContain('demo_users=ready')->assertSuccessful();
+    $this->seed(DemoSeeder::class);
+
+    $organization = Organization::query()->sole();
+    $roles = Membership::query()->where('organization_id', $organization->id)->with('user')->get()
+        ->mapWithKeys(fn (Membership $membership): array => [(string) $membership->user?->email => $membership->role])
+        ->all();
+    expect($roles)->toEqual([DemoSeeder::OWNER_EMAIL => Role::Owner, DemoSeeder::VIEWER_EMAIL => Role::Viewer])
+        ->and(User::query()->whereNull('email_verified_at')->exists())->toBeFalse();
+
+    app()->detectEnvironment(fn (): string => 'testing');
+    $this->postJson('/api/v1/auth/login', ['email' => DemoSeeder::VIEWER_EMAIL, 'password' => DemoSeeder::LOCAL_PASSWORD])
+        ->assertOk()
+        ->assertExactJson(['two_factor' => false]);
+});
+
+it('refuses to seed outside the local environment', function (string $environment): void {
+    app()->detectEnvironment(fn (): string => $environment);
+    useDemoWebhookFile(null);
+
+    expect(fn () => app(DemoSeeder::class)->setContainer(app())->__invoke())->toThrow(RuntimeException::class, 'local environment only');
+    expect(User::query()->exists())->toBeFalse()
+        ->and(Organization::query()->exists())->toBeFalse();
+})->with(['testing', 'production']);

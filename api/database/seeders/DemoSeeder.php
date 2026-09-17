@@ -10,11 +10,16 @@ use App\Alerting\Settings\AlertingSettings;
 use App\Alerting\Values\WebhookUrl;
 use App\Monitoring\Models\Monitor;
 use App\Monitoring\Settings\MonitoringSettings;
+use App\Organizations\Contracts\Role;
+use App\Organizations\Models\Membership;
 use App\Organizations\Models\Organization;
+use App\Organizations\Models\User;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use JsonException;
+use RuntimeException;
 
 final class DemoSeeder extends Seeder
 {
@@ -24,15 +29,30 @@ final class DemoSeeder extends Seeder
 
     public const string EMAIL_RECIPIENT = 'demo@uply.test';
 
+    public const string OWNER_EMAIL = 'demo@uply.test';
+
+    public const string VIEWER_EMAIL = 'viewer@uply.test';
+
+    public const string LOCAL_PASSWORD = 'password';
+
+    private const string LOCAL_ENVIRONMENT = 'local';
+
     private const array CHANNEL_NAMES = [
         'email' => 'Demo mail',
         'discord' => 'Demo Discord',
         'slack' => 'Demo Slack',
     ];
 
-    public function run(MonitoringSettings $monitoring, AlertingSettings $alerting): void
+    public function run(Application $app, MonitoringSettings $monitoring, AlertingSettings $alerting): void
     {
+        if (! $app->environment(self::LOCAL_ENVIRONMENT)) {
+            throw new RuntimeException('the demo seeder runs in the local environment only');
+        }
+
         $organization = Organization::query()->firstOrCreate(['slug' => self::ORGANIZATION_SLUG], ['name' => 'Demo']);
+        $this->member($organization, self::OWNER_EMAIL, 'Demo Owner', Role::Owner);
+        $this->member($organization, self::VIEWER_EMAIL, 'Demo Viewer', Role::Viewer);
+        $this->report('demo_users=ready');
 
         $monitor = Monitor::query()->updateOrCreate(
             ['organization_id' => $organization->id, 'url' => self::TARGET_URL],
@@ -55,6 +75,16 @@ final class DemoSeeder extends Seeder
         foreach ([ChannelType::Discord, ChannelType::Slack] as $type) {
             $this->report($this->seedWebhookChannel($organization, $monitor, $type, $webhooks, $alerting));
         }
+    }
+
+    private function member(Organization $organization, string $email, string $name, Role $role): void
+    {
+        $user = User::query()->firstOrNew(['email' => $email]);
+        $user->forceFill(['name' => $name, 'password' => self::LOCAL_PASSWORD, 'email_verified_at' => now()])->save();
+        Membership::query()->updateOrCreate(
+            ['organization_id' => $organization->id, 'user_id' => $user->id],
+            ['role' => $role],
+        );
     }
 
     private function seedWebhookChannel(Organization $organization, Monitor $monitor, ChannelType $type, ?array $webhooks, AlertingSettings $alerting): string
