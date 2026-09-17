@@ -24,6 +24,7 @@ it('parses the shipped alerting file', function (): void {
         ->and($settings->webhooks->slack->hosts)->toBe(['hooks.slack.com'])
         ->and($settings->email->minRecipients)->toBe(1)
         ->and($settings->email->maxRecipients)->toBe(10)
+        ->and($settings->channels->nameMaxLength)->toBe(80)
         ->and($settings->presentation->frontendUrl)->toBe('http://localhost:5173')
         ->and($settings->presentation->colorFor(DeliveryKind::Down))->toBe('#f23b39')
         ->and($settings->presentation->colorFor(DeliveryKind::Up))->toBe('#34b591')
@@ -60,6 +61,7 @@ it('rejects an invalid alerting setting with its file and key', function (string
     'slack pattern blank' => ['webhooks.slack.path_pattern', ''],
     'no recipient' => ['email.min_recipients', 0],
     'max below min' => ['email.max_recipients', 0],
+    'channel name length zero' => ['channels.name_max_length', 0],
     'frontend not a url' => ['presentation.frontend_url', 'localhost'],
     'frontend not http' => ['presentation.frontend_url', 'ftp://localhost'],
     'down color' => ['presentation.colors.down', 'red'],

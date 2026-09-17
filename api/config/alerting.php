@@ -21,6 +21,9 @@ return [
             'path_pattern' => '~^/services/[A-Za-z0-9_-]+(/[A-Za-z0-9_-]+)*$~',
         ],
     ],
+    'channels' => [
+        'name_max_length' => 80,
+    ],
     'email' => [
         'min_recipients' => 1,
         'max_recipients' => 10,

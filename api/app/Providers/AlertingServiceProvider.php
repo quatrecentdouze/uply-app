@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Alerting\Console\SendTestAlertCommand;
+use App\Alerting\Http\AlertingMetaSection;
 use App\Alerting\Jobs\SendAlertJob;
 use App\Alerting\Listeners\QueueDownAlerts;
 use App\Alerting\Listeners\QueueUpAlerts;
@@ -12,6 +13,7 @@ use App\Alerting\Settings\AlertingSettings;
 use App\Alerting\Settings\AlertingSettingsParser;
 use App\Incidents\Events\IncidentOpenedEvent;
 use App\Incidents\Events\IncidentResolvedEvent;
+use App\Shared\Meta\MetaSection;
 use App\Shared\Settings\InvalidSettingException;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Event;
@@ -32,6 +34,7 @@ final class AlertingServiceProvider extends ServiceProvider
 
             return (new AlertingSettingsParser)->parse(self::SETTINGS_SOURCE, $values);
         });
+        $this->app->tag(AlertingMetaSection::class, MetaSection::TAG);
     }
 
     public function boot(): void

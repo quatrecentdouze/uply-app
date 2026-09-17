@@ -10,6 +10,7 @@ final readonly class AlertingSettings
         public DeliverySettings $delivery,
         public WebhookSettings $webhooks,
         public EmailSettings $email,
+        public ChannelLimits $channels,
         public PresentationSettings $presentation,
         public ?string $demoChannelsFile,
     ) {}
