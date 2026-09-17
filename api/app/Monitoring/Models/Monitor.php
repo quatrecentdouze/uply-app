@@ -55,7 +55,7 @@ final class Monitor extends Model
         );
     }
 
-    public function applyCheck(MonitorStateSnapshot $snapshot, CarbonImmutable $checkedAt, CarbonImmutable $nextCheckAt): void
+    public function applyCheck(MonitorStateSnapshot $snapshot, CarbonImmutable $checkedAt, ?int $responseMs, CarbonImmutable $nextCheckAt): void
     {
         $this->state = $snapshot->state;
         $this->consecutive_failures = $snapshot->consecutiveFailures;
@@ -63,6 +63,7 @@ final class Monitor extends Model
         $this->streak_started_at = $snapshot->streakStartedAt;
         $this->state_changed_at = $snapshot->stateChangedAt;
         $this->last_checked_at = $checkedAt;
+        $this->last_response_ms = $responseMs;
         $this->next_check_at = $nextCheckAt;
     }
 

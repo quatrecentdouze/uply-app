@@ -134,6 +134,18 @@ it('records a blocked target without sending anything', function (): void {
         ->and($result->error_message)->toContain('10.0.0.8');
 });
 
+it('keeps the response time of the last check on the monitor', function (): void {
+    Http::fake(['api.example.com/*' => Http::response('ok', 200)]);
+
+    runDispatchAt($this->clock, '12:00:00');
+    $answered = $this->monitor->fresh()?->last_response_ms;
+    $this->monitor->update(['url' => 'https://internal.example.com/admin']);
+    runDispatchAt($this->clock, '12:00:20');
+
+    expect($answered)->toBeInt()->toBeGreaterThanOrEqual(0)
+        ->and($this->monitor->fresh()?->last_response_ms)->toBeNull();
+});
+
 it('jumps over the slots missed while the workers were stopped', function (): void {
     Http::fake(['api.example.com/*' => Http::response('ok', 200)]);
     $this->monitor->forceFill(['state' => MonitorState::Up, 'next_check_at' => $this->clock->now()->subHour()])->save();

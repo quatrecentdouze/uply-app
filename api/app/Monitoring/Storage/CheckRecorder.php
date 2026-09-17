@@ -40,7 +40,7 @@ final readonly class CheckRecorder
 
             $this->insertResult($check);
             $this->addToHourlyStats($check);
-            $monitor->applyCheck($advance->snapshot, $check->checkedAt, $nextCheckAt);
+            $monitor->applyCheck($advance->snapshot, $check->checkedAt, $check->result->responseMs(), $nextCheckAt);
             $monitor->save();
             $this->announce($monitor, $check, $advance);
 
