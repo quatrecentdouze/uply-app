@@ -8,6 +8,8 @@ use App\Monitoring\Console\DispatchChecksCommand;
 use App\Monitoring\Console\MaintainCheckStorageCommand;
 use App\Monitoring\Contracts\MonitorDirectory;
 use App\Monitoring\Http\MonitoringMetaSection;
+use App\Monitoring\Models\Monitor;
+use App\Monitoring\Policies\MonitorPolicy;
 use App\Monitoring\Probe\DnsTargetGuard;
 use App\Monitoring\Probe\HostResolver;
 use App\Monitoring\Probe\HttpProbe;
@@ -20,6 +22,7 @@ use App\Monitoring\Settings\ProbeSettings;
 use App\Monitoring\Storage\DatabaseMonitorDirectory;
 use App\Shared\Meta\MetaSection;
 use App\Shared\Settings\InvalidSettingException;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 final class MonitoringServiceProvider extends ServiceProvider
@@ -49,6 +52,8 @@ final class MonitoringServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Gate::policy(Monitor::class, MonitorPolicy::class);
+
         $this->commands([
             DispatchChecksCommand::class,
             MaintainCheckStorageCommand::class,

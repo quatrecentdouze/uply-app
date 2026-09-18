@@ -42,6 +42,11 @@ final readonly class AcceptedStatusCodes
         return false;
     }
 
+    public function ranges(): array
+    {
+        return $this->ranges;
+    }
+
     public function toTexts(): array
     {
         return array_map(static fn (StatusCodeRange $range): string => $range->toText(), $this->ranges);

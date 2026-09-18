@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Monitoring\Http\Controllers\MonitorController;
+use App\Monitoring\Models\Monitor;
 use App\Organizations\Http\Controllers\InvitationController;
 use App\Organizations\Http\Controllers\InvitationTokenController;
 use App\Organizations\Http\Controllers\MeController;
@@ -63,6 +65,15 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::delete('organizations/{organization}/invitations/{invitation}', [InvitationController::class, 'destroy'])
                 ->can('delete', 'invitation')
                 ->name('invitations.destroy');
+        });
+
+        Route::whereUlid(['organization', 'monitor'])->group(function (): void {
+            Route::get('organizations/{organization}/monitors', [MonitorController::class, 'index'])
+                ->can('view', [Monitor::class, 'organization'])
+                ->name('monitors.index');
+            Route::get('organizations/{organization}/monitors/{monitor}', [MonitorController::class, 'show'])
+                ->can('view', [Monitor::class, 'organization'])
+                ->name('monitors.show');
         });
     });
 });

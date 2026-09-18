@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Monitoring\Rules\UptimeRules;
+use Carbon\CarbonImmutable;
 
 it('gives the share of successful checks rounded down to a hundredth', function (int $up, int $total, float $percent): void {
     expect(UptimeRules::percent($up, $total))->toBe($percent);
@@ -30,3 +31,9 @@ it('averages response times to the millisecond', function (int $sum, int $count,
     [301, 2, 151],
     [0, 0, null],
 ]);
+
+it('starts the rolling day 24 hours before now in utc', function (): void {
+    $start = UptimeRules::rollingDayStart(CarbonImmutable::parse('2027-03-10 12:00:00+02:00'));
+
+    expect($start->toIso8601ZuluString())->toBe('2027-03-09T10:00:00Z');
+});

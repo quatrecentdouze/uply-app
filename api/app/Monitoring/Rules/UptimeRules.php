@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Monitoring\Rules;
 
+use Carbon\CarbonImmutable;
+
 final class UptimeRules
 {
     private const int HUNDREDTHS_OF_PERCENT = 10000;
@@ -17,6 +19,11 @@ final class UptimeRules
         }
 
         return intdiv(min($checksUp, $checksTotal) * self::HUNDREDTHS_OF_PERCENT, $checksTotal) / self::HUNDREDTHS;
+    }
+
+    public static function rollingDayStart(CarbonImmutable $now): CarbonImmutable
+    {
+        return $now->utc()->subDay();
     }
 
     public static function averageMs(int $sum, int $count): ?int
