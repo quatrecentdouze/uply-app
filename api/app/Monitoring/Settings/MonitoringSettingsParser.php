@@ -27,6 +27,7 @@ final class MonitoringSettingsParser
                 maxMonitorsPerOrganization: $reader->integer('limits.max_monitors_per_organization', 1),
                 nameMaxLength: $reader->integer('limits.name_max_length', 1),
                 urlMaxLength: $reader->integer('limits.url_max_length', 1),
+                maxAcceptedStatusRanges: $reader->integer('limits.max_accepted_status_ranges', 1),
             ),
         );
     }

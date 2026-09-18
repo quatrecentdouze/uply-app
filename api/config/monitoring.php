@@ -33,6 +33,7 @@ return [
         'max_monitors_per_organization' => 100,
         'name_max_length' => 100,
         'url_max_length' => 2048,
+        'max_accepted_status_ranges' => 20,
     ],
     'retention' => [
         'raw_results_days' => 30,

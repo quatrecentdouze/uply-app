@@ -40,6 +40,7 @@ final readonly class MonitoringMetaSection implements MetaSection
             'windows' => array_map(fn (StatsWindow $window): string => $window->value, StatsWindow::cases()),
             'limits' => [
                 'max_monitors_per_organization' => $this->settings->limits->maxMonitorsPerOrganization,
+                'max_accepted_status_ranges' => $this->settings->limits->maxAcceptedStatusRanges,
             ],
             'lengths' => [
                 'monitor_name' => ['min' => self::MONITOR_NAME_MIN_LENGTH, 'max' => $this->settings->limits->nameMaxLength],

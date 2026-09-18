@@ -12,7 +12,7 @@ it('gives what the monitor forms need', function (): void {
             'default_method' => 'get',
             'default_accepted_status_codes' => ['200-299'],
             'windows' => ['24h', '7d', '30d'],
-            'limits' => ['max_monitors_per_organization' => 100],
+            'limits' => ['max_monitors_per_organization' => 100, 'max_accepted_status_ranges' => 20],
             'lengths' => ['monitor_name' => ['min' => 1, 'max' => 100], 'url' => ['max' => 2048]],
         ]);
 });
