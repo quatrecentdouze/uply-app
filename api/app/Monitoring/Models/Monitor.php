@@ -7,6 +7,7 @@ namespace App\Monitoring\Models;
 use App\Monitoring\Enums\HttpMethod;
 use App\Monitoring\Enums\MonitorState;
 use App\Monitoring\Values\AcceptedStatusCodes;
+use App\Monitoring\Values\CheckDefinition;
 use App\Monitoring\Values\MonitorDraft;
 use App\Monitoring\Values\MonitorStateSnapshot;
 use App\Monitoring\Values\ProbeRequest;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use LogicException;
 
 #[Fillable([
     'organization_id',
@@ -54,6 +56,43 @@ final class Monitor extends Model
             $this->streak_started_at,
             $this->state_changed_at,
         );
+    }
+
+    public function draft(): MonitorDraft
+    {
+        return new MonitorDraft(
+            $this->name,
+            $this->url,
+            $this->method,
+            $this->interval_seconds,
+            $this->timeout_seconds,
+            $this->acceptedStatusCodes(),
+            $this->follow_redirects,
+        );
+    }
+
+    public function checkDefinition(): CheckDefinition
+    {
+        return new CheckDefinition(
+            $this->url,
+            $this->method,
+            $this->acceptedStatusCodes(),
+            $this->follow_redirects,
+            $this->interval_seconds,
+            $this->is_paused,
+        );
+    }
+
+    public function nextCheckAt(): CarbonImmutable
+    {
+        return $this->next_check_at ?? throw new LogicException("monitor {$this->id} has no next check time");
+    }
+
+    public function clearStreak(): void
+    {
+        $this->consecutive_failures = 0;
+        $this->consecutive_successes = 0;
+        $this->streak_started_at = null;
     }
 
     public function fillFrom(MonitorDraft $draft): void

@@ -77,6 +77,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::get('organizations/{organization}/monitors/{monitor}', [MonitorController::class, 'show'])
                 ->can('view', [Monitor::class, 'organization'])
                 ->name('monitors.show');
+            Route::patch('organizations/{organization}/monitors/{monitor}', [MonitorController::class, 'update'])
+                ->can('manage', [Monitor::class, 'organization'])
+                ->name('monitors.update');
         });
     });
 });

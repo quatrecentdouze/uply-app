@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Monitoring\Http\Controllers;
 
 use App\Monitoring\Actions\CreateMonitor;
+use App\Monitoring\Actions\UpdateMonitor;
 use App\Monitoring\Http\Requests\MonitorListRequest;
 use App\Monitoring\Http\Requests\StoreMonitorRequest;
+use App\Monitoring\Http\Requests\UpdateMonitorRequest;
 use App\Monitoring\Http\Resources\MonitorResource;
 use App\Monitoring\Models\Monitor;
 use App\Monitoring\Settings\MonitoringSettings;
@@ -44,6 +46,13 @@ final readonly class MonitorController
     public function show(string $organization, string $monitor): MonitorResource
     {
         return $this->resource($this->monitors->get($organization, $monitor));
+    }
+
+    public function update(UpdateMonitorRequest $request, UpdateMonitor $updateMonitor, string $organization, string $monitor): MonitorResource
+    {
+        $current = $this->monitors->get($organization, $monitor);
+
+        return $this->resource($updateMonitor($current, $request->draftOver($current->draft()), $request->paused()));
     }
 
     private function resource(Monitor $monitor): MonitorResource

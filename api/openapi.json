@@ -1383,6 +1383,68 @@
                         "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
+            },
+            "patch": {
+                "operationId": "monitors.update",
+                "tags": [
+                    "Monitor"
+                ],
+                "parameters": [
+                    {
+                        "name": "organization",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "monitor",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateMonitorRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`MonitorResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/MonitorResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
             }
         },
         "/v1/auth/reset-password": {
@@ -2751,6 +2813,56 @@
                     }
                 },
                 "title": "UpdateMeRequest"
+            },
+            "UpdateMonitorRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                    },
+                    "url": {
+                        "type": "string",
+                        "maxLength": 2048
+                    },
+                    "method": {
+                        "$ref": "#/components/schemas/HttpMethod"
+                    },
+                    "interval_seconds": {
+                        "type": "integer",
+                        "enum": [
+                            "30",
+                            "60",
+                            "120",
+                            "300",
+                            "600",
+                            "900",
+                            "1800",
+                            "3600"
+                        ]
+                    },
+                    "timeout_seconds": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 30
+                    },
+                    "accepted_status_codes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "minItems": 1,
+                        "maxItems": 20
+                    },
+                    "follow_redirects": {
+                        "type": "boolean"
+                    },
+                    "is_paused": {
+                        "type": "boolean"
+                    }
+                },
+                "title": "UpdateMonitorRequest"
             },
             "UpdatePasswordRequest": {
                 "type": "object",
