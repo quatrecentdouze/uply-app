@@ -11,8 +11,11 @@ use App\Monitoring\Jobs\RunCheckJob;
 use App\Monitoring\Models\Monitor;
 use App\Monitoring\Probe\HostResolver;
 use App\Monitoring\Storage\CheckStorageMaintenance;
+use App\Organizations\Contracts\Role;
+use App\Organizations\Models\Organization;
 use App\Realtime\Broadcasts\IncidentOpenedBroadcast;
 use App\Realtime\Broadcasts\IncidentResolvedBroadcast;
+use App\Realtime\Broadcasts\MonitorChangedBroadcast;
 use App\Realtime\Broadcasts\MonitorCheckedBroadcast;
 use App\Realtime\Broadcasts\MonitorStateChangedBroadcast;
 use Carbon\CarbonImmutable;
@@ -22,6 +25,7 @@ use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
+use Tests\Support\Members;
 use Tests\Support\StaticHostResolver;
 
 function checkCompleted(MonitorState $state, MonitorState $previous): CheckCompletedEvent
@@ -45,6 +49,11 @@ it('names each broadcast, its payload, its private organization channel and its 
         new MonitorStateChangedBroadcast('01organization', '01monitor', 'up', '2027-03-10T12:00:20Z'),
         'monitor.state-changed',
         ['monitor_id' => '01monitor', 'state' => 'up', 'changed_at' => '2027-03-10T12:00:20Z'],
+    ],
+    'monitor changed' => [
+        new MonitorChangedBroadcast('01organization', '01monitor', 'updated'),
+        'monitor.changed',
+        ['monitor_id' => '01monitor', 'change' => 'updated'],
     ],
     'incident opened' => [
         new IncidentOpenedBroadcast('01organization', '01incident', '01monitor', '2027-03-10T12:01:20Z'),
@@ -98,4 +107,26 @@ it('queues the broadcasts of a real check on the realtime queue', function (): v
         && $job->event->organizationId === $monitor->organization_id
         && $job->event->state === 'pending');
     Queue::assertNotPushed(BroadcastEvent::class, fn (BroadcastEvent $job): bool => $job->event instanceof MonitorStateChangedBroadcast);
+});
+
+it('queues monitor.changed for each create, update and delete of a monitor', function (): void {
+    freezeClock('2027-03-10 12:00:00');
+    $organization = Organization::factory()->create();
+    $this->actingAs(Members::seat($organization, Role::Member));
+    Queue::fake([BroadcastEvent::class]);
+    $monitorsUrl = "/api/v1/organizations/{$organization->id}/monitors";
+
+    $monitorId = $this->postJson($monitorsUrl, ['name' => 'API', 'url' => 'https://api.example.com/health'])->assertCreated()->json('data.id');
+    $this->patchJson("{$monitorsUrl}/{$monitorId}", ['is_paused' => true])->assertOk();
+    $this->deleteJson("{$monitorsUrl}/{$monitorId}")->assertNoContent();
+
+    $changes = [];
+    Queue::assertPushedOn('realtime', BroadcastEvent::class, function (BroadcastEvent $job) use (&$changes, $monitorId, $organization): bool {
+        if ($job->event instanceof MonitorChangedBroadcast && $job->event->monitorId === $monitorId && $job->event->organizationId === $organization->id) {
+            $changes[] = $job->event->change;
+        }
+
+        return true;
+    });
+    expect($changes)->toBe(['created', 'updated', 'deleted']);
 });
