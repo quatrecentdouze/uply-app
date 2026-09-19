@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Monitoring\Http\Controllers;
 
 use App\Monitoring\Actions\CreateMonitor;
+use App\Monitoring\Actions\DeleteMonitor;
 use App\Monitoring\Actions\UpdateMonitor;
 use App\Monitoring\Http\Requests\MonitorListRequest;
 use App\Monitoring\Http\Requests\StoreMonitorRequest;
@@ -53,6 +54,13 @@ final readonly class MonitorController
         $current = $this->monitors->get($organization, $monitor);
 
         return $this->resource($updateMonitor($current, $request->draftOver($current->draft()), $request->paused()));
+    }
+
+    public function destroy(DeleteMonitor $deleteMonitor, string $organization, string $monitor): Response
+    {
+        $deleteMonitor($this->monitors->get($organization, $monitor));
+
+        return new Response(status: Response::HTTP_NO_CONTENT);
     }
 
     private function resource(Monitor $monitor): MonitorResource

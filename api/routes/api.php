@@ -80,6 +80,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::patch('organizations/{organization}/monitors/{monitor}', [MonitorController::class, 'update'])
                 ->can('manage', [Monitor::class, 'organization'])
                 ->name('monitors.update');
+            Route::delete('organizations/{organization}/monitors/{monitor}', [MonitorController::class, 'destroy'])
+                ->can('manage', [Monitor::class, 'organization'])
+                ->name('monitors.destroy');
         });
     });
 });
