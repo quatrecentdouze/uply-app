@@ -7,6 +7,7 @@ namespace App\Monitoring\Models;
 use App\Monitoring\Enums\HttpMethod;
 use App\Monitoring\Enums\MonitorState;
 use App\Monitoring\Values\AcceptedStatusCodes;
+use App\Monitoring\Values\MonitorDraft;
 use App\Monitoring\Values\MonitorStateSnapshot;
 use App\Monitoring\Values\ProbeRequest;
 use Carbon\CarbonImmutable;
@@ -53,6 +54,17 @@ final class Monitor extends Model
             $this->streak_started_at,
             $this->state_changed_at,
         );
+    }
+
+    public function fillFrom(MonitorDraft $draft): void
+    {
+        $this->name = $draft->name;
+        $this->url = $draft->url;
+        $this->method = $draft->method;
+        $this->interval_seconds = $draft->intervalSeconds;
+        $this->timeout_seconds = $draft->timeoutSeconds;
+        $this->setAttribute('accepted_status_codes', $draft->acceptedStatusCodes->toTexts());
+        $this->follow_redirects = $draft->followRedirects;
     }
 
     public function applyCheck(MonitorStateSnapshot $snapshot, CarbonImmutable $checkedAt, ?int $responseMs, CarbonImmutable $nextCheckAt): void

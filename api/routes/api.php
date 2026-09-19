@@ -71,6 +71,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::get('organizations/{organization}/monitors', [MonitorController::class, 'index'])
                 ->can('view', [Monitor::class, 'organization'])
                 ->name('monitors.index');
+            Route::post('organizations/{organization}/monitors', [MonitorController::class, 'store'])
+                ->can('manage', [Monitor::class, 'organization'])
+                ->name('monitors.store');
             Route::get('organizations/{organization}/monitors/{monitor}', [MonitorController::class, 'show'])
                 ->can('view', [Monitor::class, 'organization'])
                 ->name('monitors.show');

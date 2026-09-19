@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace App\Monitoring\Http\Controllers;
 
+use App\Monitoring\Actions\CreateMonitor;
 use App\Monitoring\Http\Requests\MonitorListRequest;
+use App\Monitoring\Http\Requests\StoreMonitorRequest;
 use App\Monitoring\Http\Resources\MonitorResource;
 use App\Monitoring\Models\Monitor;
+use App\Monitoring\Settings\MonitoringSettings;
 use App\Monitoring\Storage\MonitorQuery;
 use App\Monitoring\Storage\RecentUptimeQuery;
 use App\Shared\Settings\PaginationSettings;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 final readonly class MonitorController
 {
@@ -27,6 +32,13 @@ final readonly class MonitorController
         return MonitorResource::collection($page->through(
             fn (mixed $monitor): mixed => $monitor instanceof Monitor ? new MonitorResource($monitor, $uptimes) : $monitor,
         ));
+    }
+
+    public function store(StoreMonitorRequest $request, MonitoringSettings $settings, CreateMonitor $createMonitor, string $organization): JsonResponse
+    {
+        $monitor = $createMonitor($organization, $request->draft($settings));
+
+        return $this->resource($monitor)->response()->setStatusCode(Response::HTTP_CREATED);
     }
 
     public function show(string $organization, string $monitor): MonitorResource

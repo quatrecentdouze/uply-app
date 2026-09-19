@@ -1276,6 +1276,61 @@
                         "$ref": "#/components/responses/ValidationException"
                     }
                 }
+            },
+            "post": {
+                "operationId": "monitors.store",
+                "tags": [
+                    "Monitor"
+                ],
+                "parameters": [
+                    {
+                        "name": "organization",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreMonitorRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "`MonitorResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/MonitorResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
             }
         },
         "/v1/organizations/{organization}/monitors/{monitor}": {
@@ -2114,6 +2169,14 @@
                 ],
                 "title": "ChangeRoleRequest"
             },
+            "HttpMethod": {
+                "type": "string",
+                "enum": [
+                    "get",
+                    "head"
+                ],
+                "title": "HttpMethod"
+            },
             "InvitationResource": {
                 "type": "object",
                 "properties": {
@@ -2597,6 +2660,57 @@
                     "email"
                 ],
                 "title": "SendPasswordResetLinkRequest"
+            },
+            "StoreMonitorRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                    },
+                    "url": {
+                        "type": "string",
+                        "maxLength": 2048
+                    },
+                    "method": {
+                        "$ref": "#/components/schemas/HttpMethod"
+                    },
+                    "interval_seconds": {
+                        "type": "integer",
+                        "enum": [
+                            "30",
+                            "60",
+                            "120",
+                            "300",
+                            "600",
+                            "900",
+                            "1800",
+                            "3600"
+                        ]
+                    },
+                    "timeout_seconds": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 30
+                    },
+                    "accepted_status_codes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "minItems": 1,
+                        "maxItems": 20
+                    },
+                    "follow_redirects": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "name",
+                    "url"
+                ],
+                "title": "StoreMonitorRequest"
             },
             "TwoFactorLoginRequest": {
                 "type": "object",

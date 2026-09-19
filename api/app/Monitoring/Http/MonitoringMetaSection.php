@@ -6,15 +6,12 @@ namespace App\Monitoring\Http;
 
 use App\Monitoring\Enums\HttpMethod;
 use App\Monitoring\Enums\StatsWindow;
+use App\Monitoring\Http\Requests\MonitorFieldRules;
 use App\Monitoring\Settings\MonitoringSettings;
 use App\Shared\Meta\MetaSection;
 
 final readonly class MonitoringMetaSection implements MetaSection
 {
-    private const int MIN_TIMEOUT_SECONDS = 1;
-
-    private const int MONITOR_NAME_MIN_LENGTH = 1;
-
     public function __construct(private MonitoringSettings $settings) {}
 
     public function key(): string
@@ -30,7 +27,7 @@ final readonly class MonitoringMetaSection implements MetaSection
                 'default_seconds' => $this->settings->intervals->defaultSeconds,
             ],
             'timeouts' => [
-                'min_seconds' => self::MIN_TIMEOUT_SECONDS,
+                'min_seconds' => MonitorFieldRules::MIN_TIMEOUT_SECONDS,
                 'max_seconds' => $this->settings->probe->maxTimeoutSeconds,
                 'default_seconds' => $this->settings->probe->defaultTimeoutSeconds,
             ],
@@ -43,7 +40,7 @@ final readonly class MonitoringMetaSection implements MetaSection
                 'max_accepted_status_ranges' => $this->settings->limits->maxAcceptedStatusRanges,
             ],
             'lengths' => [
-                'monitor_name' => ['min' => self::MONITOR_NAME_MIN_LENGTH, 'max' => $this->settings->limits->nameMaxLength],
+                'monitor_name' => ['min' => MonitorFieldRules::NAME_MIN_LENGTH, 'max' => $this->settings->limits->nameMaxLength],
                 'url' => ['max' => $this->settings->limits->urlMaxLength],
             ],
         ];

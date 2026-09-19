@@ -12,5 +12,6 @@ return [
             'malformed' => 'The URL is not a valid web address.',
             'blocked_address' => 'The URL points to an address Uply never checks.',
         ],
+        'status_code_range' => 'Each accepted status code must look like 200-299 or 204, between 100 and 599.',
     ],
 ];
