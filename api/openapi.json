@@ -90,6 +90,183 @@
                 }
             }
         },
+        "/v1/organizations/{organization}/monitors/{monitor}/checks": {
+            "get": {
+                "operationId": "monitors.checks.index",
+                "tags": [
+                    "CheckResult"
+                ],
+                "parameters": [
+                    {
+                        "name": "organization",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "monitor",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 512
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated set of `CheckResultResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CheckResultResource"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "first": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "last": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "prev": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "next": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "first",
+                                                "last",
+                                                "prev",
+                                                "next"
+                                            ]
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "path": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "description": "Base path for paginator generated URLs."
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
+                                                },
+                                                "next_cursor": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "description": "The \"cursor\" that points to the next set of items."
+                                                },
+                                                "prev_cursor": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "description": "The \"cursor\" that points to the previous set of items."
+                                                }
+                                            },
+                                            "required": [
+                                                "path",
+                                                "per_page",
+                                                "next_cursor",
+                                                "prev_cursor"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "links",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/v1/auth/user/confirm-password": {
             "post": {
                 "operationId": "password.confirm.store",
@@ -2265,6 +2442,97 @@
                     "role"
                 ],
                 "title": "ChangeRoleRequest"
+            },
+            "CheckResultResource": {
+                "type": "object",
+                "properties": {
+                    "checked_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "outcome": {
+                        "type": "string",
+                        "enum": [
+                            "up",
+                            "down"
+                        ]
+                    },
+                    "failure_kind": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "timeout",
+                            "dns",
+                            "connect",
+                            "tls",
+                            "http_status",
+                            "too_many_redirects",
+                            "blocked_target",
+                            "body_too_large",
+                            "unknown",
+                            null
+                        ]
+                    },
+                    "http_status": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "response_ms": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "dns_ms": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "connect_ms": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "tls_ms": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "ttfb_ms": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "error_message": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "checked_at",
+                    "outcome",
+                    "failure_kind",
+                    "http_status",
+                    "response_ms",
+                    "dns_ms",
+                    "connect_ms",
+                    "tls_ms",
+                    "ttfb_ms",
+                    "error_message"
+                ],
+                "title": "CheckResultResource"
             },
             "HttpMethod": {
                 "type": "string",

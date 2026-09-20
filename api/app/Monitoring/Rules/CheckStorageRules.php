@@ -53,6 +53,11 @@ final class CheckStorageRules
         return new PartitionPlan($daysToCreate, $partitionsToDrop);
     }
 
+    public static function oldestRawResult(CarbonImmutable $now, int $retentionDays): CarbonImmutable
+    {
+        return $now->utc()->startOfDay()->subDays($retentionDays);
+    }
+
     public static function hourlyStatsCutoff(CarbonImmutable $now, int $retentionDays): CarbonImmutable
     {
         return $now->utc()->startOfHour()->subDays($retentionDays);

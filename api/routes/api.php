@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Monitoring\Http\Controllers\CheckResultController;
 use App\Monitoring\Http\Controllers\MonitorController;
 use App\Monitoring\Models\Monitor;
 use App\Organizations\Http\Controllers\InvitationController;
@@ -83,6 +84,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::delete('organizations/{organization}/monitors/{monitor}', [MonitorController::class, 'destroy'])
                 ->can('manage', [Monitor::class, 'organization'])
                 ->name('monitors.destroy');
+            Route::get('organizations/{organization}/monitors/{monitor}/checks', [CheckResultController::class, 'index'])
+                ->can('view', [Monitor::class, 'organization'])
+                ->name('monitors.checks.index');
         });
     });
 });
