@@ -11,5 +11,6 @@ final readonly class MonitorView
         public string $organizationId,
         public string $name,
         public string $url,
+        public MonitorStatus $status,
     ) {}
 }

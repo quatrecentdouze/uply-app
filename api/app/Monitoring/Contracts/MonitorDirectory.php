@@ -7,4 +7,6 @@ namespace App\Monitoring\Contracts;
 interface MonitorDirectory
 {
     public function find(string $monitorId): ?MonitorView;
+
+    public function findMany(array $monitorIds): array;
 }
