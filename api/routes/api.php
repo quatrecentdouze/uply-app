@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Monitoring\Http\Controllers\CheckResultController;
 use App\Monitoring\Http\Controllers\MonitorController;
+use App\Monitoring\Http\Controllers\MonitorStatsController;
 use App\Monitoring\Models\Monitor;
 use App\Organizations\Http\Controllers\InvitationController;
 use App\Organizations\Http\Controllers\InvitationTokenController;
@@ -87,6 +88,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::get('organizations/{organization}/monitors/{monitor}/checks', [CheckResultController::class, 'index'])
                 ->can('view', [Monitor::class, 'organization'])
                 ->name('monitors.checks.index');
+            Route::get('organizations/{organization}/monitors/{monitor}/stats', [MonitorStatsController::class, 'show'])
+                ->can('view', [Monitor::class, 'organization'])
+                ->name('monitors.stats.show');
         });
     });
 });

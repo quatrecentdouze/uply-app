@@ -1659,6 +1659,75 @@
                 }
             }
         },
+        "/v1/organizations/{organization}/monitors/{monitor}/stats": {
+            "get": {
+                "operationId": "monitors.stats.show",
+                "tags": [
+                    "MonitorStats"
+                ],
+                "parameters": [
+                    {
+                        "name": "organization",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "monitor",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "window",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/StatsWindow"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`MonitorStatsResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/MonitorStatsResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/v1/auth/reset-password": {
             "post": {
                 "operationId": "password.update",
@@ -2886,6 +2955,106 @@
                 ],
                 "title": "MonitorResource"
             },
+            "MonitorStatsResource": {
+                "type": "object",
+                "properties": {
+                    "window": {
+                        "type": "string",
+                        "enum": [
+                            "24h",
+                            "7d",
+                            "30d"
+                        ]
+                    },
+                    "uptime_percent": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "checks_total": {
+                        "type": "integer"
+                    },
+                    "response_ms": {
+                        "type": "object",
+                        "properties": {
+                            "avg": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
+                            },
+                            "min": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
+                            },
+                            "max": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "avg",
+                            "min",
+                            "max"
+                        ]
+                    },
+                    "series": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SeriesPointResource"
+                        }
+                    },
+                    "timings": {
+                        "type": "object",
+                        "properties": {
+                            "dns_ms": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
+                            },
+                            "connect_ms": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
+                            },
+                            "tls_ms": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
+                            },
+                            "ttfb_ms": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "dns_ms",
+                            "connect_ms",
+                            "tls_ms",
+                            "ttfb_ms"
+                        ]
+                    }
+                },
+                "required": [
+                    "window",
+                    "uptime_percent",
+                    "checks_total",
+                    "response_ms",
+                    "series",
+                    "timings"
+                ],
+                "title": "MonitorStatsResource"
+            },
             "MonitorStatus": {
                 "type": "string",
                 "enum": [
@@ -3025,6 +3194,44 @@
                     "email"
                 ],
                 "title": "SendPasswordResetLinkRequest"
+            },
+            "SeriesPointResource": {
+                "type": "object",
+                "properties": {
+                    "start": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "uptime_percent": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "avg_response_ms": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "start",
+                    "uptime_percent",
+                    "avg_response_ms"
+                ],
+                "title": "SeriesPointResource"
+            },
+            "StatsWindow": {
+                "type": "string",
+                "enum": [
+                    "24h",
+                    "7d",
+                    "30d"
+                ],
+                "title": "StatsWindow"
             },
             "StoreMonitorRequest": {
                 "type": "object",

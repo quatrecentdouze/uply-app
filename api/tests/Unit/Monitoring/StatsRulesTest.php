@@ -99,3 +99,11 @@ it('has no uptime and no response time without checks', function (): void {
 it('refuses totals that do not add up', function (): void {
     expect(fn () => new CheckTotals(1, 2, 0, 0, null, null))->toThrow(InvalidArgumentException::class);
 });
+
+it('takes the 24 hour headline from the raw results and the longer ones from the hourly stats', function (StatsWindow $window, bool $raw): void {
+    expect(StatsRules::headlineFromRawResults($window))->toBe($raw);
+})->with([
+    [StatsWindow::Day, true],
+    [StatsWindow::Week, false],
+    [StatsWindow::Month, false],
+]);

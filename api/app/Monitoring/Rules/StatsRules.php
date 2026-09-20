@@ -23,6 +23,11 @@ final class StatsRules
         return new BucketPlan($lastStart->subHours($hours * ($window->bucketCount() - 1)), $hours, $window->bucketCount());
     }
 
+    public static function headlineFromRawResults(StatsWindow $window): bool
+    {
+        return $window === StatsWindow::Day;
+    }
+
     public static function series(BucketPlan $plan, array $hours): array
     {
         $buckets = array_fill(0, $plan->count, []);
