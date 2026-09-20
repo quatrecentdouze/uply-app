@@ -6,6 +6,7 @@ namespace App\Monitoring\Storage;
 
 use App\Monitoring\Contracts\MonitorStatus;
 use App\Monitoring\Models\Monitor;
+use App\Monitoring\Values\StatusCounts;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -35,6 +36,30 @@ final class MonitorQuery
         }
 
         return $ids;
+    }
+
+    public function idsIn(string $organizationId): array
+    {
+        return Monitor::query()->where('organization_id', $organizationId)->orderBy('id')->pluck('id')->filter(fn (mixed $id): bool => is_string($id))->values()->all();
+    }
+
+    public function statusCounts(string $organizationId): StatusCounts
+    {
+        $rows = Monitor::query()
+            ->toBase()
+            ->selectRaw('CASE WHEN is_paused THEN ? ELSE state END AS status, count(*) AS monitors', [MonitorStatus::Paused->value])
+            ->where('organization_id', $organizationId)
+            ->groupBy('status')
+            ->get();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            if (is_string($row->status) && is_int($row->monitors)) {
+                $counts[$row->status] = $row->monitors;
+            }
+        }
+
+        return new StatusCounts($counts);
     }
 
     public function get(string $organizationId, string $monitorId): Monitor

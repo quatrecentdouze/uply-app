@@ -2150,6 +2150,67 @@
                 }
             }
         },
+        "/v1/organizations/{organization}/overview": {
+            "get": {
+                "operationId": "overview.show",
+                "tags": [
+                    "Overview"
+                ],
+                "parameters": [
+                    {
+                        "name": "organization",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "window",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/StatsWindow"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`OverviewResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/OverviewResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/v1/auth/forgot-password": {
             "post": {
                 "operationId": "password.email",
@@ -3115,6 +3176,61 @@
                     "created_at"
                 ],
                 "title": "OrganizationResource"
+            },
+            "OverviewResource": {
+                "type": "object",
+                "properties": {
+                    "window": {
+                        "type": "string",
+                        "enum": [
+                            "24h",
+                            "7d",
+                            "30d"
+                        ]
+                    },
+                    "counts": {
+                        "type": "object",
+                        "properties": {
+                            "up": {
+                                "type": "integer"
+                            },
+                            "down": {
+                                "type": "integer"
+                            },
+                            "pending": {
+                                "type": "integer"
+                            },
+                            "paused": {
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "up",
+                            "down",
+                            "pending",
+                            "paused"
+                        ]
+                    },
+                    "uptime_percent": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "series": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SeriesPointResource"
+                        }
+                    }
+                },
+                "required": [
+                    "window",
+                    "counts",
+                    "uptime_percent",
+                    "series"
+                ],
+                "title": "OverviewResource"
             },
             "PublicInvitationResource": {
                 "type": "object",
