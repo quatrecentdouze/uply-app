@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Incidents\Models;
 
+use App\Incidents\Rules\IncidentRules;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -28,6 +29,11 @@ final class Incident extends Model
     public function startedAt(): CarbonImmutable
     {
         return $this->started_at ?? throw new LogicException("incident {$this->id} has no start time");
+    }
+
+    public function durationSeconds(): ?int
+    {
+        return $this->resolved_at === null ? null : IncidentRules::durationSeconds($this->startedAt(), $this->resolved_at);
     }
 
     protected function casts(): array

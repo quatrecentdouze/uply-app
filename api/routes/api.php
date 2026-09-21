@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Incidents\Http\Controllers\IncidentController;
+use App\Incidents\Models\Incident;
 use App\Monitoring\Http\Controllers\CheckResultController;
 use App\Monitoring\Http\Controllers\MonitorController;
 use App\Monitoring\Http\Controllers\MonitorStatsController;
@@ -95,6 +97,12 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::get('organizations/{organization}/overview', [OverviewController::class, 'show'])
                 ->can('view', [Monitor::class, 'organization'])
                 ->name('overview.show');
+        });
+
+        Route::whereUlid(['organization', 'incident'])->group(function (): void {
+            Route::get('organizations/{organization}/incidents', [IncidentController::class, 'index'])
+                ->can('view', [Incident::class, 'organization'])
+                ->name('incidents.index');
         });
     });
 });
