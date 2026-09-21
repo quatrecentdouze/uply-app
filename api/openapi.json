@@ -10,6 +10,249 @@
         }
     ],
     "paths": {
+        "/v1/organizations/{organization}/alert-channels": {
+            "get": {
+                "operationId": "alert-channels.index",
+                "tags": [
+                    "AlertChannel"
+                ],
+                "parameters": [
+                    {
+                        "name": "organization",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated set of `AlertChannelResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/AlertChannelResource"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "first": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "last": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "prev": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "next": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "first",
+                                                "last",
+                                                "prev",
+                                                "next"
+                                            ]
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "minimum": 1
+                                                },
+                                                "from": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ],
+                                                    "minimum": 1
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "minimum": 1
+                                                },
+                                                "links": {
+                                                    "type": "array",
+                                                    "description": "Generated paginator links.",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "url": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "label": {
+                                                                "type": "string"
+                                                            },
+                                                            "active": {
+                                                                "type": "boolean"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "url",
+                                                            "label",
+                                                            "active"
+                                                        ]
+                                                    }
+                                                },
+                                                "path": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "description": "Base path for paginator generated URLs."
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "description": "Number of items shown per page.",
+                                                    "minimum": 0
+                                                },
+                                                "to": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ],
+                                                    "description": "Number of the last item in the slice.",
+                                                    "minimum": 1
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "description": "Total number of items being paginated.",
+                                                    "minimum": 0
+                                                }
+                                            },
+                                            "required": [
+                                                "current_page",
+                                                "from",
+                                                "last_page",
+                                                "links",
+                                                "path",
+                                                "per_page",
+                                                "to",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "links",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/organizations/{organization}/alert-channels/{channel}": {
+            "get": {
+                "operationId": "alert-channels.show",
+                "tags": [
+                    "AlertChannel"
+                ],
+                "parameters": [
+                    {
+                        "name": "organization",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "channel",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`AlertChannelResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/AlertChannelResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/v1/auth/login": {
             "post": {
                 "operationId": "login.store",
@@ -2828,6 +3071,89 @@
     },
     "components": {
         "schemas": {
+            "AlertChannelResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "email",
+                            "discord",
+                            "slack"
+                        ]
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "is_enabled": {
+                        "type": "boolean"
+                    },
+                    "disabled_reason": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "webhook_rejected",
+                            null
+                        ]
+                    },
+                    "recipients": {
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "webhook_hint": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "host": {
+                                "type": "string"
+                            },
+                            "last_four": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "host",
+                            "last_four"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "type",
+                    "name",
+                    "is_enabled",
+                    "disabled_reason",
+                    "recipients",
+                    "webhook_hint",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "AlertChannelResource"
+            },
             "ChangeRoleRequest": {
                 "type": "object",
                 "properties": {

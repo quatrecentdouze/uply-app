@@ -9,6 +9,8 @@ use App\Alerting\Http\AlertingMetaSection;
 use App\Alerting\Jobs\SendAlertJob;
 use App\Alerting\Listeners\QueueDownAlerts;
 use App\Alerting\Listeners\QueueUpAlerts;
+use App\Alerting\Models\AlertChannel;
+use App\Alerting\Policies\AlertChannelPolicy;
 use App\Alerting\Settings\AlertingSettings;
 use App\Alerting\Settings\AlertingSettingsParser;
 use App\Incidents\Events\IncidentOpenedEvent;
@@ -17,6 +19,7 @@ use App\Shared\Meta\MetaSection;
 use App\Shared\Settings\InvalidSettingException;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -39,6 +42,8 @@ final class AlertingServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Gate::policy(AlertChannel::class, AlertChannelPolicy::class);
+
         Event::listen(IncidentOpenedEvent::class, QueueDownAlerts::class);
         Event::listen(IncidentResolvedEvent::class, QueueUpAlerts::class);
 

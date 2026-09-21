@@ -6,7 +6,9 @@ namespace App\Alerting\Models;
 
 use App\Alerting\Enums\ChannelType;
 use App\Alerting\Enums\DisabledReason;
+use App\Alerting\Rules\WebhookHintRules;
 use App\Alerting\Values\EmailRecipients;
+use App\Alerting\Values\WebhookHint;
 use App\Alerting\Values\WebhookPolicy;
 use App\Alerting\Values\WebhookUrl;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -38,6 +40,20 @@ final class AlertChannel extends Model
         $addresses = $this->setting(self::RECIPIENTS_SETTING);
 
         return EmailRecipients::parse(is_array($addresses) ? $addresses : [], $minimum, $maximum);
+    }
+
+    public function webhookHint(): ?WebhookHint
+    {
+        $url = $this->setting(self::WEBHOOK_URL_SETTING);
+
+        return $this->type->usesWebhook() && is_string($url) ? WebhookHintRules::hint($url) : null;
+    }
+
+    public function storedRecipients(): array
+    {
+        $addresses = $this->setting(self::RECIPIENTS_SETTING);
+
+        return is_array($addresses) ? array_values(array_filter($addresses, 'is_string')) : [];
     }
 
     public function disable(DisabledReason $reason): void

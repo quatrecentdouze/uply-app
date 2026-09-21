@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Alerting\Http\Controllers\AlertChannelController;
+use App\Alerting\Models\AlertChannel;
 use App\Incidents\Http\Controllers\IncidentController;
 use App\Incidents\Models\Incident;
 use App\Monitoring\Http\Controllers\CheckResultController;
@@ -106,6 +108,15 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::get('organizations/{organization}/incidents/{incident}', [IncidentController::class, 'show'])
                 ->can('view', [Incident::class, 'organization'])
                 ->name('incidents.show');
+        });
+
+        Route::whereUlid(['organization', 'channel'])->group(function (): void {
+            Route::get('organizations/{organization}/alert-channels', [AlertChannelController::class, 'index'])
+                ->can('view', [AlertChannel::class, 'organization'])
+                ->name('alert-channels.index');
+            Route::get('organizations/{organization}/alert-channels/{channel}', [AlertChannelController::class, 'show'])
+                ->can('view', [AlertChannel::class, 'organization'])
+                ->name('alert-channels.show');
         });
     });
 });
