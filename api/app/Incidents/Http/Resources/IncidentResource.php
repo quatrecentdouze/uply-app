@@ -8,6 +8,7 @@ use App\Incidents\Models\Incident;
 use App\Incidents\Values\MonitorNames;
 use App\Shared\Time\IsoTime;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 final class IncidentResource extends JsonResource
@@ -15,6 +16,7 @@ final class IncidentResource extends JsonResource
     public function __construct(
         private readonly Incident $incident,
         private readonly MonitorNames $names,
+        private readonly bool $withTimeline = false,
     ) {
         parent::__construct($incident);
     }
@@ -35,6 +37,7 @@ final class IncidentResource extends JsonResource
                 'http_status' => $this->incident->cause_http_status,
                 'message' => $this->incident->cause_message,
             ],
+            'timeline' => $this->when($this->withTimeline, fn (): AnonymousResourceCollection => TimelineEventResource::collection($this->incident->timeline)),
         ];
     }
 }

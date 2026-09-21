@@ -103,6 +103,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::get('organizations/{organization}/incidents', [IncidentController::class, 'index'])
                 ->can('view', [Incident::class, 'organization'])
                 ->name('incidents.index');
+            Route::get('organizations/{organization}/incidents/{incident}', [IncidentController::class, 'show'])
+                ->can('view', [Incident::class, 'organization'])
+                ->name('incidents.show');
         });
     });
 });

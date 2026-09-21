@@ -617,6 +617,58 @@
                 }
             }
         },
+        "/v1/organizations/{organization}/incidents/{incident}": {
+            "get": {
+                "operationId": "incidents.show",
+                "tags": [
+                    "Incident"
+                ],
+                "parameters": [
+                    {
+                        "name": "organization",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "incident",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`IncidentResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/IncidentResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/v1/organizations/{organization}/invitations": {
             "get": {
                 "operationId": "invitations.index",
@@ -2956,6 +3008,12 @@
                             "http_status",
                             "message"
                         ]
+                    },
+                    "timeline": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TimelineEventResource"
+                        }
                     }
                 },
                 "required": [
@@ -3703,6 +3761,87 @@
                     "url"
                 ],
                 "title": "StoreMonitorRequest"
+            },
+            "TimelineEventResource": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "type": "string",
+                        "enum": [
+                            "opened",
+                            "resolved",
+                            "alert_sent",
+                            "alert_failed"
+                        ]
+                    },
+                    "occurred_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "failure_kind": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "http_status": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "message": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "duration_seconds": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "channel_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "channel_type": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "alert_kind": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "attempts": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "kind",
+                    "occurred_at",
+                    "failure_kind",
+                    "http_status",
+                    "message",
+                    "duration_seconds",
+                    "channel_id",
+                    "channel_type",
+                    "alert_kind",
+                    "attempts"
+                ],
+                "title": "TimelineEventResource"
             },
             "TwoFactorLoginRequest": {
                 "type": "object",

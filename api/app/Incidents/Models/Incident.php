@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use LogicException;
 
 #[Fillable([
@@ -29,6 +30,11 @@ final class Incident extends Model
     public function startedAt(): CarbonImmutable
     {
         return $this->started_at ?? throw new LogicException("incident {$this->id} has no start time");
+    }
+
+    public function timeline(): HasMany
+    {
+        return $this->hasMany(IncidentEvent::class)->orderBy('occurred_at')->orderBy('id');
     }
 
     public function durationSeconds(): ?int

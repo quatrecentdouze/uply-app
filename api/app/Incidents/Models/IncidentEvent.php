@@ -16,6 +16,27 @@ final class IncidentEvent extends Model
 
     public $timestamps = false;
 
+    public function text(string $key): ?string
+    {
+        $value = $this->detail($key);
+
+        return is_string($value) ? $value : null;
+    }
+
+    public function number(string $key): ?int
+    {
+        $value = $this->detail($key);
+
+        return is_int($value) ? $value : null;
+    }
+
+    private function detail(string $key): mixed
+    {
+        $data = $this->getAttribute('data');
+
+        return is_array($data) ? ($data[$key] ?? null) : null;
+    }
+
     protected function casts(): array
     {
         return [

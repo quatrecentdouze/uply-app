@@ -24,4 +24,11 @@ final readonly class IncidentController
             fn (mixed $incident): mixed => $incident instanceof Incident ? new IncidentResource($incident, $names) : $incident,
         ));
     }
+
+    public function show(string $organization, string $incident): IncidentResource
+    {
+        $found = $this->incidents->get($organization, $incident)->load('timeline');
+
+        return new IncidentResource($found, $this->incidents->monitorNames([$found]), withTimeline: true);
+    }
 }
