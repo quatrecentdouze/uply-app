@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Alerting\Http\Controllers\AlertChannelController;
 use App\Alerting\Http\Controllers\AlertChannelTestController;
+use App\Alerting\Http\Controllers\MonitorChannelController;
 use App\Alerting\Models\AlertChannel;
 use App\Incidents\Http\Controllers\IncidentController;
 use App\Incidents\Models\Incident;
@@ -130,6 +131,15 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::post('organizations/{organization}/alert-channels/{channel}/test', [AlertChannelTestController::class, 'store'])
                 ->can('manage', [AlertChannel::class, 'organization'])
                 ->name('alert-channels.test');
+        });
+
+        Route::whereUlid(['organization', 'monitor'])->group(function (): void {
+            Route::get('organizations/{organization}/monitors/{monitor}/alert-channels', [MonitorChannelController::class, 'index'])
+                ->can('viewLinks', [AlertChannel::class, 'organization'])
+                ->name('monitors.alert-channels.index');
+            Route::put('organizations/{organization}/monitors/{monitor}/alert-channels', [MonitorChannelController::class, 'update'])
+                ->can('manageLinks', [AlertChannel::class, 'organization'])
+                ->name('monitors.alert-channels.update');
         });
     });
 });

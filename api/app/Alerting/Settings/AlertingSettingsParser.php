@@ -25,6 +25,7 @@ final class AlertingSettingsParser
             channels: new ChannelLimits(
                 $reader->integer('channels.name_max_length', 1),
                 $reader->integer('channels.webhook_url_max_length', 1),
+                $reader->integer('channels.max_per_monitor', 1),
             ),
             presentation: $this->presentation($reader),
             demoChannelsFile: $reader->optionalText('demo_channels_file'),

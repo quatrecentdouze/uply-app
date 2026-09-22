@@ -26,6 +26,7 @@ it('parses the shipped alerting file', function (): void {
         ->and($settings->email->maxRecipients)->toBe(10)
         ->and($settings->channels->nameMaxLength)->toBe(80)
         ->and($settings->channels->webhookUrlMaxLength)->toBe(2048)
+        ->and($settings->channels->maxPerMonitor)->toBe(50)
         ->and($settings->presentation->frontendUrl)->toBe('http://localhost:5173')
         ->and($settings->presentation->colorFor(DeliveryKind::Down))->toBe('#f23b39')
         ->and($settings->presentation->colorFor(DeliveryKind::Up))->toBe('#34b591')
@@ -64,6 +65,7 @@ it('rejects an invalid alerting setting with its file and key', function (string
     'max below min' => ['email.max_recipients', 0],
     'channel name length zero' => ['channels.name_max_length', 0],
     'webhook url length zero' => ['channels.webhook_url_max_length', 0],
+    'no channel per monitor' => ['channels.max_per_monitor', 0],
     'frontend not a url' => ['presentation.frontend_url', 'localhost'],
     'frontend not http' => ['presentation.frontend_url', 'ftp://localhost'],
     'down color' => ['presentation.colors.down', 'red'],

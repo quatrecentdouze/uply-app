@@ -27,6 +27,7 @@ final readonly class AlertingMetaSection implements MetaSection
                 'max' => $this->settings->email->maxRecipients,
             ],
             'test_sends_per_minute' => $this->settings->delivery->testSendsPerMinute,
+            'max_channels_per_monitor' => $this->settings->channels->maxPerMonitor,
             'lengths' => [
                 'channel_name' => ['min' => AlertChannelFields::NAME_MIN_LENGTH, 'max' => $this->settings->channels->nameMaxLength],
                 'webhook_url' => ['max' => $this->settings->channels->webhookUrlMaxLength],

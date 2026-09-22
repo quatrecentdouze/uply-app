@@ -9,5 +9,6 @@ final readonly class ChannelLimits
     public function __construct(
         public int $nameMaxLength,
         public int $webhookUrlMaxLength,
+        public int $maxPerMonitor,
     ) {}
 }

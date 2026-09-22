@@ -24,6 +24,7 @@ return [
     'channels' => [
         'name_max_length' => 80,
         'webhook_url_max_length' => 2048,
+        'max_per_monitor' => 50,
     ],
     'email' => [
         'min_recipients' => 1,
