@@ -37,6 +37,13 @@ final readonly class AlertChannelController
         return new AlertChannelResource($this->channels->get($organization, $channel));
     }
 
+    public function destroy(ChannelChanges $changes, string $organization, string $channel): Response
+    {
+        $changes->delete($this->channels->get($organization, $channel));
+
+        return new Response(status: Response::HTTP_NO_CONTENT);
+    }
+
     public function update(UpdateAlertChannelRequest $request, AlertingSettings $settings, ChannelChanges $changes): AlertChannelResource
     {
         return new AlertChannelResource($changes->update($request->channel($this->channels), $request->draft($settings, $this->channels)));
