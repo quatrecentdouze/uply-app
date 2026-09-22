@@ -306,6 +306,68 @@
                         "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
+            },
+            "patch": {
+                "operationId": "alert-channels.update",
+                "tags": [
+                    "AlertChannel"
+                ],
+                "parameters": [
+                    {
+                        "name": "organization",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "channel",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateAlertChannelRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`AlertChannelResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/AlertChannelResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
             }
         },
         "/v1/auth/login": {
@@ -4281,6 +4343,32 @@
                     }
                 },
                 "title": "TwoFactorLoginRequest"
+            },
+            "UpdateAlertChannelRequest": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "is_enabled": {
+                        "type": "boolean"
+                    },
+                    "recipients": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "maxLength": 255
+                        }
+                    },
+                    "webhook_url": {
+                        "type": "string"
+                    }
+                },
+                "title": "UpdateAlertChannelRequest"
             },
             "UpdateMeRequest": {
                 "type": "object",

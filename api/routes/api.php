@@ -120,6 +120,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::get('organizations/{organization}/alert-channels/{channel}', [AlertChannelController::class, 'show'])
                 ->can('view', [AlertChannel::class, 'organization'])
                 ->name('alert-channels.show');
+            Route::patch('organizations/{organization}/alert-channels/{channel}', [AlertChannelController::class, 'update'])
+                ->can('manage', [AlertChannel::class, 'organization'])
+                ->name('alert-channels.update');
         });
     });
 });

@@ -6,6 +6,7 @@ namespace App\Alerting\Http\Controllers;
 
 use App\Alerting\Actions\ChannelChanges;
 use App\Alerting\Http\Requests\StoreAlertChannelRequest;
+use App\Alerting\Http\Requests\UpdateAlertChannelRequest;
 use App\Alerting\Http\Resources\AlertChannelResource;
 use App\Alerting\Settings\AlertingSettings;
 use App\Alerting\Storage\AlertChannelQuery;
@@ -34,5 +35,10 @@ final readonly class AlertChannelController
     public function show(string $organization, string $channel): AlertChannelResource
     {
         return new AlertChannelResource($this->channels->get($organization, $channel));
+    }
+
+    public function update(UpdateAlertChannelRequest $request, AlertingSettings $settings, ChannelChanges $changes): AlertChannelResource
+    {
+        return new AlertChannelResource($changes->update($request->channel($this->channels), $request->draft($settings, $this->channels)));
     }
 }
