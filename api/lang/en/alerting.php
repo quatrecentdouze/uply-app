@@ -39,6 +39,9 @@ return [
         'minutes' => ':count min',
         'seconds' => ':count s',
     ],
+    'errors' => [
+        'test_limit_reached' => 'This channel already got the most test alerts allowed for now. Try again in :seconds s.',
+    ],
     'validation' => [
         'webhook_url' => [
             'discord' => 'The URL must be a Discord webhook URL like https://discord.com/api/webhooks/...',

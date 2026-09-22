@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Alerting\Http\Controllers\AlertChannelController;
+use App\Alerting\Http\Controllers\AlertChannelTestController;
 use App\Alerting\Models\AlertChannel;
 use App\Incidents\Http\Controllers\IncidentController;
 use App\Incidents\Models\Incident;
@@ -126,6 +127,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::delete('organizations/{organization}/alert-channels/{channel}', [AlertChannelController::class, 'destroy'])
                 ->can('manage', [AlertChannel::class, 'organization'])
                 ->name('alert-channels.destroy');
+            Route::post('organizations/{organization}/alert-channels/{channel}/test', [AlertChannelTestController::class, 'store'])
+                ->can('manage', [AlertChannel::class, 'organization'])
+                ->name('alert-channels.test');
         });
     });
 });

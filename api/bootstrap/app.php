@@ -31,7 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(fn (DomainError $domainError): JsonResponse => new JsonResponse([
             'message' => app(Translator::class)->get($domainError->error->messageKey(), $domainError->parameters),
             'code' => $domainError->error->code(),
-        ], $domainError->error->httpStatus()));
+        ], $domainError->error->httpStatus(), $domainError->headers));
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request): bool => $request->expectsJson()
                 || ($request->is('api/*') && ! $request->routeIs('verification.verify')),
