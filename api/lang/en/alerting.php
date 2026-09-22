@@ -39,4 +39,11 @@ return [
         'minutes' => ':count min',
         'seconds' => ':count s',
     ],
+    'validation' => [
+        'webhook_url' => [
+            'discord' => 'The URL must be a Discord webhook URL like https://discord.com/api/webhooks/...',
+            'slack' => 'The URL must be a Slack incoming webhook URL like https://hooks.slack.com/services/...',
+        ],
+        'recipients' => 'Give :min to :max valid email addresses.',
+    ],
 ];

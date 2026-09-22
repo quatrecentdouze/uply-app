@@ -22,7 +22,10 @@ final class AlertingSettingsParser
             delivery: $this->delivery($reader),
             webhooks: $this->webhooks($reader),
             email: $this->email($reader),
-            channels: new ChannelLimits($reader->integer('channels.name_max_length', 1)),
+            channels: new ChannelLimits(
+                $reader->integer('channels.name_max_length', 1),
+                $reader->integer('channels.webhook_url_max_length', 1),
+            ),
             presentation: $this->presentation($reader),
             demoChannelsFile: $reader->optionalText('demo_channels_file'),
         );

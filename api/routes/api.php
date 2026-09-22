@@ -114,6 +114,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::get('organizations/{organization}/alert-channels', [AlertChannelController::class, 'index'])
                 ->can('view', [AlertChannel::class, 'organization'])
                 ->name('alert-channels.index');
+            Route::post('organizations/{organization}/alert-channels', [AlertChannelController::class, 'store'])
+                ->can('manage', [AlertChannel::class, 'organization'])
+                ->name('alert-channels.store');
             Route::get('organizations/{organization}/alert-channels/{channel}', [AlertChannelController::class, 'show'])
                 ->can('view', [AlertChannel::class, 'organization'])
                 ->name('alert-channels.show');

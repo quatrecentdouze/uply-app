@@ -199,6 +199,61 @@
                         "$ref": "#/components/responses/ValidationException"
                     }
                 }
+            },
+            "post": {
+                "operationId": "alert-channels.store",
+                "tags": [
+                    "AlertChannel"
+                ],
+                "parameters": [
+                    {
+                        "name": "organization",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreAlertChannelRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "`AlertChannelResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/AlertChannelResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
             }
         },
         "/v1/organizations/{organization}/alert-channels/{channel}": {
@@ -3166,6 +3221,15 @@
                 ],
                 "title": "ChangeRoleRequest"
             },
+            "ChannelType": {
+                "type": "string",
+                "enum": [
+                    "email",
+                    "discord",
+                    "slack"
+                ],
+                "title": "ChannelType"
+            },
             "CheckResultResource": {
                 "type": "object",
                 "properties": {
@@ -4036,6 +4100,37 @@
                     "30d"
                 ],
                 "title": "StatsWindow"
+            },
+            "StoreAlertChannelRequest": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "$ref": "#/components/schemas/ChannelType"
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                    },
+                    "is_enabled": {
+                        "type": "boolean"
+                    },
+                    "recipients": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "maxLength": 255
+                        }
+                    },
+                    "webhook_url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "type",
+                    "name"
+                ],
+                "title": "StoreAlertChannelRequest"
             },
             "StoreMonitorRequest": {
                 "type": "object",

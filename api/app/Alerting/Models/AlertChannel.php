@@ -7,6 +7,7 @@ namespace App\Alerting\Models;
 use App\Alerting\Enums\ChannelType;
 use App\Alerting\Enums\DisabledReason;
 use App\Alerting\Rules\WebhookHintRules;
+use App\Alerting\Values\ChannelDraft;
 use App\Alerting\Values\EmailRecipients;
 use App\Alerting\Values\WebhookHint;
 use App\Alerting\Values\WebhookPolicy;
@@ -54,6 +55,23 @@ final class AlertChannel extends Model
         $addresses = $this->setting(self::RECIPIENTS_SETTING);
 
         return is_array($addresses) ? array_values(array_filter($addresses, 'is_string')) : [];
+    }
+
+    public function applyDraft(ChannelDraft $draft): void
+    {
+        if ($draft->name !== null) {
+            $this->name = $draft->name;
+        }
+        if ($draft->isEnabled !== null) {
+            $this->is_enabled = $draft->isEnabled;
+            $this->disabled_reason = $draft->isEnabled ? null : $this->disabled_reason;
+        }
+        if ($draft->recipients !== null) {
+            $this->setAttribute('settings', [self::RECIPIENTS_SETTING => $draft->recipients->addresses]);
+        }
+        if ($draft->webhook !== null) {
+            $this->setAttribute('settings', [self::WEBHOOK_URL_SETTING => $draft->webhook->value]);
+        }
     }
 
     public function disable(DisabledReason $reason): void

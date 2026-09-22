@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace App\Alerting\Http\Controllers;
 
+use App\Alerting\Actions\ChannelChanges;
+use App\Alerting\Http\Requests\StoreAlertChannelRequest;
 use App\Alerting\Http\Resources\AlertChannelResource;
+use App\Alerting\Settings\AlertingSettings;
 use App\Alerting\Storage\AlertChannelQuery;
 use App\Shared\Http\PageRequest;
 use App\Shared\Settings\PaginationSettings;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 final readonly class AlertChannelController
 {
@@ -17,6 +22,13 @@ final readonly class AlertChannelController
     public function index(PageRequest $request, PaginationSettings $pagination, string $organization): AnonymousResourceCollection
     {
         return AlertChannelResource::collection($this->channels->page($organization, $request->perPage($pagination)));
+    }
+
+    public function store(StoreAlertChannelRequest $request, AlertingSettings $settings, ChannelChanges $changes, string $organization): JsonResponse
+    {
+        $channel = $changes->create($organization, $request->type(), $request->draft($settings));
+
+        return (new AlertChannelResource($channel))->response()->setStatusCode(Response::HTTP_CREATED);
     }
 
     public function show(string $organization, string $channel): AlertChannelResource

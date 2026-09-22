@@ -9,7 +9,7 @@ it('gives what the alert channel forms need', function (): void {
             'channel_types' => ['email', 'discord', 'slack'],
             'email_recipients' => ['min' => 1, 'max' => 10],
             'test_sends_per_minute' => 5,
-            'lengths' => ['channel_name' => ['min' => 1, 'max' => 80]],
+            'lengths' => ['channel_name' => ['min' => 1, 'max' => 80], 'webhook_url' => ['max' => 2048]],
         ]);
 });
 
