@@ -42,6 +42,12 @@ foreach ($seams as $family => $allowed) {
     }
 }
 
+it('watches every family folder of app', function () use ($seams): void {
+    $folders = array_map('basename', glob(dirname(__DIR__, 2).'/app/*', GLOB_ONLYDIR) ?: []);
+
+    expect(array_values(array_diff($folders, ['Http', 'Providers'])))->toEqualCanonicalizing(array_keys($seams));
+});
+
 arch('only the http probe and the webhook senders know the http client')
     ->expect('App')
     ->not->toUse(['Illuminate\Http\Client', 'GuzzleHttp', 'Psr\Http'])
