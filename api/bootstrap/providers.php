@@ -8,6 +8,7 @@ use App\Providers\MonitoringServiceProvider;
 use App\Providers\OrganizationsServiceProvider;
 use App\Providers\RealtimeServiceProvider;
 use App\Providers\SharedServiceProvider;
+use App\Providers\StatusPagesServiceProvider;
 
 return [
     SharedServiceProvider::class,
@@ -15,5 +16,6 @@ return [
     MonitoringServiceProvider::class,
     IncidentsServiceProvider::class,
     AlertingServiceProvider::class,
+    StatusPagesServiceProvider::class,
     RealtimeServiceProvider::class,
 ];
