@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Monitoring\Console\DispatchChecksCommand;
 use App\Monitoring\Console\MaintainCheckStorageCommand;
 use App\Monitoring\Contracts\MonitorDirectory;
+use App\Monitoring\Contracts\UptimeQuery;
 use App\Monitoring\Http\MonitoringMetaSection;
 use App\Monitoring\Models\Monitor;
 use App\Monitoring\Policies\MonitorPolicy;
@@ -20,6 +21,7 @@ use App\Monitoring\Settings\MonitoringSettings;
 use App\Monitoring\Settings\MonitoringSettingsParser;
 use App\Monitoring\Settings\ProbeSettings;
 use App\Monitoring\Storage\DatabaseMonitorDirectory;
+use App\Monitoring\Storage\DatabaseUptimeQuery;
 use App\Shared\Meta\MetaSection;
 use App\Shared\Settings\InvalidSettingException;
 use Illuminate\Support\Facades\Gate;
@@ -31,6 +33,7 @@ final class MonitoringServiceProvider extends ServiceProvider
 
     public array $bindings = [
         MonitorDirectory::class => DatabaseMonitorDirectory::class,
+        UptimeQuery::class => DatabaseUptimeQuery::class,
         Probe::class => HttpProbe::class,
         TargetGuard::class => DnsTargetGuard::class,
         HostResolver::class => SystemHostResolver::class,

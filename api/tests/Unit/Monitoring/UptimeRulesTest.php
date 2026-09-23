@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Monitoring\Contracts\DailyUptime;
 use App\Monitoring\Rules\UptimeRules;
+use App\Monitoring\Values\CheckTotals;
 use Carbon\CarbonImmutable;
 
 it('gives the share of successful checks rounded down to a hundredth', function (int $up, int $total, float $percent): void {
@@ -36,4 +38,27 @@ it('starts the rolling day 24 hours before now in utc', function (): void {
     $start = UptimeRules::rollingDayStart(CarbonImmutable::parse('2027-03-10 12:00:00+02:00'));
 
     expect($start->toIso8601ZuluString())->toBe('2027-03-09T10:00:00Z');
+});
+
+it('builds a daily history with a null day when nothing was checked', function (): void {
+    $history = UptimeRules::history(CarbonImmutable::parse('2027-03-10 15:00:00', 'UTC'), 3, [
+        '2027-03-08' => new CheckTotals(10, 10, 0, 0, null, null),
+        '2027-03-10' => new CheckTotals(10, 5, 0, 0, null, null),
+        '2027-03-07' => new CheckTotals(100, 0, 0, 0, null, null),
+    ]);
+
+    expect($history->uptimePercent)->toBe(75.0)
+        ->and(array_map(fn (DailyUptime $day): array => [$day->day->toDateString(), $day->uptimePercent], $history->days))->toBe([
+            ['2027-03-08', 100.0],
+            ['2027-03-09', null],
+            ['2027-03-10', 50.0],
+        ]);
+});
+
+it('has no uptime over days without checks', function (): void {
+    $history = UptimeRules::history(CarbonImmutable::parse('2027-03-10', 'UTC'), 90, []);
+
+    expect($history->uptimePercent)->toBeNull()
+        ->and($history->days)->toHaveCount(90)
+        ->and(UptimeRules::firstDay(CarbonImmutable::parse('2027-03-10 23:59:00', 'UTC'), 90)->toDateString())->toBe('2026-12-11');
 });
