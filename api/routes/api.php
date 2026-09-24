@@ -22,6 +22,8 @@ use App\Organizations\Http\Controllers\OrganizationController;
 use App\Organizations\Models\Invitation;
 use App\Organizations\Models\Membership;
 use App\Shared\Http\MetaController;
+use App\StatusPages\Http\Controllers\StatusPageController;
+use App\StatusPages\Models\StatusPage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('meta', MetaController::class)->name('meta');
@@ -140,6 +142,18 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::put('organizations/{organization}/monitors/{monitor}/alert-channels', [MonitorChannelController::class, 'update'])
                 ->can('manageLinks', [AlertChannel::class, 'organization'])
                 ->name('monitors.alert-channels.update');
+        });
+
+        Route::whereUlid(['organization', 'statusPage'])->group(function (): void {
+            Route::get('organizations/{organization}/status-pages', [StatusPageController::class, 'index'])
+                ->can('view', [StatusPage::class, 'organization'])
+                ->name('status-pages.index');
+            Route::post('organizations/{organization}/status-pages', [StatusPageController::class, 'store'])
+                ->can('manage', [StatusPage::class, 'organization'])
+                ->name('status-pages.store');
+            Route::get('organizations/{organization}/status-pages/{statusPage}', [StatusPageController::class, 'show'])
+                ->can('view', [StatusPage::class, 'organization'])
+                ->name('status-pages.show');
         });
     });
 });

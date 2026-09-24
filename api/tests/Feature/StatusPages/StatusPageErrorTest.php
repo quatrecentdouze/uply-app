@@ -9,6 +9,7 @@ it('maps each status page error to its status', function (StatusPageError $error
         ->and($error->code())->toBe($error->value);
 })->with([
     [StatusPageError::StatusPageLimitReached, 409],
+    [StatusPageError::SlugTaken, 409],
 ]);
 
 it('has a text for every status page error and validation message', function (string $key): void {

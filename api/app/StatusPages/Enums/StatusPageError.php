@@ -9,6 +9,7 @@ use App\Shared\Errors\ErrorCode;
 enum StatusPageError: string implements ErrorCode
 {
     case StatusPageLimitReached = 'status_page_limit_reached';
+    case SlugTaken = 'slug_taken';
 
     public function code(): string
     {

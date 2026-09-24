@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Shared\Settings\InvalidSettingException;
+use App\StatusPages\Models\StatusPage;
+use App\StatusPages\Policies\StatusPagePolicy;
 use App\StatusPages\Settings\StatusPagesSettings;
 use App\StatusPages\Settings\StatusPagesSettingsParser;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 final class StatusPagesServiceProvider extends ServiceProvider
@@ -23,5 +26,10 @@ final class StatusPagesServiceProvider extends ServiceProvider
 
             return (new StatusPagesSettingsParser)->parse(self::SETTINGS_SOURCE, $values);
         });
+    }
+
+    public function boot(): void
+    {
+        Gate::policy(StatusPage::class, StatusPagePolicy::class);
     }
 }
