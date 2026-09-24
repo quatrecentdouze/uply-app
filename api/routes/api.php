@@ -154,6 +154,12 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::get('organizations/{organization}/status-pages/{statusPage}', [StatusPageController::class, 'show'])
                 ->can('view', [StatusPage::class, 'organization'])
                 ->name('status-pages.show');
+            Route::patch('organizations/{organization}/status-pages/{statusPage}', [StatusPageController::class, 'update'])
+                ->can('manage', [StatusPage::class, 'organization'])
+                ->name('status-pages.update');
+            Route::delete('organizations/{organization}/status-pages/{statusPage}', [StatusPageController::class, 'destroy'])
+                ->can('manage', [StatusPage::class, 'organization'])
+                ->name('status-pages.destroy');
         });
     });
 });
