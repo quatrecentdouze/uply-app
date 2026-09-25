@@ -24,8 +24,8 @@ It is a portfolio project built like a real multi tenant product.
 | 1 | Monitoring engine (API) | done |
 | 2 | Alerts and real time (API) | done |
 | 3a | Auth, two factor, account, organizations, members, invitations, roles (API) | done |
-| 3b | Product REST API and status pages backend (API) | next |
-| 4 | App shell, dashboard and management screens (Web) | planned |
+| 3b | Product REST API and status pages backend (API) | done |
+| 4 | App shell, dashboard and management screens (Web) | next |
 | 5 | Public status pages and polish (Web) | planned |
 
 ## Check engine
@@ -42,7 +42,7 @@ It is a portfolio project built like a real multi tenant product.
 - Each delivery is a queued job on the `alerts` queue that carries its message, so a retry sends the same text. Discord gets an embed that pings nobody, Slack an attachment with escaped texts and reader time zones, email a Markdown mail.
 - Pure rules read each answer: 2xx is sent, 429 waits the delay the provider asks, 401, 403, 404 and 410 disable the channel, 5xx and transport errors retry 5 times with a growing delay. At most one message per second goes to a webhook, without spending a try.
 - Webhook URLs are stored encrypted and never logged.
-- Reverb broadcasts `monitor.checked`, `monitor.state-changed`, `incident.opened` and `incident.resolved` on the private channel `organization.{id}` through the `realtime` queue.
+- Reverb broadcasts `monitor.checked`, `monitor.state-changed`, `monitor.changed`, `incident.opened` and `incident.resolved` on the private channel `organization.{id}` through the `realtime` queue.
 
 ## Auth and organizations
 
@@ -53,6 +53,19 @@ It is a portfolio project built like a real multi tenant product.
 - Domain errors answer `{"message": "...", "code": "last_owner"}` with a stable code. The API allows 120 requests per minute per user, per address for guests.
 - `POST /api/broadcasting/auth` signs the private channel `organization.{id}` for its members only.
 - `GET /api/v1/meta` gives the forms their limits: intervals, timeouts, methods, roles and abilities, channel types and lengths.
+
+## Product API
+
+- Monitors live under `/api/v1/organizations/{organization}/monitors`, at most 100 per organization. A URL with another scheme or a literal private, reserved or metadata address is refused at once, names are checked by the target guard at each check. Changing the URL, the method, the accepted codes or the redirects checks at once and restarts the confirmation, while the state and an open incident stay until new results confirm. Pause and resume are a `PATCH` of `is_paused`.
+- Raw checks come newest first with a cursor on the check time, inside the 30 day retention.
+- Stats and the organization overview cover `24h`, `7d` and `30d` with 24 hourly, 28 six hour or 30 daily buckets in UTC. The 24 hour uptime comes from the raw results, the longer ones from the hourly stats, and a bucket without checks is `null`. Uptime is rounded down to a hundredth, so one failure never shows 100%.
+- Incidents filter by state and monitor, the detail adds the timeline of the opening, the alerts and the resolution.
+- Alert channels are created per type. A webhook URL goes in and never comes out: the API answers a hint with the host and the last four characters, and a `PATCH` without a URL keeps the old one. A test send answers 202 with its delivery, 429 past 5 per minute.
+
+## Status pages
+
+- An organization keeps up to 10 pages with up to 50 monitors each, in order and with their own display names.
+- `GET /api/v1/public/status-pages/{slug}` needs no session. It gives the overall state, the 90 day uptime and 90 daily bars of each monitor, and the incidents of the last 14 days. It never shows a URL, an error message or a failure kind. Answers are cached 30 seconds and limited to 60 per minute per address.
 
 ## Run the API locally
 
