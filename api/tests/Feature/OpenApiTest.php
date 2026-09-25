@@ -34,4 +34,13 @@ it('documents the fortify routes next to ours', function (string $path): void {
     '/v1/organizations/{organization}/members/{membership}',
     '/v1/invitations/{token}/accept',
     '/v1/meta',
+    '/v1/organizations/{organization}/monitors/{monitor}',
+    '/v1/organizations/{organization}/monitors/{monitor}/checks',
+    '/v1/organizations/{organization}/monitors/{monitor}/stats',
+    '/v1/organizations/{organization}/monitors/{monitor}/alert-channels',
+    '/v1/organizations/{organization}/overview',
+    '/v1/organizations/{organization}/incidents/{incident}',
+    '/v1/organizations/{organization}/alert-channels/{channel}/test',
+    '/v1/organizations/{organization}/status-pages/{statusPage}',
+    '/v1/public/status-pages/{slug}',
 ]);
