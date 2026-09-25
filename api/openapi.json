@@ -3091,6 +3091,47 @@
                 }
             }
         },
+        "/v1/public/status-pages/{slug}": {
+            "get": {
+                "operationId": "status-pages.public.show",
+                "tags": [
+                    "PublicStatusPage"
+                ],
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`PublicStatusPageResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PublicStatusPageResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundHttpException"
+                    }
+                }
+            }
+        },
         "/v1/auth/user/two-factor-recovery-codes": {
             "get": {
                 "operationId": "two-factor.recovery-codes",
@@ -4697,6 +4738,55 @@
                 ],
                 "title": "PageMonitorResource"
             },
+            "PublicBarResource": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "uptime_percent": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "date",
+                    "uptime_percent"
+                ],
+                "title": "PublicBarResource"
+            },
+            "PublicIncidentResource": {
+                "type": "object",
+                "properties": {
+                    "display_name": {
+                        "type": "string"
+                    },
+                    "started_at": {
+                        "type": "string"
+                    },
+                    "resolved_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "duration_seconds": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "display_name",
+                    "started_at",
+                    "resolved_at",
+                    "duration_seconds"
+                ],
+                "title": "PublicIncidentResource"
+            },
             "PublicInvitationResource": {
                 "type": "object",
                 "properties": {
@@ -4752,6 +4842,77 @@
                     "expires_at"
                 ],
                 "title": "PublicInvitationResource"
+            },
+            "PublicMonitorResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "display_name": {
+                        "type": "string"
+                    },
+                    "state": {
+                        "type": "string"
+                    },
+                    "uptime_90d": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "bars": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicBarResource"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "display_name",
+                    "state",
+                    "uptime_90d",
+                    "bars"
+                ],
+                "title": "PublicMonitorResource"
+            },
+            "PublicStatusPageResource": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "overall_state": {
+                        "type": "string"
+                    },
+                    "monitors": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicMonitorResource"
+                        }
+                    },
+                    "incidents": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicIncidentResource"
+                        }
+                    }
+                },
+                "required": [
+                    "title",
+                    "description",
+                    "overall_state",
+                    "monitors",
+                    "incidents"
+                ],
+                "title": "PublicStatusPageResource"
             },
             "Role": {
                 "type": "string",
@@ -5338,6 +5499,25 @@
                 }
             },
             "ModelNotFoundException": {
+                "description": "Not found",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            },
+            "NotFoundHttpException": {
                 "description": "Not found",
                 "content": {
                     "application/json": {

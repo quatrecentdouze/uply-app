@@ -33,6 +33,7 @@ final class StatusPagesSettingsParser
                 cacheSeconds: $reader->integer('public.cache_seconds', 0),
                 barDays: $reader->integer('public.bar_days', 1),
                 incidentDays: $reader->integer('public.incident_days', 1),
+                maxIncidents: $reader->integer('public.max_incidents', 1),
                 rateLimitPerMinute: $reader->integer('public.rate_limit_per_minute', 1),
             ),
         );

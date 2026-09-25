@@ -18,6 +18,7 @@ return [
         'cache_seconds' => 30,
         'bar_days' => 90,
         'incident_days' => 14,
+        'max_incidents' => 50,
         'rate_limit_per_minute' => 60,
     ],
 ];

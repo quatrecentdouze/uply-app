@@ -14,6 +14,11 @@ final class StatusPageQuery
         return StatusPage::query()->where('organization_id', $organizationId)->with('monitors')->orderBy('title')->orderBy('id')->paginate($perPage);
     }
 
+    public function published(string $slug): ?StatusPage
+    {
+        return StatusPage::query()->where('slug', $slug)->where('is_published', true)->with('monitors')->first();
+    }
+
     public function get(string $organizationId, string $pageId): StatusPage
     {
         return StatusPage::query()->where('organization_id', $organizationId)->whereKey($pageId)->with('monitors')->firstOrFail();

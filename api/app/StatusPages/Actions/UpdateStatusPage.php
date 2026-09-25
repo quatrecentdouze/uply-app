@@ -8,6 +8,7 @@ use App\Shared\Errors\DomainError;
 use App\StatusPages\Enums\StatusPageError;
 use App\StatusPages\Models\StatusPage;
 use App\StatusPages\Storage\PageMonitorWriter;
+use App\StatusPages\Storage\PublicPageCache;
 use App\StatusPages\Values\PageDraft;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -17,12 +18,13 @@ final readonly class UpdateStatusPage
     public function __construct(
         private ConnectionInterface $database,
         private PageMonitorWriter $monitors,
+        private PublicPageCache $cache,
     ) {}
 
     public function __invoke(StatusPage $page, PageDraft $draft): StatusPage
     {
         try {
-            return $this->database->transaction(function () use ($page, $draft): StatusPage {
+            $updated = $this->database->transaction(function () use ($page, $draft): StatusPage {
                 $locked = StatusPage::query()->whereKey($page->id)->lockForUpdate()->firstOrFail();
                 $locked->title = $draft->title ?? $locked->title;
                 $locked->slug = $draft->slug ?? $locked->slug;
@@ -38,5 +40,8 @@ final readonly class UpdateStatusPage
         } catch (UniqueConstraintViolationException) {
             throw new DomainError(StatusPageError::SlugTaken);
         }
+        $this->cache->forget($page->slug, $updated->slug);
+
+        return $updated;
     }
 }

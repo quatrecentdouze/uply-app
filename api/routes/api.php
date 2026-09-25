@@ -21,12 +21,22 @@ use App\Organizations\Http\Controllers\MePasswordController;
 use App\Organizations\Http\Controllers\OrganizationController;
 use App\Organizations\Models\Invitation;
 use App\Organizations\Models\Membership;
+use App\Providers\StatusPagesServiceProvider;
 use App\Shared\Http\MetaController;
+use App\StatusPages\Http\Controllers\PublicStatusPageController;
 use App\StatusPages\Http\Controllers\StatusPageController;
 use App\StatusPages\Models\StatusPage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('meta', MetaController::class)->name('meta');
+
+Route::get('public/status-pages/{slug}', [PublicStatusPageController::class, 'show'])
+    ->where('slug', '[a-z0-9-]+')
+    ->middleware([
+        'throttle:'.StatusPagesServiceProvider::PUBLIC_LIMITER,
+        'cache.headers:public;max_age='.config()->integer('status_pages.public.cache_seconds'),
+    ])
+    ->name('status-pages.public.show');
 
 Route::get('invitations/{token}', [InvitationTokenController::class, 'show'])
     ->where('token', InvitationTokenController::TOKEN_PATTERN)

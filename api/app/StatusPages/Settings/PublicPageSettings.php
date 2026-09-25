@@ -10,6 +10,7 @@ final readonly class PublicPageSettings
         public int $cacheSeconds,
         public int $barDays,
         public int $incidentDays,
+        public int $maxIncidents,
         public int $rateLimitPerMinute,
     ) {}
 }

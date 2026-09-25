@@ -23,6 +23,7 @@ it('parses the shipped status pages file', function (): void {
         ->and($settings->public->cacheSeconds)->toBe(30)
         ->and($settings->public->barDays)->toBe(90)
         ->and($settings->public->incidentDays)->toBe(14)
+        ->and($settings->public->maxIncidents)->toBe(50)
         ->and($settings->public->rateLimitPerMinute)->toBe(60);
 });
 
