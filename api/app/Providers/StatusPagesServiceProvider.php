@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Shared\Meta\MetaSection;
 use App\Shared\Settings\InvalidSettingException;
+use App\StatusPages\Http\StatusPagesMetaSection;
 use App\StatusPages\Models\StatusPage;
 use App\StatusPages\Policies\StatusPagePolicy;
 use App\StatusPages\Settings\StatusPagesSettings;
@@ -31,6 +33,7 @@ final class StatusPagesServiceProvider extends ServiceProvider
 
             return (new StatusPagesSettingsParser)->parse(self::SETTINGS_SOURCE, $values);
         });
+        $this->app->tag(StatusPagesMetaSection::class, MetaSection::TAG);
     }
 
     public function boot(): void

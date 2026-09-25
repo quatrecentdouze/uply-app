@@ -10,7 +10,9 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 final readonly class ValidSlug implements ValidationRule
 {
-    private const string PATTERN = '/^[a-z0-9-]+$/';
+    public const string PATTERN_BODY = '^[a-z0-9-]+$';
+
+    private const string PATTERN = '/'.self::PATTERN_BODY.'/';
 
     public function __construct(private ?string $ignoredPageId) {}
 
