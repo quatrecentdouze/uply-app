@@ -29,4 +29,10 @@ export default defineConfig([
       'no-warning-comments': 'error',
     },
   },
+  {
+    files: ['src/shared/ui/**/*.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ]);
