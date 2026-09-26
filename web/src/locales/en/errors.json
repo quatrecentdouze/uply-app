@@ -1,0 +1,26 @@
+{
+  "generic": "Something went wrong. Please try again.",
+  "validation": "Some fields need your attention.",
+  "unauthenticated": "Your session has ended. Please sign in again.",
+  "forbidden": "You do not have permission to do this.",
+  "not_found": "We could not find what you were looking for.",
+  "session_expired": "Your page was open for too long. Please try again.",
+  "rate_limited": "Too many attempts. Please wait a moment and try again.",
+  "server": "The server ran into a problem. Please try again in a moment.",
+  "network": "We could not reach Uply. Check your connection and try again.",
+  "codes": {
+    "already_member": "You are already a member of this organization.",
+    "invitation_email_mismatch": "This invitation was sent to another email address.",
+    "invitation_expired": "This invitation has expired. Ask for a new one.",
+    "invitation_limit_reached": "This organization has too many pending invitations.",
+    "invitation_pending": "An invitation is already pending for this email.",
+    "last_owner": "An organization must keep at least one owner.",
+    "monitor_limit_reached": "This organization has reached its monitor limit.",
+    "organization_limit_reached": "You own the maximum number of organizations.",
+    "role_not_allowed": "Your role cannot grant or change this role.",
+    "slug_taken": "This address is already taken.",
+    "sole_owner": "Transfer or delete the organizations you own alone before deleting your account.",
+    "status_page_limit_reached": "This organization has reached its status page limit.",
+    "test_limit_reached": "Too many test alerts. Please wait a moment."
+  }
+}
