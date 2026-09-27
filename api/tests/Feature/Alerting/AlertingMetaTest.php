@@ -15,5 +15,5 @@ it('gives what the alert channel forms need', function (): void {
 });
 
 it('lists the sections of every family', function (): void {
-    expect(array_keys((array) $this->getJson('/api/v1/meta')->json('data')))->toBe(['alerting', 'api', 'monitoring', 'organizations', 'status_pages']);
+    expect(array_keys((array) $this->getJson('/api/v1/meta')->json('data')))->toBe(['alerting', 'api', 'monitoring', 'organizations', 'realtime', 'status_pages']);
 });
