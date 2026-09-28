@@ -1,5 +1,11 @@
 {
   "app": {
     "name": "Uply"
+  },
+  "validation": {
+    "required": "This field is required.",
+    "email": "Enter a valid email address.",
+    "length": "Use {{min}} to {{max}} characters.",
+    "mismatch": "The passwords do not match."
   }
 }
