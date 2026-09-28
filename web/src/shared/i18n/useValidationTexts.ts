@@ -14,7 +14,7 @@ export function useValidationTexts(): BaseValidationTexts {
     () => ({
       required: t('common:validation.required'),
       email: t('common:validation.email'),
-      length: (bounds) => t('common:validation.length', bounds),
+      length: (bounds) => t('common:validation.length', { ...bounds }),
       mismatch: t('common:validation.mismatch'),
     }),
     [t],
