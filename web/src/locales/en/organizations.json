@@ -1,4 +1,11 @@
 {
+  "create": {
+    "title": "Create your organization",
+    "description": "An organization holds your monitors, alerts and status pages, and the people who manage them.",
+    "name": "Organization name",
+    "submit": "Create organization",
+    "cancel": "Back to the dashboard"
+  },
   "roles": {
     "owner": "Owner",
     "admin": "Admin",
