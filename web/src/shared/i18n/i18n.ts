@@ -2,6 +2,8 @@ import i18next, { type i18n } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { defaultNamespace, resources } from '@/shared/i18n/resources';
 
+export type I18n = i18n;
+
 export const defaultLanguage = 'en';
 
 export function createI18n(): i18n {

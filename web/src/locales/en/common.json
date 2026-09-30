@@ -1,6 +1,21 @@
 {
   "app": {
-    "name": "Uply"
+    "name": "Uply",
+    "home": "Uply home"
+  },
+  "pages": {
+    "dashboard": "Dashboard",
+    "monitors": "Monitors",
+    "incidents": "Incidents",
+    "status_pages": "Status pages",
+    "alert_channels": "Alert channels",
+    "settings": "Settings",
+    "help": "Help"
+  },
+  "not_found": {
+    "title": "Page not found",
+    "description": "This page does not exist yet or was moved.",
+    "home": "Back to the dashboard"
   },
   "validation": {
     "required": "This field is required.",
