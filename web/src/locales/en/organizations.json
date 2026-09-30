@@ -6,6 +6,23 @@
     "submit": "Create organization",
     "cancel": "Back to the dashboard"
   },
+  "invitation": {
+    "loading": "Opening your invitation",
+    "title": "Join {{organization}}",
+    "description": "{{inviter}} invited {{email}} to join as {{role}}.",
+    "description_without_inviter": "{{email}} is invited to join as {{role}}.",
+    "expires": "This invitation expires on {{date}}.",
+    "accept": "Accept invitation",
+    "sign_in": "Sign in to accept",
+    "register": "Create an account",
+    "verify_first": "Verify your email before you accept this invitation.",
+    "verify_link": "Verify my email",
+    "wrong_account": "You are signed in as {{email}}, not with the invited email.",
+    "switch_account": "Use another account",
+    "unavailable": "Invitation unavailable",
+    "missing": "This invitation does not exist, was revoked or was already used.",
+    "home": "Go to Uply"
+  },
   "roles": {
     "owner": "Owner",
     "admin": "Admin",
