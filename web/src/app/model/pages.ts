@@ -11,3 +11,17 @@ export const pageTitleKeys: Record<PageId, TextKey<'common'>> = {
   settings: 'common:pages.settings',
   help: 'common:pages.help',
 };
+
+const pagesBySection: Readonly<Record<string, PageId>> = {
+  '': 'dashboard',
+  monitors: 'monitors',
+  incidents: 'incidents',
+  'status-pages': 'status_pages',
+  'alert-channels': 'alert_channels',
+  settings: 'settings',
+};
+
+export function pageOfPath(pathname: string): PageId | null {
+  const section = pathname.split('/').find((segment) => segment !== '') ?? '';
+  return pagesBySection[section] ?? null;
+}
