@@ -12,6 +12,47 @@
     "settings": "Settings",
     "help": "Help"
   },
+  "shell": {
+    "groups": {
+      "monitoring": "Monitoring",
+      "alerting": "Alerting",
+      "general": "General"
+    },
+    "sidebar": "Main navigation",
+    "navigation": "Pages",
+    "navigation_description": "Go to a page of Uply.",
+    "search": "Search",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "open_navigation": "Open navigation",
+    "help": "Keyboard shortcuts",
+    "notifications": "Notifications",
+    "notifications_open": "Notifications, an incident is open",
+    "open_incidents_one": "{{count}} open incident",
+    "open_incidents_other": "{{count}} open incidents",
+    "open_profile": "Open the profile menu of {{name}}",
+    "profile": "Profile settings",
+    "logout": "Log out"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "description": "Move around Uply without the mouse.",
+    "ctrl": "Ctrl",
+    "k": "K",
+    "question": "?",
+    "escape": "Esc",
+    "search": "Search pages and monitors",
+    "help": "Show the keyboard shortcuts",
+    "close": "Close a dialog or a menu"
+  },
+  "palette": {
+    "title": "Search",
+    "description": "Open a page or a monitor.",
+    "placeholder": "Search pages and monitors",
+    "empty": "Nothing matches your search.",
+    "pages": "Pages",
+    "monitors": "Monitors"
+  },
   "not_found": {
     "title": "Page not found",
     "description": "This page does not exist yet or was moved.",
