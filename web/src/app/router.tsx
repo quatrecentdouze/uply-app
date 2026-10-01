@@ -12,7 +12,6 @@ import {
 import { AppLayout } from '@/app/layouts/AppLayout';
 import { AuthLayout } from '@/app/layouts/AuthLayout';
 import { entryRedirect, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
-import type { PageId } from '@/app/model/pages';
 import { DashboardPage } from '@/app/pages/DashboardPage';
 import { NotFoundPage, StandaloneNotFoundPage } from '@/app/pages/NotFoundPage';
 import { meQuery, useLogout, useMe } from '@/features/auth/api/session';
@@ -38,9 +37,6 @@ export interface RouterContext {
 declare module '@tanstack/react-router' {
   interface Register {
     router: AppRouter;
-  }
-  interface StaticDataRouteOption {
-    page?: PageId;
   }
 }
 
@@ -179,38 +175,42 @@ const appLayout = createRoute({
   beforeLoad: ({ context, location }) => guard(context, 'member', location.href),
   loader: ({ context }) => context.queryClient.query({ ...organizationsQuery(context.apiClient), staleTime: 'static' }),
   component: AppLayout,
+});
+
+const pagesLayout = createRoute({
+  getParentRoute: () => appLayout,
+  id: 'pages',
+  component: Outlet,
   notFoundComponent: NotFoundPage,
 });
 
 const dashboardRoute = createRoute({
-  getParentRoute: () => appLayout,
+  getParentRoute: () => pagesLayout,
   path: '/',
-  staticData: { page: 'dashboard' },
   component: DashboardPage,
 });
 
-function nextMilestone<const Path extends string>(path: Path, page: PageId) {
+function nextMilestone<const Path extends string>(path: Path) {
   return createRoute({
-    getParentRoute: () => appLayout,
+    getParentRoute: () => pagesLayout,
     path,
-    staticData: { page },
     beforeLoad: (): never => {
-      throw notFound();
+      throw notFound({ routeId: pagesLayout.id });
     },
   });
 }
 
-const monitorsRoute = nextMilestone('monitors', 'monitors');
-const monitorRoute = nextMilestone('monitors/$monitorId', 'monitors');
-const incidentsRoute = nextMilestone('incidents', 'incidents');
-const incidentRoute = nextMilestone('incidents/$incidentId', 'incidents');
-const statusPagesRoute = nextMilestone('status-pages', 'status_pages');
-const statusPageRoute = nextMilestone('status-pages/$statusPageId', 'status_pages');
-const alertChannelsRoute = nextMilestone('alert-channels', 'alert_channels');
-const settingsOrganizationRoute = nextMilestone('settings/organization', 'settings');
-const settingsMembersRoute = nextMilestone('settings/members', 'settings');
-const settingsProfileRoute = nextMilestone('settings/profile', 'settings');
-const settingsSecurityRoute = nextMilestone('settings/security', 'settings');
+const monitorsRoute = nextMilestone('monitors');
+const monitorRoute = nextMilestone('monitors/$monitorId');
+const incidentsRoute = nextMilestone('incidents');
+const incidentRoute = nextMilestone('incidents/$incidentId');
+const statusPagesRoute = nextMilestone('status-pages');
+const statusPageRoute = nextMilestone('status-pages/$statusPageId');
+const alertChannelsRoute = nextMilestone('alert-channels');
+const settingsOrganizationRoute = nextMilestone('settings/organization');
+const settingsMembersRoute = nextMilestone('settings/members');
+const settingsProfileRoute = nextMilestone('settings/profile');
+const settingsSecurityRoute = nextMilestone('settings/security');
 
 const routeTree = rootRoute.addChildren([
   entryLayout.addChildren([
@@ -224,18 +224,20 @@ const routeTree = rootRoute.addChildren([
     invitationRoute,
   ]),
   appLayout.addChildren([
-    dashboardRoute,
-    monitorsRoute,
-    monitorRoute,
-    incidentsRoute,
-    incidentRoute,
-    statusPagesRoute,
-    statusPageRoute,
-    alertChannelsRoute,
-    settingsOrganizationRoute,
-    settingsMembersRoute,
-    settingsProfileRoute,
-    settingsSecurityRoute,
+    pagesLayout.addChildren([
+      dashboardRoute,
+      monitorsRoute,
+      monitorRoute,
+      incidentsRoute,
+      incidentRoute,
+      statusPagesRoute,
+      statusPageRoute,
+      alertChannelsRoute,
+      settingsOrganizationRoute,
+      settingsMembersRoute,
+      settingsProfileRoute,
+      settingsSecurityRoute,
+    ]),
   ]),
 ]);
 

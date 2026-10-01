@@ -28,5 +28,10 @@
     "admin": "Admin",
     "member": "Member",
     "viewer": "Viewer"
+  },
+  "switcher": {
+    "label": "Organizations",
+    "open": "Switch organization, current one {{organization}}",
+    "create": "Create organization"
   }
 }

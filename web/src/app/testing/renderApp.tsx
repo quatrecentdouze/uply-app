@@ -4,8 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { AppProviders } from '@/app/App';
 import { createAppServices } from '@/app/services';
 import { type FakeFetch, fakeFetch, testOrigin } from '@/shared/testing/fakeFetch';
-import { meFixture, organizationId } from '@/shared/testing/fixtures';
-import type { Me } from '@/shared/api/resources';
+import { listOf, meFixture, organizationId, overviewFixture } from '@/shared/testing/fixtures';
+import type { Incident, Me, Monitor, Overview } from '@/shared/api/resources';
 
 export interface RenderAppOptions {
   path: string;
@@ -39,6 +39,23 @@ export function signedIn(server: FakeFetch, me: Me = meFixture()): FakeFetch {
       meta: { current_page: 1, from: 1, last_page: 1, links: [], path: null, per_page: 100, to: me.memberships.length, total: me.memberships.length },
     },
   });
+  return server;
+}
+
+export interface WorkspaceData {
+  monitors?: Monitor[];
+  incidents?: Incident[];
+  openIncidents?: number;
+  overview?: Overview;
+}
+
+export function withWorkspace(server: FakeFetch, data: WorkspaceData = {}): FakeFetch {
+  const base = `/api/v1/organizations/${organizationId}`;
+  const incidents = listOf(data.incidents ?? []);
+  server.respond({ method: 'GET', path: `${base}/monitors`, body: listOf(data.monitors ?? []) });
+  server.respond({ method: 'GET', path: `${base}/incidents`, body: { ...incidents, meta: { ...incidents.meta, total: data.openIncidents ?? incidents.meta.total } } });
+  server.respond({ method: 'GET', path: `${base}/overview`, body: { data: data.overview ?? overviewFixture() } });
+  server.respond({ method: 'GET', path: '/api/v1/meta', body: { data: {} } });
   return server;
 }
 
