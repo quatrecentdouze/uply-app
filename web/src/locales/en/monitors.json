@@ -20,5 +20,41 @@
     "warning": "Degraded",
     "alert": "Failing",
     "neutral": "No data"
+  },
+  "period": "Choose the period",
+  "uptime": {
+    "title": "Uptime",
+    "info": "Share of successful checks over the period, all monitors together.",
+    "percent": "{{value, number(maximumFractionDigits: 2)}}%",
+    "no_data": "No data yet",
+    "chart": "Uptime of each part of the period"
+  },
+  "overview": {
+    "title": "Monitor states",
+    "info": "The confirmed state of every monitor of the organization.",
+    "total_one": "{{count}} monitor",
+    "total_other": "{{count}} monitors",
+    "breakdown": "State breakdown",
+    "bar": "Monitors by state",
+    "count_one": "{{count}} monitor",
+    "count_other": "{{count}} monitors"
+  },
+  "response": {
+    "title": "Response time",
+    "info": "Average time of the checks that got an answer, for each part of the period.",
+    "average": "{{value, number}} ms",
+    "average_label": "Average over the period",
+    "no_data": "No data yet",
+    "chart": "Average response time of each part of the period",
+    "tabs": "Period of the response time"
+  },
+  "panel": {
+    "title": "Monitors",
+    "add": "Add a monitor",
+    "view_all": "View all monitors",
+    "empty": "No monitor yet. Add one to start watching a service.",
+    "last_response": "{{value, number}} ms",
+    "no_response": "No data",
+    "open": "Open {{name}}"
   }
 }

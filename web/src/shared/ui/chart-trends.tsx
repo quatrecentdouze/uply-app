@@ -112,7 +112,7 @@ export function BarTrend({ points, ariaLabel, formatTick }: TrendProps & { forma
           radius={[12, 12, 9, 9]}
           maxBarSize={52}
           isAnimationActive={false}
-          shape={(bar: BarShapeProps) => <Rectangle {...bar} fill={bar.index === selected ? `url(#${id}-active)` : `url(#${id}-rest)`} />}
+          shape={(bar: BarShapeProps) => <Rectangle {...bar} fill={bar.originalDataIndex === selected ? `url(#${id}-active)` : `url(#${id}-rest)`} />}
         />
       </BarChart>
     </ChartContainer>
