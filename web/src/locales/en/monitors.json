@@ -1,0 +1,24 @@
+{
+  "windows": {
+    "24h": "Last 24 hours",
+    "7d": "Last 7 days",
+    "30d": "Last 30 days"
+  },
+  "window_tabs": {
+    "24h": "24 h",
+    "7d": "7 days",
+    "30d": "30 days"
+  },
+  "states": {
+    "up": "Up",
+    "down": "Down",
+    "pending": "Pending",
+    "paused": "Paused"
+  },
+  "tone": {
+    "positive": "Healthy",
+    "warning": "Degraded",
+    "alert": "Failing",
+    "neutral": "No data"
+  }
+}
