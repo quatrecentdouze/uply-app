@@ -1,0 +1,18 @@
+{
+  "status": {
+    "open": "Ongoing",
+    "resolved": "Resolved"
+  },
+  "cause": {
+    "timeout": "Timeout",
+    "dns": "DNS error",
+    "connect": "Connection failed",
+    "tls": "TLS error",
+    "http_status": "HTTP {{status}}",
+    "http_error": "HTTP error",
+    "too_many_redirects": "Too many redirects",
+    "blocked_target": "Blocked address",
+    "body_too_large": "Answer too large",
+    "unknown": "Unknown error"
+  }
+}
