@@ -58,6 +58,12 @@
     "description": "This page does not exist yet or was moved.",
     "home": "Back to the dashboard"
   },
+  "duration": {
+    "seconds": "{{seconds}} s",
+    "minutes": "{{minutes}} min {{seconds}} s",
+    "hours": "{{hours}} h {{minutes}} min",
+    "days": "{{days}} d {{hours}} h"
+  },
   "validation": {
     "required": "This field is required.",
     "email": "Enter a valid email address.",

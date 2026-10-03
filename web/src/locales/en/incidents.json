@@ -1,4 +1,15 @@
 {
+  "recent": {
+    "title": "Recent incidents",
+    "view_all": "View all",
+    "empty": "No incident so far. Everything is running.",
+    "monitor": "Monitor",
+    "started": "Started",
+    "duration": "Duration",
+    "cause": "Cause",
+    "status": "Status",
+    "open": "Open the incident of {{name}}"
+  },
   "status": {
     "open": "Ongoing",
     "resolved": "Resolved"
@@ -14,5 +25,6 @@
     "blocked_target": "Blocked address",
     "body_too_large": "Answer too large",
     "unknown": "Unknown error"
-  }
+  },
+  "deleted_monitor": "Deleted monitor"
 }

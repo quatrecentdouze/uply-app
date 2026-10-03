@@ -4,6 +4,8 @@ import { secondsBetween } from '@/shared/time/format';
 
 export type IncidentStatus = 'open' | 'resolved';
 
+export const startedFormat: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+
 export const statusTextKeys: Record<IncidentStatus, TextKey<'incidents'>> = {
   open: 'incidents:status.open',
   resolved: 'incidents:status.resolved',
