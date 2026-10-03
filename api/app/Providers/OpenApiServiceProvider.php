@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Organizations\Actions\CreateUser;
+use App\Organizations\Actions\ResetUserPassword;
 use App\Shared\OpenApi\RequestRules;
 use App\Shared\OpenApi\RequestRulesExtractor;
 use Dedoc\Scramble\Configuration\ParametersExtractors;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Fortify\Http\Controllers\NewPasswordController;
 use Laravel\Fortify\Http\Controllers\RegisteredUserController;
 
 final class OpenApiServiceProvider extends ServiceProvider
@@ -22,6 +24,7 @@ final class OpenApiServiceProvider extends ServiceProvider
 
         $this->app->singleton(RequestRules::class, fn (): RequestRules => new RequestRules([
             RegisteredUserController::class.'@store' => $this->app->make(CreateUser::class)->rules(),
+            NewPasswordController::class.'@store' => $this->app->make(ResetUserPassword::class)->rules(),
         ]));
 
         Scramble::configure()->withParametersExtractors(

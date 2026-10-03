@@ -2294,10 +2294,11 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
+                    password: string;
+                    password_confirmation: string;
                     token: string;
                     /** Format: email */
                     email: string;
-                    password: string;
                 };
             };
         };

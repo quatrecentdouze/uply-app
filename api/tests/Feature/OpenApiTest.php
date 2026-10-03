@@ -71,3 +71,11 @@ it('documents the sign up body with the rules of the account creation', function
         ->and(data_get($body, 'properties.password_confirmation.type'))->toBe('string')
         ->and(data_get($body, 'properties.remember.type'))->toBe('boolean');
 });
+
+it('documents the password reset body with the confirmation the reset rules ask for', function (): void {
+    $body = documentedJsonBody('/v1/auth/reset-password', 'post');
+
+    expect($body['required'] ?? null)->toEqualCanonicalizing(['token', 'email', 'password', 'password_confirmation'])
+        ->and(data_get($body, 'properties.email.format'))->toBe('email')
+        ->and(data_get($body, 'properties.password_confirmation.type'))->toBe('string');
+});

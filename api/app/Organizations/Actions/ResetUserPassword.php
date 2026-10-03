@@ -20,11 +20,16 @@ final readonly class ResetUserPassword implements ResetsUserPasswords
 
     public function reset(User $user, array $input): void
     {
-        $data = $this->validation->make($input, ['password' => $this->rules->newPassword()])->validate();
+        $data = $this->validation->make($input, $this->rules())->validate();
 
         $user->forceFill([
             'password' => $data['password'],
             'remember_token' => Str::random(self::REMEMBER_TOKEN_LENGTH),
         ])->save();
+    }
+
+    public function rules(): array
+    {
+        return ['password' => $this->rules->newPassword()];
     }
 }
