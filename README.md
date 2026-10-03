@@ -15,7 +15,7 @@ It is a portfolio project built like a real multi tenant product.
 | Folder | Content |
 |---|---|
 | `api/` | Laravel REST API, check engine, queue workers and scheduler |
-| `web/` | React SPA, from milestone 4 |
+| `web/` | React SPA: entry screens, app shell, real time dashboard |
 
 ## Milestones
 
@@ -25,7 +25,8 @@ It is a portfolio project built like a real multi tenant product.
 | 2 | Alerts and real time (API) | done |
 | 3a | Auth, two factor, account, organizations, members, invitations, roles (API) | done |
 | 3b | Product REST API and status pages backend (API) | done |
-| 4 | App shell, dashboard and management screens (Web) | next |
+| 4a | Web project, API client, real time, entry screens, app shell and dashboard (Web) | done |
+| 4b | Management screens: monitors, incidents, alert channels, status pages, settings (Web) | next |
 | 5 | Public status pages and polish (Web) | planned |
 
 ## Check engine
@@ -106,6 +107,31 @@ php artisan db:seed --class=DemoSeeder
 
 Serve any page on that port, run the scheduler, a worker and Reverb, then change the status code the page returns. On the dev PC an outage was confirmed 59 seconds after it started, which is the next check, the 20 second recheck and the 10 second dispatch tick. The alert mail and the `incident.opened` event both arrived less than a second after the confirming check.
 
+## Web app
+
+- The browser talks to one origin. The Vite dev server proxies `/api` and `/sanctum` to the API and keeps the `Host` header, so the session cookie and the signed links of the mails work as they are.
+- Types come from `api/openapi.json` through openapi-typescript, and a test fails when `web/src/shared/api/schema.d.ts` is stale. The client wraps openapi-fetch: it sends the session cookie, asks `/sanctum/csrf-cookie` before the first write and sends the `XSRF-TOKEN` cookie back as `X-XSRF-TOKEN`. A domain error shows the text of its code, a 422 fills the form fields.
+- The entry flow follows `GET /api/v1/me`: a guest signs in, an unverified user verifies the email, a user without organization creates one. Sign up, password reset, the two factor challenge and invitations have their own screens.
+- The app shell has a sidebar with the open incidents badge and the organization switcher, a `Ctrl K` palette for pages and monitors, a shortcuts dialog and a drawer under 1024 px.
+- The dashboard shows the uptime over 24 hours, 7 days or 30 days, the monitors by state, the response time, the recent incidents and the monitors that need attention first. One Echo subscription per organization keeps it live: each Reverb event writes or refreshes the TanStack Query cache, and no screen subscribes by itself.
+- Every text lives in `web/src/locales/en`. A test checks that each key used in the code exists and each key of the files is used. A seams test keeps the feature folders apart and each third party library inside its own module.
+
+## Run the web app locally
+
+Needs Node 24 and the API running on `127.0.0.1:8000`, with Reverb on `127.0.0.1:6001`:
+
+```bash
+cd web
+npm ci
+npm run dev
+```
+
+Open `http://localhost:5173` and sign in with a demo user. After a change of route, request or resource in the API, export `openapi.json` again, then regenerate the types:
+
+```bash
+npm run api:types
+```
+
 ## Test
 
 ```bash
@@ -115,6 +141,17 @@ composer test
 ```
 
 `lint` runs Pint, `analyse` runs Larastan at the max level, `test` runs Pest on the PostgreSQL database `uply_test`.
+
+In `web`:
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
+`lint` runs ESLint with typescript-eslint, `typecheck` runs `tsc` without output, `test` runs Vitest with Testing Library on jsdom, `build` runs the Vite build.
 
 ## OpenAPI
 
