@@ -53,6 +53,11 @@ arch('only the http probe and the webhook senders know the http client')
     ->not->toUse(['Illuminate\Http\Client', 'GuzzleHttp', 'Psr\Http'])
     ->ignoring(['App\Monitoring\Probe\HttpProbe', 'App\Alerting\Senders\DiscordSender', 'App\Alerting\Senders\SlackSender']);
 
+arch('only the openapi module and its provider know scramble')
+    ->expect('App')
+    ->not->toUse('Dedoc\Scramble')
+    ->ignoring(['App\Shared\OpenApi', 'App\Providers\OpenApiServiceProvider']);
+
 arch('only the mail sender knows the mail transport')
     ->expect('App')
     ->not->toUse(['Illuminate\Contracts\Mail', 'Symfony\Component\Mailer'])

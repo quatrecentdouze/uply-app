@@ -2606,9 +2606,14 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: {
+        requestBody: {
             content: {
                 "application/json": {
+                    name: string;
+                    /** Format: email */
+                    email: string;
+                    password: string;
+                    password_confirmation: string;
                     /** @default false */
                     remember?: boolean;
                 };

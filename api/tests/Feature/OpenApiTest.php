@@ -2,11 +2,28 @@
 
 declare(strict_types=1);
 
+use App\Organizations\Settings\OrganizationsSettings;
+
 function decodedJsonFile(string $path): mixed
 {
     $contents = file_get_contents($path);
 
     return json_decode($contents === false ? '' : $contents, true, flags: JSON_THROW_ON_ERROR);
+}
+
+function documentedOperation(string $path, string $method): array
+{
+    $document = decodedJsonFile(base_path('openapi.json'));
+    $operation = is_array($document) ? data_get($document, ['paths', $path, $method]) : null;
+
+    return is_array($operation) ? $operation : [];
+}
+
+function documentedJsonBody(string $path, string $method): array
+{
+    $schema = data_get(documentedOperation($path, $method), 'requestBody.content.application/json.schema');
+
+    return is_array($schema) ? $schema : [];
 }
 
 it('keeps openapi.json in step with the routes, requests and resources', function (): void {
@@ -44,3 +61,13 @@ it('documents the fortify routes next to ours', function (string $path): void {
     '/v1/organizations/{organization}/status-pages/{statusPage}',
     '/v1/public/status-pages/{slug}',
 ]);
+
+it('documents the sign up body with the rules of the account creation', function (): void {
+    $body = documentedJsonBody('/v1/auth/register', 'post');
+
+    expect($body['required'] ?? null)->toEqualCanonicalizing(['name', 'email', 'password', 'password_confirmation'])
+        ->and(data_get($body, 'properties.name.maxLength'))->toBe(app(OrganizationsSettings::class)->userNameMaxLength)
+        ->and(data_get($body, 'properties.email.format'))->toBe('email')
+        ->and(data_get($body, 'properties.password_confirmation.type'))->toBe('string')
+        ->and(data_get($body, 'properties.remember.type'))->toBe('boolean');
+});

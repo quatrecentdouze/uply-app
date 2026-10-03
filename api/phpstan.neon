@@ -14,3 +14,7 @@ parameters:
     ignoreErrors:
         - identifier: missingType.generics
         - identifier: missingType.iterableValue
+        -
+            rawMessage: 'Parameter #1 $rules of method App\Shared\OpenApi\RequestRulesExtractor::makeParameters() expects array<string, Dedoc\Scramble\Support\OperationExtensions\RulesExtractor\RuleSet>, array given.'
+            identifier: argument.type
+            path: app/Shared/OpenApi/RequestRulesExtractor.php

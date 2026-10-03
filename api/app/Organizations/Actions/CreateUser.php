@@ -18,16 +18,21 @@ final readonly class CreateUser implements CreatesNewUsers
     public function create(array $input): User
     {
         $input['email'] = AccountRules::normalizedEmail($input['email'] ?? null);
-        $data = $this->validation->make($input, [
-            'name' => $this->rules->name(),
-            'email' => $this->rules->newEmail(),
-            'password' => $this->rules->newPassword(),
-        ])->validate();
+        $data = $this->validation->make($input, $this->rules())->validate();
 
         return User::query()->create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
         ]);
+    }
+
+    public function rules(): array
+    {
+        return [
+            'name' => $this->rules->name(),
+            'email' => $this->rules->newEmail(),
+            'password' => $this->rules->newPassword(),
+        ];
     }
 }
