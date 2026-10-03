@@ -1,6 +1,7 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { renderApp, signedIn, withWorkspace } from '@/app/testing/renderApp';
+import { queryKeys } from '@/shared/api/queryKeys';
 import { fakeFetch } from '@/shared/testing/fakeFetch';
 import { meFixture, monitorFixture, organizationId } from '@/shared/testing/fixtures';
 
@@ -93,11 +94,13 @@ describe('app shell', () => {
     app.server.respond({ method: 'POST', path: '/api/v1/auth/logout', status: 204 });
 
     await app.user.click(await screen.findByRole('button', { name: 'Open the profile menu of Demo User' }));
+    app.server.respond({ method: 'GET', path: '/api/v1/organizations', status: 401, body: { message: 'Unauthenticated.' } });
     await app.user.click(await screen.findByRole('menuitem', { name: 'Log out' }));
 
     await waitFor(() => {
       expect(app.router.state.location.pathname).toBe('/login');
     });
+    expect(app.router.state.location.href).toBe('/login');
     expect(app.server.requestsTo('POST', '/api/v1/auth/logout')).toHaveLength(1);
   });
 
@@ -116,6 +119,19 @@ describe('app shell', () => {
 
     expect(await (await sidebar()).findByRole('button', { name: /current one Acme/ })).toBeInTheDocument();
     expect(window.localStorage.getItem('uply.organization')).toBe('org-acme');
+  });
+
+  it('never sends a member to create an organization when the list fails to load', async () => {
+    const app = openApp();
+    await sidebar();
+    app.server.respond({ method: 'GET', path: '/api/v1/organizations', status: 401, body: { message: 'Unauthenticated.' } });
+
+    await act(async () => {
+      await app.queryClient.resetQueries({ queryKey: queryKeys.organizations() });
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    });
+
+    expect(app.router.state.location.pathname).toBe('/');
   });
 
   it('opens the not found page inside the shell for a screen of the next milestone', async () => {

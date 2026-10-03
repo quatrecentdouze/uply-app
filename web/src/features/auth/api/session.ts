@@ -98,7 +98,6 @@ export function useLogout() {
       await expectSuccess(client.POST('/v1/auth/logout'));
     },
     onSettled: () => {
-      queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== queryKeys.meta()[0] });
       queryClient.setQueryData(queryKeys.me(), null);
     },
   });

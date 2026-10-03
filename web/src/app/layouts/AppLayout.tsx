@@ -152,9 +152,12 @@ function Shell() {
 }
 
 export function AppLayout() {
-  const organizations = useOrganizations().data ?? [];
+  const organizations = useOrganizations();
+  if (!organizations.isSuccess) {
+    return null;
+  }
   return (
-    <CurrentOrganizationProvider organizations={organizations} fallback={<Navigate to="/organizations/new" />}>
+    <CurrentOrganizationProvider organizations={organizations.data} fallback={<Navigate to="/organizations/new" />}>
       <Shell />
     </CurrentOrganizationProvider>
   );
