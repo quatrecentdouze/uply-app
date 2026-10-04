@@ -1,11 +1,10 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
 import { useApiClient } from '@/shared/api/apiClientContext';
 import { type ApiClient, expectData, expectSuccess } from '@/shared/api/client';
-import type { RegisterBody, ResetPasswordBody } from '@/shared/api/contract';
 import { ApiError, failureFromResponse } from '@/shared/api/errors';
 import { queryKeys } from '@/shared/api/queryKeys';
 import type { Me } from '@/shared/api/resources';
+import type { paths } from '@/shared/api/schema';
 
 const unauthenticated = 401;
 
@@ -31,7 +30,11 @@ export function useMe() {
   return useQuery(meQuery(useApiClient()));
 }
 
-const loginAnswer = z.object({ two_factor: z.boolean().optional() });
+type JsonBody<Operation> = Operation extends { requestBody: { content: { 'application/json': infer Body } } } ? Body : never;
+
+export type RegisterBody = JsonBody<paths['/v1/auth/register']['post']>;
+
+export type ResetPasswordBody = JsonBody<paths['/v1/auth/reset-password']['post']>;
 
 export interface Credentials {
   email: string;
@@ -57,8 +60,8 @@ export function useLogin() {
   const sessionChanged = useSessionChange();
   return useMutation({
     mutationFn: async (credentials: Credentials): Promise<LoginOutcome> => {
-      const answer = loginAnswer.safeParse(await expectData(client.POST('/v1/auth/login', { body: credentials })));
-      return { twoFactor: answer.success && answer.data.two_factor === true };
+      const answer = await expectData(client.POST('/v1/auth/login', { body: credentials }));
+      return { twoFactor: answer.two_factor };
     },
     onSuccess: async (outcome) => {
       if (!outcome.twoFactor) {
