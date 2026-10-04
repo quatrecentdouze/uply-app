@@ -1,8 +1,8 @@
 import createClient, { type Client, type Middleware } from 'openapi-fetch';
 import { ApiError, failureFromResponse } from '@/shared/api/errors';
-import type { paths } from '@/shared/api/schema';
+import type { ApiPaths } from '@/shared/api/paths';
 
-export type ApiClient = Client<paths>;
+export type ApiClient = Client<ApiPaths>;
 
 export interface ApiClientOptions {
   origin: string;
@@ -70,7 +70,7 @@ function csrfMiddleware(origin: string, send: typeof globalThis.fetch, readCooki
 export function createApiClient(options: ApiClientOptions): ApiClient {
   const send = options.fetch ?? ((input, init) => globalThis.fetch(input, init));
   const readCookies = options.readCookies ?? (() => document.cookie);
-  const client = createClient<paths>({
+  const client = createClient<ApiPaths>({
     baseUrl: `${options.origin}${apiPrefix}`,
     credentials: 'include',
     fetch: send,
