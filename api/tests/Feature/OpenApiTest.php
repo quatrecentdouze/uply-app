@@ -79,3 +79,16 @@ it('documents the password reset body with the confirmation the reset rules ask 
         ->and(data_get($body, 'properties.email.format'))->toBe('email')
         ->and(data_get($body, 'properties.password_confirmation.type'))->toBe('string');
 });
+
+it('documents the channel authorization as the post that echo sends', function (): void {
+    $operations = data_get(decodedJsonFile(base_path('openapi.json')), ['paths', '/broadcasting/auth']);
+    $body = documentedJsonBody('/broadcasting/auth', 'post');
+    $answer = data_get(documentedOperation('/broadcasting/auth', 'post'), 'responses.200.content.application/json.schema');
+
+    expect(is_array($operations) ? array_keys($operations) : [])->toBe(['post'])
+        ->and($body['required'] ?? null)->toEqualCanonicalizing(['socket_id', 'channel_name'])
+        ->and(data_get($body, 'properties.socket_id.type'))->toBe('string')
+        ->and(data_get($body, 'properties.channel_name.type'))->toBe('string')
+        ->and(data_get($answer, 'required'))->toBe(['auth'])
+        ->and(data_get($answer, 'properties.auth.type'))->toBe('string');
+});

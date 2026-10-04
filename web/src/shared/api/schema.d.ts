@@ -93,10 +93,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Authenticate the request for channel access */
-        get: operations["broadcast.authenticate"];
+        get?: never;
         put?: never;
-        post?: never;
+        /** Authenticate the request for channel access */
+        post: operations["broadcast.authenticate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1377,14 +1377,23 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": {
+                    socket_id: string;
+                    channel_name: string;
+                };
+            };
+        };
         responses: {
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": {
+                        auth: string;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];

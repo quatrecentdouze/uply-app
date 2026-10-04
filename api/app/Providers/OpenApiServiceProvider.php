@@ -6,16 +6,30 @@ namespace App\Providers;
 
 use App\Organizations\Actions\CreateUser;
 use App\Organizations\Actions\ResetUserPassword;
+use App\Shared\OpenApi\JsonAnswer;
+use App\Shared\OpenApi\OperationMethods;
 use App\Shared\OpenApi\RequestRules;
 use App\Shared\OpenApi\RequestRulesExtractor;
+use Dedoc\Scramble\Configuration\OperationTransformers;
 use Dedoc\Scramble\Configuration\ParametersExtractors;
 use Dedoc\Scramble\Scramble;
+use Dedoc\Scramble\Support\Generator\Types\StringType;
+use Illuminate\Broadcasting\BroadcastController;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
 use Laravel\Fortify\Http\Controllers\RegisteredUserController;
 
 final class OpenApiServiceProvider extends ServiceProvider
 {
+    private const string CHANNEL_AUTHORIZATION = BroadcastController::class.'@authenticate';
+
+    private const array CHANNEL_AUTHORIZATION_FIELDS = [
+        'socket_id' => ['required', 'string'],
+        'channel_name' => ['required', 'string'],
+    ];
+
     public function boot(): void
     {
         if (! class_exists(Scramble::class)) {
@@ -25,10 +39,20 @@ final class OpenApiServiceProvider extends ServiceProvider
         $this->app->singleton(RequestRules::class, fn (): RequestRules => new RequestRules([
             RegisteredUserController::class.'@store' => $this->app->make(CreateUser::class)->rules(),
             NewPasswordController::class.'@store' => $this->app->make(ResetUserPassword::class)->rules(),
+            self::CHANNEL_AUTHORIZATION => self::CHANNEL_AUTHORIZATION_FIELDS,
         ]));
 
-        Scramble::configure()->withParametersExtractors(
-            fn (ParametersExtractors $extractors): ParametersExtractors => $extractors->prepend(RequestRulesExtractor::class),
-        );
+        $methods = new OperationMethods([self::CHANNEL_AUTHORIZATION => Request::METHOD_POST]);
+
+        Scramble::configure()
+            ->resolveOperationMethodsUsing($methods->of(...))
+            ->withParametersExtractors(
+                fn (ParametersExtractors $extractors): ParametersExtractors => $extractors->prepend(RequestRulesExtractor::class),
+            )
+            ->withOperationTransformers(function (OperationTransformers $transformers): void {
+                $transformers->append([
+                    new JsonAnswer(self::CHANNEL_AUTHORIZATION, Response::HTTP_OK, ['auth' => new StringType]),
+                ]);
+            });
     }
 }
