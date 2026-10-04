@@ -61,6 +61,20 @@ describe('useOrganizationRealtime', () => {
     expect(queryClient.getQueryData<MonitorResponse>(detailKey)?.data.state).toBe('down');
   });
 
+  it('refreshes the checks and the stats of the monitor on monitor.checked', () => {
+    const { socket, queryClient } = setup();
+    const checksKey = queryKeys.monitors.checks(organizationId, monitor.id);
+    const statsKey = queryKeys.monitors.statsWindow(organizationId, monitor.id, '24h');
+    queryClient.setQueryData(checksKey, { pages: [], pageParams: [] });
+    queryClient.setQueryData(statsKey, { data: null });
+
+    emit(socket, 'monitor.checked', { monitor_id: monitor.id, checked_at: '2026-10-29T12:00:00Z', outcome: 'up', response_ms: 90, state: 'up' });
+
+    expect(isInvalidated(queryClient, checksKey)).toBe(true);
+    expect(isInvalidated(queryClient, statsKey)).toBe(true);
+    expect(isInvalidated(queryClient, listKey)).toBe(false);
+  });
+
   it('writes the new state of monitor.state-changed and refreshes the overview', () => {
     const { socket, queryClient } = setup();
 

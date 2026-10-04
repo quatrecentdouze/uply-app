@@ -13,6 +13,11 @@ describe('queryKeys', () => {
     expect(startsWith(queryKeys.monitors.detail('org-1', 'mon-1'), queryKeys.monitors.all('org-1'))).toBe(true);
     expect(startsWith(queryKeys.overview.window('org-1', '7d'), organization)).toBe(true);
     expect(startsWith(queryKeys.incidents.list('org-1', { state: 'open' }), queryKeys.incidents.lists('org-1'))).toBe(true);
+    expect(startsWith(queryKeys.monitors.statsWindow('org-1', 'mon-1', '7d'), queryKeys.monitors.stats('org-1', 'mon-1'))).toBe(true);
+    expect(startsWith(queryKeys.monitors.checks('org-1', 'mon-1'), queryKeys.monitors.all('org-1'))).toBe(true);
+    expect(startsWith(queryKeys.alertChannels.ofMonitor('org-1', 'mon-1'), queryKeys.alertChannels.all('org-1'))).toBe(true);
+    expect(startsWith(queryKeys.statusPages.detail('org-1', 'page-1'), organization)).toBe(true);
+    expect(startsWith(queryKeys.members('org-1'), organization)).toBe(true);
   });
 
   it('keeps two organizations apart', () => {
