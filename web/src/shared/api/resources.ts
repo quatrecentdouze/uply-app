@@ -1,4 +1,6 @@
-import type { ApiPaths, Schemas } from '@/shared/api/contract';
+import type { components, paths } from '@/shared/api/schema';
+
+type Schemas = components['schemas'];
 
 type JsonOf<Operation> = Operation extends { responses: { 200: { content: { 'application/json': infer Body } } } } ? Body : never;
 
@@ -13,7 +15,7 @@ export type Organization = Schemas['OrganizationResource'];
 export type Role = Schemas['Role'];
 export type PublicInvitation = Schemas['PublicInvitationResource'];
 
-export type MonitorListResponse = JsonOf<ApiPaths['/v1/organizations/{organization}/monitors']['get']>;
-export type MonitorResponse = JsonOf<ApiPaths['/v1/organizations/{organization}/monitors/{monitor}']['get']>;
-export type IncidentListResponse = JsonOf<ApiPaths['/v1/organizations/{organization}/incidents']['get']>;
-export type OverviewResponse = JsonOf<ApiPaths['/v1/organizations/{organization}/overview']['get']>;
+export type MonitorListResponse = JsonOf<paths['/v1/organizations/{organization}/monitors']['get']>;
+export type MonitorResponse = JsonOf<paths['/v1/organizations/{organization}/monitors/{monitor}']['get']>;
+export type IncidentListResponse = JsonOf<paths['/v1/organizations/{organization}/incidents']['get']>;
+export type OverviewResponse = JsonOf<paths['/v1/organizations/{organization}/overview']['get']>;
