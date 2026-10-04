@@ -2030,7 +2030,134 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: unknown[];
+                        data: {
+                            alerting: {
+                                channel_types: string[];
+                                email_recipients: {
+                                    min: number;
+                                    max: number;
+                                };
+                                test_sends_per_minute: number;
+                                max_channels_per_monitor: number;
+                                lengths: {
+                                    channel_name: {
+                                        /** @constant */
+                                        min: 1;
+                                        max: number;
+                                    };
+                                    webhook_url: {
+                                        max: number;
+                                    };
+                                };
+                            };
+                            api: {
+                                pagination: {
+                                    default_per_page: number;
+                                    max_per_page: number;
+                                };
+                                rate_limit_per_minute: number;
+                            };
+                            monitoring: {
+                                intervals: {
+                                    allowed_seconds: number[];
+                                    default_seconds: number;
+                                };
+                                timeouts: {
+                                    /** @constant */
+                                    min_seconds: 1;
+                                    max_seconds: number;
+                                    default_seconds: number;
+                                };
+                                methods: string[];
+                                /** @enum {string} */
+                                default_method: "get" | "head";
+                                default_accepted_status_codes: string[];
+                                windows: string[];
+                                limits: {
+                                    max_monitors_per_organization: number;
+                                    max_accepted_status_ranges: number;
+                                };
+                                lengths: {
+                                    monitor_name: {
+                                        /** @constant */
+                                        min: 1;
+                                        max: number;
+                                    };
+                                    url: {
+                                        max: number;
+                                    };
+                                };
+                            };
+                            organizations: {
+                                roles: {
+                                    /** @enum {string} */
+                                    id: "owner" | "admin" | "member" | "viewer";
+                                    abilities: string[];
+                                }[];
+                                abilities: string[];
+                                limits: {
+                                    max_owned_organizations: number;
+                                    max_pending_invitations: number;
+                                    invitation_valid_days: number;
+                                };
+                                lengths: {
+                                    organization_name: {
+                                        min: number;
+                                        max: number;
+                                    };
+                                    slug: {
+                                        min: number;
+                                        max: number;
+                                    };
+                                    user_name: {
+                                        /** @constant */
+                                        min: 1;
+                                        max: number;
+                                    };
+                                    password: {
+                                        min: number;
+                                        max: number;
+                                    };
+                                };
+                            };
+                            realtime: {
+                                key: string | null;
+                                host: string;
+                                port: number;
+                                scheme: string;
+                            };
+                            status_pages: {
+                                limits: {
+                                    max_pages_per_organization: number;
+                                    max_monitors_per_page: number;
+                                };
+                                lengths: {
+                                    title: {
+                                        /** @constant */
+                                        min: 1;
+                                        max: number;
+                                    };
+                                    description: {
+                                        max: number;
+                                    };
+                                    display_name: {
+                                        max: number;
+                                    };
+                                    slug: {
+                                        min: number;
+                                        max: number;
+                                        /** @constant */
+                                        pattern: "^[a-z0-9-]+$";
+                                    };
+                                };
+                                public: {
+                                    bar_days: number;
+                                    incident_days: number;
+                                    cache_seconds: number;
+                                };
+                                overall_states: string[];
+                            };
+                        };
                     };
                 };
             };

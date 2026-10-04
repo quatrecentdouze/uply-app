@@ -23,7 +23,7 @@ final readonly class MonitoringMetaSection implements MetaSection
     {
         return [
             'intervals' => [
-                'allowed_seconds' => $this->settings->intervals->allowedSeconds,
+                'allowed_seconds' => $this->allowedSeconds(),
                 'default_seconds' => $this->settings->intervals->defaultSeconds,
             ],
             'timeouts' => [
@@ -44,5 +44,12 @@ final readonly class MonitoringMetaSection implements MetaSection
                 'url' => ['max' => $this->settings->limits->urlMaxLength],
             ],
         ];
+    }
+
+    private function allowedSeconds(): array
+    {
+        $allowed = array_values(array_filter($this->settings->intervals->allowedSeconds, is_int(...)));
+
+        return array_map(fn (int $seconds): int => $seconds, $allowed);
     }
 }

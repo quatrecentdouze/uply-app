@@ -99,3 +99,58 @@ it('documents the two factor flag of the login answer', function (): void {
     expect(data_get($answer, 'required'))->toBe(['two_factor'])
         ->and(data_get($answer, 'properties.two_factor.type'))->toBe('boolean');
 });
+
+function jsonTypeOf(mixed $value): string
+{
+    return match (true) {
+        $value === null => 'null',
+        is_bool($value) => 'boolean',
+        is_int($value) => 'integer',
+        is_float($value) => 'number',
+        is_string($value) => 'string',
+        is_array($value) && array_is_list($value) => 'array',
+        default => 'object',
+    };
+}
+
+function schemaMismatches(mixed $value, mixed $schema, string $path): array
+{
+    if (! is_array($schema) || $schema === []) {
+        return ["{$path} has no schema"];
+    }
+    $type = jsonTypeOf($value);
+    $documentedTypes = (array) ($schema['type'] ?? []);
+    if (! in_array($type, $documentedTypes, true) && ! ($type === 'integer' && in_array('number', $documentedTypes, true))) {
+        return ["{$path} is {$type}, documented as ".implode('|', array_filter($documentedTypes, 'is_string'))];
+    }
+    if (is_array($schema['enum'] ?? null) && ! in_array($value, $schema['enum'], true)) {
+        return ["{$path} is outside its documented values"];
+    }
+    if (! is_array($value)) {
+        return [];
+    }
+    if ($type === 'array') {
+        return array_merge([], ...array_map(
+            fn (int $index): array => schemaMismatches($value[$index], $schema['items'] ?? null, "{$path}.{$index}"),
+            array_keys($value),
+        ));
+    }
+    $properties = is_array($schema['properties'] ?? null) ? $schema['properties'] : [];
+    $missing = array_diff(is_array($schema['required'] ?? null) ? $schema['required'] : [], array_keys($value));
+
+    return array_merge(
+        array_map(fn (mixed $key): string => "{$path}.".(is_string($key) ? $key : '?').' is missing', array_values($missing)),
+        ...array_map(
+            fn (int|string $key): array => schemaMismatches($value[$key], $properties[$key] ?? null, "{$path}.{$key}"),
+            array_keys($value),
+        ),
+    );
+}
+
+it('documents every section of meta as the api serves it', function (): void {
+    $served = $this->getJson('/api/v1/meta')->assertOk()->json();
+    $documented = data_get(documentedOperation('/v1/meta', 'get'), 'responses.200.content.application/json.schema');
+
+    expect(schemaMismatches($served, $documented, 'meta'))->toBe([])
+        ->and(data_get($documented, 'properties.data.required'))->toBe(array_keys((array) data_get($served, 'data')));
+});

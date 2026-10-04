@@ -1990,8 +1990,529 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {}
+                                            "type": "object",
+                                            "properties": {
+                                                "alerting": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "channel_types": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "email_recipients": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "min": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "max": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "min",
+                                                                "max"
+                                                            ]
+                                                        },
+                                                        "test_sends_per_minute": {
+                                                            "type": "integer"
+                                                        },
+                                                        "max_channels_per_monitor": {
+                                                            "type": "integer"
+                                                        },
+                                                        "lengths": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "channel_name": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "min": {
+                                                                            "type": "integer",
+                                                                            "const": 1
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "min",
+                                                                        "max"
+                                                                    ]
+                                                                },
+                                                                "webhook_url": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "max"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "channel_name",
+                                                                "webhook_url"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "channel_types",
+                                                        "email_recipients",
+                                                        "test_sends_per_minute",
+                                                        "max_channels_per_monitor",
+                                                        "lengths"
+                                                    ]
+                                                },
+                                                "api": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "pagination": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "default_per_page": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "max_per_page": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "default_per_page",
+                                                                "max_per_page"
+                                                            ]
+                                                        },
+                                                        "rate_limit_per_minute": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "pagination",
+                                                        "rate_limit_per_minute"
+                                                    ]
+                                                },
+                                                "monitoring": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "intervals": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "allowed_seconds": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                },
+                                                                "default_seconds": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "allowed_seconds",
+                                                                "default_seconds"
+                                                            ]
+                                                        },
+                                                        "timeouts": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "min_seconds": {
+                                                                    "type": "integer",
+                                                                    "const": 1
+                                                                },
+                                                                "max_seconds": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "default_seconds": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "min_seconds",
+                                                                "max_seconds",
+                                                                "default_seconds"
+                                                            ]
+                                                        },
+                                                        "methods": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "default_method": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "get",
+                                                                "head"
+                                                            ]
+                                                        },
+                                                        "default_accepted_status_codes": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "windows": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "limits": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "max_monitors_per_organization": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "max_accepted_status_ranges": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "max_monitors_per_organization",
+                                                                "max_accepted_status_ranges"
+                                                            ]
+                                                        },
+                                                        "lengths": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "monitor_name": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "min": {
+                                                                            "type": "integer",
+                                                                            "const": 1
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "min",
+                                                                        "max"
+                                                                    ]
+                                                                },
+                                                                "url": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "max"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "monitor_name",
+                                                                "url"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "intervals",
+                                                        "timeouts",
+                                                        "methods",
+                                                        "default_method",
+                                                        "default_accepted_status_codes",
+                                                        "windows",
+                                                        "limits",
+                                                        "lengths"
+                                                    ]
+                                                },
+                                                "organizations": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "roles": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string",
+                                                                        "enum": [
+                                                                            "owner",
+                                                                            "admin",
+                                                                            "member",
+                                                                            "viewer"
+                                                                        ]
+                                                                    },
+                                                                    "abilities": {
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "abilities"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "abilities": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "limits": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "max_owned_organizations": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "max_pending_invitations": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "invitation_valid_days": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "max_owned_organizations",
+                                                                "max_pending_invitations",
+                                                                "invitation_valid_days"
+                                                            ]
+                                                        },
+                                                        "lengths": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "organization_name": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "min": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "min",
+                                                                        "max"
+                                                                    ]
+                                                                },
+                                                                "slug": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "min": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "min",
+                                                                        "max"
+                                                                    ]
+                                                                },
+                                                                "user_name": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "min": {
+                                                                            "type": "integer",
+                                                                            "const": 1
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "min",
+                                                                        "max"
+                                                                    ]
+                                                                },
+                                                                "password": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "min": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "min",
+                                                                        "max"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "organization_name",
+                                                                "slug",
+                                                                "user_name",
+                                                                "password"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "roles",
+                                                        "abilities",
+                                                        "limits",
+                                                        "lengths"
+                                                    ]
+                                                },
+                                                "realtime": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "key": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "host": {
+                                                            "type": "string"
+                                                        },
+                                                        "port": {
+                                                            "type": "integer"
+                                                        },
+                                                        "scheme": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "key",
+                                                        "host",
+                                                        "port",
+                                                        "scheme"
+                                                    ]
+                                                },
+                                                "status_pages": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "limits": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "max_pages_per_organization": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "max_monitors_per_page": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "max_pages_per_organization",
+                                                                "max_monitors_per_page"
+                                                            ]
+                                                        },
+                                                        "lengths": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "title": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "min": {
+                                                                            "type": "integer",
+                                                                            "const": 1
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "min",
+                                                                        "max"
+                                                                    ]
+                                                                },
+                                                                "description": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "max"
+                                                                    ]
+                                                                },
+                                                                "display_name": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "max"
+                                                                    ]
+                                                                },
+                                                                "slug": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "min": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "pattern": {
+                                                                            "type": "string",
+                                                                            "const": "^[a-z0-9-]+$"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "min",
+                                                                        "max",
+                                                                        "pattern"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "title",
+                                                                "description",
+                                                                "display_name",
+                                                                "slug"
+                                                            ]
+                                                        },
+                                                        "public": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "bar_days": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "incident_days": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "cache_seconds": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "bar_days",
+                                                                "incident_days",
+                                                                "cache_seconds"
+                                                            ]
+                                                        },
+                                                        "overall_states": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "limits",
+                                                        "lengths",
+                                                        "public",
+                                                        "overall_states"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "alerting",
+                                                "api",
+                                                "monitoring",
+                                                "organizations",
+                                                "realtime",
+                                                "status_pages"
+                                            ]
                                         }
                                     },
                                     "required": [

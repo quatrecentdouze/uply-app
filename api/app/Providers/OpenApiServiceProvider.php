@@ -6,7 +6,9 @@ namespace App\Providers;
 
 use App\Organizations\Actions\CreateUser;
 use App\Organizations\Actions\ResetUserPassword;
+use App\Shared\OpenApi\ArrayFunctionReturnTypes;
 use App\Shared\OpenApi\JsonAnswer;
+use App\Shared\OpenApi\MetaResponse;
 use App\Shared\OpenApi\OperationMethods;
 use App\Shared\OpenApi\RequestRules;
 use App\Shared\OpenApi\RequestRulesExtractor;
@@ -46,6 +48,7 @@ final class OpenApiServiceProvider extends ServiceProvider
 
         $methods = new OperationMethods([self::CHANNEL_AUTHORIZATION => Request::METHOD_POST]);
 
+        Scramble::registerExtension(ArrayFunctionReturnTypes::class);
         Scramble::configure()
             ->resolveOperationMethodsUsing($methods->of(...))
             ->withParametersExtractors(
@@ -53,6 +56,7 @@ final class OpenApiServiceProvider extends ServiceProvider
             )
             ->withOperationTransformers(function (OperationTransformers $transformers): void {
                 $transformers->append([
+                    MetaResponse::class,
                     new JsonAnswer(self::CHANNEL_AUTHORIZATION, Response::HTTP_OK, ['auth' => new StringType]),
                     new JsonAnswer(AuthenticatedSessionController::class.'@store', Response::HTTP_OK, ['two_factor' => new BooleanType]),
                 ]);
