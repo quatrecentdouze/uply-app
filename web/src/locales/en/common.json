@@ -25,13 +25,13 @@
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar",
     "open_navigation": "Open navigation",
-    "help": "Keyboard shortcuts",
     "notifications": "Notifications",
     "notifications_open": "Notifications, an incident is open",
     "open_incidents_one": "{{count}} open incident",
     "open_incidents_other": "{{count}} open incidents",
     "open_profile": "Open the profile menu of {{name}}",
     "profile": "Profile settings",
+    "security": "Security settings",
     "logout": "Log out"
   },
   "shortcuts": {

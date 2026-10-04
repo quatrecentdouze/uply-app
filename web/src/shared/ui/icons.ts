@@ -18,6 +18,7 @@ export {
   Plus,
   Search,
   Settings,
+  ShieldCheck,
   Siren,
   User,
   type LucideIcon,

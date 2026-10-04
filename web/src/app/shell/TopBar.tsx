@@ -10,20 +10,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu';
-import { Bell, ChevronsUpDown, CircleHelp, LogOut, Menu, User } from '@/shared/ui/icons';
+import { Bell, ChevronsUpDown, Menu, ShieldCheck, User } from '@/shared/ui/icons';
 
 interface TopBarProps {
   title: string;
   me: Me;
   hasOpenIncident: boolean;
   onMenu: () => void;
-  onHelp: () => void;
-  onLogout: () => void;
 }
 
 const headerButton = 'relative grid size-10 place-items-center rounded-[12px] border-[1.5px] border-line-strong bg-linear-135 from-surface-raised to-panel md:size-[47px] md:rounded-[15px]';
 
-function ProfileMenu({ me, onLogout }: { me: Me; onLogout: () => void }) {
+function ProfileMenu({ me }: { me: Me }) {
   const { t } = useTranslation(['common']);
   return (
     <DropdownMenu>
@@ -49,16 +47,18 @@ function ProfileMenu({ me, onLogout }: { me: Me; onLogout: () => void }) {
             {t('common:shell.profile')}
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={onLogout}>
-          <LogOut aria-hidden="true" />
-          {t('common:shell.logout')}
+        <DropdownMenuItem asChild>
+          <Link to="/settings/security">
+            <ShieldCheck aria-hidden="true" />
+            {t('common:shell.security')}
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
 
-export function TopBar({ title, me, hasOpenIncident, onMenu, onHelp, onLogout }: TopBarProps) {
+export function TopBar({ title, me, hasOpenIncident, onMenu }: TopBarProps) {
   const { t } = useTranslation(['common']);
   return (
     <header className="flex h-[78px] items-center justify-between gap-3 border-b-2 border-divider px-3 sm:px-[18px] md:h-topbar lg:px-5 2xl:pr-[26px] 2xl:pl-[25px]">
@@ -67,20 +67,15 @@ export function TopBar({ title, me, hasOpenIncident, onMenu, onHelp, onLogout }:
       </button>
       <h1 className="mr-auto truncate text-[19px] font-normal tracking-[-0.4px] sm:text-2xl lg:text-[25px] 2xl:text-[28px] 2xl:tracking-[-0.65px]">{title}</h1>
       <div className="flex items-center gap-2 sm:gap-3 2xl:gap-[21px]">
-        <div className="flex gap-1.5 md:gap-[9px]">
-          <button type="button" onClick={onHelp} aria-label={t('common:shell.help')} className={`${headerButton} hidden sm:grid`}>
-            <CircleHelp className="size-[26px]" strokeWidth={1.6} aria-hidden="true" />
-          </button>
-          <Link
-            to="/incidents"
-            aria-label={hasOpenIncident ? t('common:shell.notifications_open') : t('common:shell.notifications')}
-            className={headerButton}
-          >
-            <Bell className="size-[26px]" strokeWidth={1.6} aria-hidden="true" />
-            {hasOpenIncident ? <span data-testid="open-incident-dot" className="absolute top-[11px] right-3 size-2 rounded-full border border-panel bg-alert" /> : null}
-          </Link>
-        </div>
-        <ProfileMenu me={me} onLogout={onLogout} />
+        <Link
+          to="/incidents"
+          aria-label={hasOpenIncident ? t('common:shell.notifications_open') : t('common:shell.notifications')}
+          className={headerButton}
+        >
+          <Bell className="size-[26px]" strokeWidth={1.6} aria-hidden="true" />
+          {hasOpenIncident ? <span data-testid="open-incident-dot" className="absolute top-[11px] right-3 size-2 rounded-full border border-panel bg-alert" /> : null}
+        </Link>
+        <ProfileMenu me={me} />
       </div>
     </header>
   );

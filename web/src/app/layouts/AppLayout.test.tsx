@@ -75,9 +75,9 @@ describe('app shell', () => {
     });
   });
 
-  it('shows the keyboard shortcuts with the help button and with ?', async () => {
+  it('shows the keyboard shortcuts with the help entry of the sidebar and with ?', async () => {
     const app = openApp();
-    await app.user.click(await screen.findByRole('button', { name: 'Keyboard shortcuts' }));
+    await app.user.click((await sidebar()).getByRole('button', { name: 'Help' }));
 
     expect(await screen.findByRole('dialog', { name: 'Keyboard shortcuts' })).toBeInTheDocument();
     await app.user.keyboard('{Escape}');
@@ -89,13 +89,25 @@ describe('app shell', () => {
     expect(await screen.findByRole('dialog', { name: 'Keyboard shortcuts' })).toBeInTheDocument();
   });
 
-  it('logs out from the profile menu', async () => {
+  it('keeps help and log out in the sidebar only', async () => {
+    const app = openApp();
+    await sidebar();
+
+    expect(screen.getAllByRole('button', { name: 'Help' })).toHaveLength(1);
+    await app.user.click(screen.getByRole('button', { name: 'Open the profile menu of Demo User' }));
+
+    expect(await screen.findByRole('menuitem', { name: 'Profile settings' })).toHaveAttribute('href', '/settings/profile');
+    expect(screen.getByRole('menuitem', { name: 'Security settings' })).toHaveAttribute('href', '/settings/security');
+    expect(screen.queryByRole('menuitem', { name: 'Log out' })).toBeNull();
+  });
+
+  it('logs out from the sidebar', async () => {
     const app = openApp();
     app.server.respond({ method: 'POST', path: '/api/v1/auth/logout', status: 204 });
 
-    await app.user.click(await screen.findByRole('button', { name: 'Open the profile menu of Demo User' }));
+    const navigation = await sidebar();
     app.server.respond({ method: 'GET', path: '/api/v1/organizations', status: 401, body: { message: 'Unauthenticated.' } });
-    await app.user.click(await screen.findByRole('menuitem', { name: 'Log out' }));
+    await app.user.click(navigation.getByRole('button', { name: 'Log out' }));
 
     await waitFor(() => {
       expect(app.router.state.location.pathname).toBe('/login');
