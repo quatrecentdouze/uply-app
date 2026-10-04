@@ -490,7 +490,17 @@
                         "description": "",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "two_factor": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "two_factor"
+                                    ]
+                                }
                             }
                         }
                     },

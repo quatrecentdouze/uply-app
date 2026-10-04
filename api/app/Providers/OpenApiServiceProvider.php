@@ -13,11 +13,13 @@ use App\Shared\OpenApi\RequestRulesExtractor;
 use Dedoc\Scramble\Configuration\OperationTransformers;
 use Dedoc\Scramble\Configuration\ParametersExtractors;
 use Dedoc\Scramble\Scramble;
+use Dedoc\Scramble\Support\Generator\Types\BooleanType;
 use Dedoc\Scramble\Support\Generator\Types\StringType;
 use Illuminate\Broadcasting\BroadcastController;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
 use Laravel\Fortify\Http\Controllers\RegisteredUserController;
 
@@ -52,6 +54,7 @@ final class OpenApiServiceProvider extends ServiceProvider
             ->withOperationTransformers(function (OperationTransformers $transformers): void {
                 $transformers->append([
                     new JsonAnswer(self::CHANNEL_AUTHORIZATION, Response::HTTP_OK, ['auth' => new StringType]),
+                    new JsonAnswer(AuthenticatedSessionController::class.'@store', Response::HTTP_OK, ['two_factor' => new BooleanType]),
                 ]);
             });
     }

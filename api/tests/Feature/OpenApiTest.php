@@ -92,3 +92,10 @@ it('documents the channel authorization as the post that echo sends', function (
         ->and(data_get($answer, 'required'))->toBe(['auth'])
         ->and(data_get($answer, 'properties.auth.type'))->toBe('string');
 });
+
+it('documents the two factor flag of the login answer', function (): void {
+    $answer = data_get(documentedOperation('/v1/auth/login', 'post'), 'responses.200.content.application/json.schema');
+
+    expect(data_get($answer, 'required'))->toBe(['two_factor'])
+        ->and(data_get($answer, 'properties.two_factor.type'))->toBe('boolean');
+});
