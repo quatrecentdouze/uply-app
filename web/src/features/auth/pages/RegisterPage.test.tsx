@@ -2,24 +2,13 @@ import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { RegisterPage } from '@/features/auth/pages/RegisterPage';
 import { fakeFetch } from '@/shared/testing/fakeFetch';
+import { metaFixture } from '@/shared/testing/fixtures';
 import { renderPage } from '@/shared/testing/renderPage';
-
-const meta = {
-  data: {
-    organizations: {
-      lengths: {
-        organization_name: { min: 2, max: 80 },
-        user_name: { min: 1, max: 80 },
-        password: { min: 12, max: 255 },
-      },
-    },
-  },
-};
 
 function server() {
   return fakeFetch([
     { method: 'GET', path: '/sanctum/csrf-cookie', status: 204 },
-    { method: 'GET', path: '/api/v1/meta', body: meta },
+    { method: 'GET', path: '/api/v1/meta', body: { data: metaFixture() } },
   ]);
 }
 

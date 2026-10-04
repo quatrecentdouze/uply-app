@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { metaFixture } from '@/shared/testing/fixtures';
 import { loginSchema, registerSchema, resetLinkOf, resetPasswordSchema, twoFactorBody, twoFactorSchema, type ValidationTexts } from '@/features/auth/model/forms';
 
 const texts: ValidationTexts & { code: string } = {
@@ -9,7 +10,7 @@ const texts: ValidationTexts & { code: string } = {
   code: 'code',
 };
 
-const lengths = { organizationName: { min: 2, max: 80 }, userName: { min: 1, max: 80 }, password: { min: 12, max: 255 } };
+const lengths = metaFixture().organizations.lengths;
 
 function messages(result: { success: boolean; error?: { issues: { path: PropertyKey[]; message: string }[] } }) {
   return Object.fromEntries((result.error?.issues ?? []).map((issue) => [issue.path.join('.'), issue.message]));

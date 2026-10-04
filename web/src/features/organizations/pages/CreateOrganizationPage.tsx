@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -7,10 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { useCreateOrganization } from '@/features/organizations/api/organizations';
 import { rememberOrganization } from '@/features/organizations/hooks/currentOrganization';
 import { type OrganizationValues, organizationSchema } from '@/features/organizations/model/organizations';
-import { useApiClient } from '@/shared/api/apiClientContext';
 import { failureOf } from '@/shared/api/errors';
 import { reportFailure } from '@/shared/api/formFailure';
-import { metaQuery } from '@/shared/api/meta';
+import { useMeta } from '@/shared/api/meta';
 import { useValidationTexts } from '@/shared/i18n/useValidationTexts';
 import { Button } from '@/shared/ui/button';
 import { EntryCard } from '@/shared/ui/entry-card';
@@ -24,7 +22,7 @@ export function CreateOrganizationPage({ canCancel }: { canCancel: boolean }) {
   const validation = useValidationTexts();
   const navigate = useNavigate();
   const create = useCreateOrganization();
-  const bounds = useQuery(metaQuery(useApiClient())).data?.lengths?.organizationName ?? null;
+  const bounds = useMeta()?.organizations.lengths.organization_name ?? null;
   const schema = useMemo(() => organizationSchema(validation, bounds), [validation, bounds]);
   const form = useForm<OrganizationValues>({ resolver: zodResolver(schema), defaultValues: { name: '' } });
   const { errors, isSubmitting } = form.formState;

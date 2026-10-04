@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
 import { Navigate, Outlet, useLocation, useNavigate } from '@tanstack/react-router';
 import { cn } from 'cn';
 import { useCallback, useEffect, useState } from 'react';
@@ -15,7 +14,7 @@ import { useOrganizations } from '@/features/organizations/api/organizations';
 import { CurrentOrganizationProvider } from '@/features/organizations/components/CurrentOrganizationProvider';
 import { useCurrentOrganization } from '@/features/organizations/hooks/currentOrganization';
 import { useApiClient } from '@/shared/api/apiClientContext';
-import { metaQuery } from '@/shared/api/meta';
+import { realtimeConnection, useMeta } from '@/shared/api/meta';
 import { useOrganizationRealtime } from '@/shared/realtime/useOrganizationRealtime';
 import { browserStore, storageKeys } from '@/shared/storage/storage';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/shared/ui/sheet';
@@ -37,7 +36,8 @@ function Shell() {
   const me = useMe().data;
   const logout = useLogout();
   const { organization } = useCurrentOrganization();
-  const connection = useQuery(metaQuery(client)).data?.realtime ?? null;
+  const meta = useMeta();
+  const connection = meta === null ? null : realtimeConnection(meta);
   const openIncidents = useOpenIncidentCount(organization.id);
   const title = usePageTitle();
   const [collapsed, setCollapsed] = useState(() => browserStore.read(storageKeys.sidebarCollapsed) === 'true');

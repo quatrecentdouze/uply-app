@@ -37,7 +37,7 @@ export type LoginValues = z.infer<ReturnType<typeof loginSchema>>;
 export function registerSchema(texts: ValidationTexts, lengths: AccountLengths | null) {
   return z
     .object({
-      name: requiredText(texts).pipe(bounded(texts, lengths?.userName)),
+      name: requiredText(texts).pipe(bounded(texts, lengths?.user_name)),
       email: emailField(texts),
       password: bounded(texts, lengths?.password),
       password_confirmation: z.string().min(1, texts.required),

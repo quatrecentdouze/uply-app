@@ -1,3 +1,4 @@
+import type { Meta } from '@/shared/api/meta';
 import type { Incident, Me, Monitor, MonitorListResponse, Overview } from '@/shared/api/resources';
 
 export const organizationId = '01jbxorganization0000000000';
@@ -78,6 +79,57 @@ export function meFixture(overrides: Partial<Me> = {}): Me {
         joined_at: '2026-10-28T08:00:00Z',
       },
     ],
+    ...overrides,
+  };
+}
+
+const viewAbilities = ['monitors.view', 'incidents.view', 'status-pages.view', 'alert-channels.view'];
+const memberAbilities = [...viewAbilities, 'monitors.manage', 'status-pages.manage'];
+const adminAbilities = [...memberAbilities, 'alert-channels.manage', 'members.manage', 'organization.manage'];
+
+export function metaFixture(overrides: Partial<Meta> = {}): Meta {
+  return {
+    alerting: {
+      channel_types: ['email', 'discord', 'slack'],
+      email_recipients: { min: 1, max: 10 },
+      test_sends_per_minute: 5,
+      max_channels_per_monitor: 50,
+      lengths: { channel_name: { min: 1, max: 80 }, webhook_url: { max: 2048 } },
+    },
+    api: { pagination: { default_per_page: 25, max_per_page: 100 }, rate_limit_per_minute: 120 },
+    monitoring: {
+      intervals: { allowed_seconds: [30, 60, 120, 300, 600, 900, 1800, 3600], default_seconds: 60 },
+      timeouts: { min_seconds: 1, max_seconds: 30, default_seconds: 10 },
+      methods: ['get', 'head'],
+      default_method: 'get',
+      default_accepted_status_codes: ['200-299'],
+      windows: ['24h', '7d', '30d'],
+      limits: { max_monitors_per_organization: 100, max_accepted_status_ranges: 20 },
+      lengths: { monitor_name: { min: 1, max: 100 }, url: { max: 2048 } },
+    },
+    organizations: {
+      roles: [
+        { id: 'owner', abilities: [...adminAbilities, 'organization.delete'] },
+        { id: 'admin', abilities: adminAbilities },
+        { id: 'member', abilities: memberAbilities },
+        { id: 'viewer', abilities: viewAbilities },
+      ],
+      abilities: [...adminAbilities, 'organization.delete'],
+      limits: { max_owned_organizations: 10, max_pending_invitations: 50, invitation_valid_days: 7 },
+      lengths: {
+        organization_name: { min: 2, max: 80 },
+        slug: { min: 3, max: 48 },
+        user_name: { min: 1, max: 80 },
+        password: { min: 12, max: 255 },
+      },
+    },
+    realtime: { key: null, host: 'localhost', port: 6001, scheme: 'http' },
+    status_pages: {
+      limits: { max_pages_per_organization: 10, max_monitors_per_page: 50 },
+      lengths: { title: { min: 1, max: 80 }, description: { max: 500 }, display_name: { max: 80 }, slug: { min: 3, max: 48, pattern: '^[a-z0-9-]+$' } },
+      public: { bar_days: 90, incident_days: 14, cache_seconds: 30 },
+      overall_states: ['operational', 'partial_outage', 'major_outage'],
+    },
     ...overrides,
   };
 }

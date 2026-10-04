@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { AppProviders } from '@/app/App';
 import { createAppServices } from '@/app/services';
 import { type FakeFetch, fakeFetch, testOrigin } from '@/shared/testing/fakeFetch';
-import { listOf, meFixture, organizationId, overviewFixture } from '@/shared/testing/fixtures';
+import { listOf, meFixture, metaFixture, organizationId, overviewFixture } from '@/shared/testing/fixtures';
 import type { Incident, Me, Monitor, Overview } from '@/shared/api/resources';
 
 export interface RenderAppOptions {
@@ -55,7 +55,7 @@ export function withWorkspace(server: FakeFetch, data: WorkspaceData = {}): Fake
   server.respond({ method: 'GET', path: `${base}/monitors`, body: listOf(data.monitors ?? []) });
   server.respond({ method: 'GET', path: `${base}/incidents`, body: { ...incidents, meta: { ...incidents.meta, total: data.openIncidents ?? incidents.meta.total } } });
   server.respond({ method: 'GET', path: `${base}/overview`, body: { data: data.overview ?? overviewFixture() } });
-  server.respond({ method: 'GET', path: '/api/v1/meta', body: { data: {} } });
+  server.respond({ method: 'GET', path: '/api/v1/meta', body: { data: metaFixture() } });
   return server;
 }
 

@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
 import { Link, useRouter } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -7,10 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { useRegister } from '@/features/auth/api/session';
 import { SubmitButton } from '@/features/auth/components/SubmitButton';
 import { type RegisterValues, registerSchema } from '@/features/auth/model/forms';
-import { useApiClient } from '@/shared/api/apiClientContext';
 import { failureOf } from '@/shared/api/errors';
 import { reportFailure } from '@/shared/api/formFailure';
-import { metaQuery } from '@/shared/api/meta';
+import { useMeta } from '@/shared/api/meta';
 import { useValidationTexts } from '@/shared/i18n/useValidationTexts';
 import { EntryCard } from '@/shared/ui/entry-card';
 import { FormAlert } from '@/shared/ui/form-alert';
@@ -23,7 +21,7 @@ export function RegisterPage({ redirectTo }: { redirectTo: string }) {
   const validation = useValidationTexts();
   const router = useRouter();
   const register = useRegister();
-  const lengths = useQuery(metaQuery(useApiClient())).data?.lengths ?? null;
+  const lengths = useMeta()?.organizations.lengths ?? null;
   const schema = useMemo(() => registerSchema(validation, lengths), [validation, lengths]);
   const form = useForm<RegisterValues>({
     resolver: zodResolver(schema),
