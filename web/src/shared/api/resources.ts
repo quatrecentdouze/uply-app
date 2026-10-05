@@ -19,3 +19,14 @@ export type MonitorListResponse = JsonOf<paths['/v1/organizations/{organization}
 export type MonitorResponse = JsonOf<paths['/v1/organizations/{organization}/monitors/{monitor}']['get']>;
 export type IncidentListResponse = JsonOf<paths['/v1/organizations/{organization}/incidents']['get']>;
 export type OverviewResponse = JsonOf<paths['/v1/organizations/{organization}/overview']['get']>;
+export type MonitorStats = Schemas['MonitorStatsResource'];
+export type CheckResult = Schemas['CheckResultResource'];
+export type TimelineEvent = Schemas['TimelineEventResource'];
+export type AlertChannel = Schemas['AlertChannelResource'];
+export type ChannelType = Schemas['ChannelType'];
+export type StatusPage = Schemas['StatusPageResource'];
+export type PageMonitor = Schemas['PageMonitorResource'];
+export type Member = Schemas['MemberResource'];
+export type Invitation = Schemas['InvitationResource'];
+
+export type CheckListResponse = JsonOf<paths['/v1/organizations/{organization}/monitors/{monitor}/checks']['get']>;
