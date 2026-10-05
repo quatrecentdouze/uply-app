@@ -56,5 +56,12 @@
     "last_response": "{{value, number}} ms",
     "no_response": "No data",
     "open": "Open {{name}}"
+  },
+  "form": {
+    "every_seconds": "Every {{count}} seconds",
+    "every_minutes_one": "Every minute",
+    "every_minutes_other": "Every {{count}} minutes",
+    "every_hours_one": "Every hour",
+    "every_hours_other": "Every {{count}} hours"
   }
 }

@@ -4,6 +4,18 @@ import type { TextKey } from '@/shared/i18n/textKey';
 
 export const serverErrorField = 'root.server';
 
+export function withFieldRoots(failure: ApiFailure): ApiFailure {
+  if (failure.kind !== 'validation') {
+    return failure;
+  }
+  const fields: Record<string, readonly string[]> = {};
+  for (const [field, messages] of Object.entries(failure.fields)) {
+    const root = field.split('.')[0] ?? field;
+    fields[root] = [...(fields[root] ?? []), ...messages];
+  }
+  return { ...failure, fields };
+}
+
 export function reportFailure<Values extends FieldValues>(
   setError: UseFormSetError<Values>,
   failure: ApiFailure,
