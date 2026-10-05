@@ -15,7 +15,7 @@ const generatedFiles = new Set([
   'src/shared/ui/input-group.tsx',
   'src/shared/ui/input.tsx',
   'src/shared/ui/label.tsx',
-  'src/shared/ui/select.tsx',
+  'src/shared/ui/native-select.tsx',
   'src/shared/ui/separator.tsx',
   'src/shared/ui/sheet.tsx',
   'src/shared/ui/skeleton.tsx',
