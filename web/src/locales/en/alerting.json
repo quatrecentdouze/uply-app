@@ -1,0 +1,17 @@
+{
+  "types": {
+    "email": "Email",
+    "discord": "Discord",
+    "slack": "Slack"
+  },
+  "status": {
+    "enabled": "On",
+    "disabled": "Off",
+    "rejected": "Rejected by the provider"
+  },
+  "picker": {
+    "label": "Alert channels",
+    "empty": "No alert channel yet.",
+    "create": "Create one"
+  }
+}

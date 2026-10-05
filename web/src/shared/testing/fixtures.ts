@@ -1,5 +1,5 @@
 import type { Meta } from '@/shared/api/meta';
-import type { Incident, Me, Monitor, MonitorListResponse, Overview } from '@/shared/api/resources';
+import type { AlertChannel, Incident, Me, Monitor, MonitorListResponse, Overview } from '@/shared/api/resources';
 
 export const organizationId = '01jbxorganization0000000000';
 
@@ -130,6 +130,21 @@ export function metaFixture(overrides: Partial<Meta> = {}): Meta {
       public: { bar_days: 90, incident_days: 14, cache_seconds: 30 },
       overall_states: ['operational', 'partial_outage', 'major_outage'],
     },
+    ...overrides,
+  };
+}
+
+export function alertChannelFixture(overrides: Partial<AlertChannel> = {}): AlertChannel {
+  return {
+    id: '01jbxchannel00000000000001',
+    type: 'email',
+    name: 'On-call email',
+    is_enabled: true,
+    disabled_reason: null,
+    recipients: ['ops@example.test'],
+    webhook_hint: null,
+    created_at: '2026-10-28T08:00:00Z',
+    updated_at: '2026-10-28T08:00:00Z',
     ...overrides,
   };
 }
