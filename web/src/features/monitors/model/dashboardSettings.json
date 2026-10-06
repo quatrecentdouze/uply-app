@@ -8,5 +8,7 @@
   "recent_incidents": 5,
   "list_size": 100,
   "default_window": "24h",
-  "clock_tick_seconds": 15
+  "clock_tick_seconds": 15,
+  "search_delay_ms": 300,
+  "checks_page_size": 20
 }

@@ -91,5 +91,37 @@
   "methods": {
     "get": "GET",
     "head": "HEAD"
+  },
+  "list": {
+    "title": "All monitors",
+    "table": "Monitors of the organization",
+    "filters": {
+      "label": "Filter by state",
+      "all": "All"
+    },
+    "search": "Search by name or URL",
+    "add": "Add monitor",
+    "empty": "No monitor yet. Add one to start watching a service.",
+    "no_match": "No monitor matches these filters.",
+    "monitor": "Monitor",
+    "state": "State",
+    "uptime": "Uptime 24 h",
+    "response": "Last response",
+    "checked": "Last check",
+    "interval": "Interval",
+    "actions_head": "Actions",
+    "actions": "Actions for {{name}}",
+    "edit": "Edit",
+    "pause": "Pause",
+    "resume": "Resume",
+    "delete": "Delete",
+    "no_data": "No data",
+    "never": "Not checked yet"
+  },
+  "delete": {
+    "title": "Delete {{name}}?",
+    "description": "Its checks, stats and incidents go with it. This cannot be undone.",
+    "confirm": "Delete monitor",
+    "cancel": "Cancel"
   }
 }

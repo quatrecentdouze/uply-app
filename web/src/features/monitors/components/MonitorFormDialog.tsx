@@ -77,6 +77,7 @@ function MonitorForm({ organizationId, monitor, monitoring, extra, onSaved, onOp
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField
+          className="content-start"
           label={t('monitors:form.timeout')}
           type="number"
           inputMode="numeric"
@@ -86,6 +87,7 @@ function MonitorForm({ organizationId, monitor, monitoring, extra, onSaved, onOp
           {...form.register('timeout_seconds')}
         />
         <FormField
+          className="content-start"
           label={t('monitors:form.accepted_codes')}
           autoComplete="off"
           hint={t('monitors:form.accepted_codes_hint')}

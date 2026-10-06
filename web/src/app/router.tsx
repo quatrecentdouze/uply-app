@@ -13,6 +13,7 @@ import { AppLayout } from '@/app/layouts/AppLayout';
 import { AuthLayout } from '@/app/layouts/AuthLayout';
 import { entryRedirect, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
 import { DashboardPage } from '@/app/pages/DashboardPage';
+import { MonitorsPage } from '@/app/pages/MonitorsPage';
 import { NotFoundPage, StandaloneNotFoundPage } from '@/app/pages/NotFoundPage';
 import { meQuery, useLogout, useMe } from '@/features/auth/api/session';
 import { resetLinkOf } from '@/features/auth/model/forms';
@@ -200,7 +201,11 @@ function nextMilestone<const Path extends string>(path: Path) {
   });
 }
 
-const monitorsRoute = nextMilestone('monitors');
+const monitorsRoute = createRoute({
+  getParentRoute: () => pagesLayout,
+  path: 'monitors',
+  component: MonitorsPage,
+});
 const monitorRoute = nextMilestone('monitors/$monitorId');
 const incidentsRoute = nextMilestone('incidents');
 const incidentRoute = nextMilestone('incidents/$incidentId');

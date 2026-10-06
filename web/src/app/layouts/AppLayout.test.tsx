@@ -148,9 +148,9 @@ describe('app shell', () => {
 
   it('opens the not found page inside the shell for a screen of the next milestone', async () => {
     const app = openApp();
-    await app.user.click(await (await sidebar()).findByRole('link', { name: /Monitors/ }));
+    await app.user.click(await (await sidebar()).findByRole('link', { name: /Status pages/ }));
 
     expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1, name: 'Monitors' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Status pages' })).toBeInTheDocument();
   });
 });
