@@ -4,6 +4,7 @@ import {
   hasChanges,
   intervalText,
   isWebUrl,
+  knownMethods,
   type MonitorFormTexts,
   monitorFormSchema,
   monitorFormValues,
@@ -132,5 +133,11 @@ describe('form helpers', () => {
       message: 'Invalid.',
       fields: { accepted_status_codes: ['Bad range.'], url: ['Bad URL.'] },
     });
+  });
+});
+
+describe('knownMethods', () => {
+  it('keeps the methods the form can name', () => {
+    expect(knownMethods(['get', 'head', 'post'])).toEqual(['get', 'head']);
   });
 });

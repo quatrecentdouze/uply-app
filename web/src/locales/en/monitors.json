@@ -62,6 +62,34 @@
     "every_minutes_one": "Every minute",
     "every_minutes_other": "Every {{count}} minutes",
     "every_hours_one": "Every hour",
-    "every_hours_other": "Every {{count}} hours"
+    "every_hours_other": "Every {{count}} hours",
+    "title_create": "Add a monitor",
+    "title_edit": "Edit {{name}}",
+    "description": "Uply checks the address on a schedule and alerts you when it goes down or comes back.",
+    "name": "Name",
+    "url": "URL",
+    "url_placeholder": "https://api.example.com/health",
+    "method": "Method",
+    "interval": "Check interval",
+    "timeout": "Timeout in seconds",
+    "accepted_codes": "Accepted status codes",
+    "accepted_codes_hint": "Ranges like 200-299 or single codes, separated by commas.",
+    "follow_redirects": "Follow redirects",
+    "follow_redirects_hint": "Each redirect is checked like the first address.",
+    "cancel": "Cancel",
+    "create": "Add monitor",
+    "save": "Save changes",
+    "errors": {
+      "url": "Enter an http or https address.",
+      "max_length": "Use at most {{max}} characters.",
+      "status_ranges": "Use codes from 100 to 599, like 200-299 or 304.",
+      "too_many_ranges": "Use at most {{max}} codes or ranges.",
+      "interval": "Choose one of the intervals.",
+      "timeout": "Use a whole number of seconds from {{min}} to {{max}}."
+    }
+  },
+  "methods": {
+    "get": "GET",
+    "head": "HEAD"
   }
 }

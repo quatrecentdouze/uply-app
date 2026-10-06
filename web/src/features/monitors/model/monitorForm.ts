@@ -28,6 +28,15 @@ export interface MonitorFormValues {
   follow_redirects: boolean;
 }
 
+export const methodTextKeys: Record<HttpMethod, TextKey<'monitors'>> = {
+  get: 'monitors:methods.get',
+  head: 'monitors:methods.head',
+};
+
+export function knownMethods(methods: readonly string[]): HttpMethod[] {
+  return methods.flatMap((method) => (method === 'get' || method === 'head' ? [method] : []));
+}
+
 const lowestStatus = 100;
 const highestStatus = 599;
 const statusRangePattern = /^(\d{3})(?:-(\d{3}))?$/;
