@@ -123,5 +123,25 @@
     "description": "Its checks, stats and incidents go with it. This cannot be undone.",
     "confirm": "Delete monitor",
     "cancel": "Cancel"
+  },
+  "failures": {
+    "http_status": "HTTP {{status}}",
+    "no_status": "No status code",
+    "timeout": "Timeout",
+    "dns": "DNS error",
+    "connect": "Connection failed",
+    "tls": "TLS error",
+    "too_many_redirects": "Too many redirects",
+    "blocked_target": "Blocked address",
+    "body_too_large": "Answer too large",
+    "unknown": "Unknown error"
+  },
+  "detail": {
+    "timings": {
+      "dns": "DNS",
+      "connect": "Connect",
+      "tls": "TLS",
+      "ttfb": "First byte"
+    }
   }
 }
