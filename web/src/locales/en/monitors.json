@@ -141,7 +141,29 @@
       "dns": "DNS",
       "connect": "Connect",
       "tls": "TLS",
-      "ttfb": "First byte"
-    }
+      "ttfb": "First byte",
+      "title": "Timing breakdown",
+      "info": "Average time of each step of the checks of the last 24 hours.",
+      "bar": "Share of each step of a check"
+    },
+    "last_check": "Last check {{when}}",
+    "state_since": "State since {{when}}",
+    "separator": " · ",
+    "paused": "Paused",
+    "uptime": "Uptime over {{window}}",
+    "checks_one": "{{count}} check",
+    "checks_other": "{{count}} checks",
+    "response": {
+      "avg": "Average",
+      "min": "Fastest",
+      "max": "Slowest"
+    },
+    "checks_title": "Recent checks",
+    "checks_table": "Recent checks of the monitor",
+    "no_checks": "No check yet. The first one runs within a minute.",
+    "checked_at": "Checked at",
+    "result": "Result",
+    "detail": "Detail",
+    "more_checks": "Load older checks"
   }
 }

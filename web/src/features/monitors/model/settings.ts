@@ -15,6 +15,7 @@ const settingsSchema = z
     clock_tick_seconds: z.number().int().min(1),
     search_delay_ms: z.number().int().min(0),
     checks_page_size: z.number().int().min(1).max(100),
+    detail_incidents: z.number().int().min(1).max(100),
   })
   .refine((settings) => settings.uptime_thresholds.degraded <= settings.uptime_thresholds.healthy, {
     path: ['uptime_thresholds', 'degraded'],

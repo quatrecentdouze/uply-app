@@ -10,5 +10,6 @@
   "default_window": "24h",
   "clock_tick_seconds": 15,
   "search_delay_ms": 300,
-  "checks_page_size": 20
+  "checks_page_size": 10,
+  "detail_incidents": 5
 }
