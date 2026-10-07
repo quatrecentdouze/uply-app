@@ -13,6 +13,7 @@ import { AppLayout } from '@/app/layouts/AppLayout';
 import { AuthLayout } from '@/app/layouts/AuthLayout';
 import { entryRedirect, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
 import { DashboardPage } from '@/app/pages/DashboardPage';
+import { MonitorDetailPage } from '@/app/pages/MonitorDetailPage';
 import { MonitorsPage } from '@/app/pages/MonitorsPage';
 import { NotFoundPage, StandaloneNotFoundPage } from '@/app/pages/NotFoundPage';
 import { meQuery, useLogout, useMe } from '@/features/auth/api/session';
@@ -206,7 +207,13 @@ const monitorsRoute = createRoute({
   path: 'monitors',
   component: MonitorsPage,
 });
-const monitorRoute = nextMilestone('monitors/$monitorId');
+const monitorRoute = createRoute({
+  getParentRoute: () => pagesLayout,
+  path: 'monitors/$monitorId',
+  component: function MonitorRoute() {
+    return <MonitorDetailPage monitorId={monitorRoute.useParams().monitorId} />;
+  },
+});
 const incidentsRoute = nextMilestone('incidents');
 const incidentRoute = nextMilestone('incidents/$incidentId');
 const statusPagesRoute = nextMilestone('status-pages');
