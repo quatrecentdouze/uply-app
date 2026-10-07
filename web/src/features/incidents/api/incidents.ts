@@ -2,7 +2,7 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 import { useApiClient } from '@/shared/api/apiClientContext';
 import { type ApiClient, expectData } from '@/shared/api/client';
 import { type IncidentListFilters, queryKeys } from '@/shared/api/queryKeys';
-import type { IncidentListResponse } from '@/shared/api/resources';
+import type { Incident, IncidentListResponse } from '@/shared/api/resources';
 
 export function incidentListQuery(client: ApiClient, organizationId: string, filters: IncidentListFilters) {
   return queryOptions({
@@ -33,4 +33,13 @@ const openCountFilters: IncidentListFilters = { state: 'open', perPage: 1 };
 export function useOpenIncidentCount(organizationId: string): number | null {
   const query = useQuery({ ...incidentListQuery(useApiClient(), organizationId, openCountFilters), select: (list) => list.meta.total });
   return query.data ?? null;
+}
+
+export function useIncident(organizationId: string, incidentId: string) {
+  const client = useApiClient();
+  return useQuery({
+    queryKey: queryKeys.incidents.detail(organizationId, incidentId),
+    queryFn: async (): Promise<Incident> =>
+      (await expectData(client.GET('/v1/organizations/{organization}/incidents/{incident}', { params: { path: { organization: organizationId, incident: incidentId } } }))).data,
+  });
 }
