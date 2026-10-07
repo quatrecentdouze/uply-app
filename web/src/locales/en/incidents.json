@@ -33,5 +33,42 @@
     "for": ", for {{duration}}",
     "more_one": "And {{count}} older incident in the incidents list.",
     "more_other": "And {{count}} older incidents in the incidents list."
+  },
+  "channels": {
+    "email": "email",
+    "discord": "Discord",
+    "slack": "Slack",
+    "unknown": "a removed channel"
+  },
+  "timeline": {
+    "title": "Timeline",
+    "opened": "The monitor went down",
+    "resolved": "The monitor came back up",
+    "resolved_after": "Back up after {{duration}}",
+    "down_sent": "Down alert sent by {{channel}}",
+    "down_failed": "Down alert failed on {{channel}}",
+    "recovery_sent": "Recovery alert sent by {{channel}}",
+    "recovery_failed": "Recovery alert failed on {{channel}}",
+    "attempts_one": "{{count}} try",
+    "attempts_other": "{{count}} tries",
+    "empty": "No event yet."
+  },
+  "list": {
+    "filters": {
+      "label": "Filter by state",
+      "all": "All"
+    },
+    "title": "All incidents",
+    "table": "Incidents of the organization",
+    "no_match": "No incident matches this filter.",
+    "resolved": "Resolved",
+    "pages": "Pages of incidents",
+    "page": "Page {{page}} of {{last}}",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "detail": {
+    "back": "All incidents",
+    "not_yet": "Not yet"
   }
 }

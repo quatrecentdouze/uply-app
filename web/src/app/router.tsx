@@ -10,9 +10,12 @@ import {
   useNavigate,
 } from '@tanstack/react-router';
 import { AppLayout } from '@/app/layouts/AppLayout';
+import { useWorkspace } from '@/app/hooks/useWorkspace';
 import { AuthLayout } from '@/app/layouts/AuthLayout';
 import { entryRedirect, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
 import { DashboardPage } from '@/app/pages/DashboardPage';
+import { IncidentDetailPage } from '@/features/incidents/pages/IncidentDetailPage';
+import { IncidentsPage } from '@/features/incidents/pages/IncidentsPage';
 import { MonitorDetailPage } from '@/app/pages/MonitorDetailPage';
 import { MonitorsPage } from '@/app/pages/MonitorsPage';
 import { NotFoundPage, StandaloneNotFoundPage } from '@/app/pages/NotFoundPage';
@@ -28,8 +31,10 @@ import { organizationsQuery } from '@/features/organizations/api/organizations';
 import type { InvitationViewer } from '@/features/organizations/model/organizations';
 import { CreateOrganizationPage } from '@/features/organizations/pages/CreateOrganizationPage';
 import { InvitationPage } from '@/features/organizations/pages/InvitationPage';
+import { dashboardSettings } from '@/features/monitors/model/settings';
 import type { ApiClient } from '@/shared/api/client';
 import type { Me } from '@/shared/api/resources';
+import { useNow } from '@/shared/time/useNow';
 
 export interface RouterContext {
   queryClient: QueryClient;
@@ -214,8 +219,25 @@ const monitorRoute = createRoute({
     return <MonitorDetailPage monitorId={monitorRoute.useParams().monitorId} />;
   },
 });
-const incidentsRoute = nextMilestone('incidents');
-const incidentRoute = nextMilestone('incidents/$incidentId');
+const incidentsRoute = createRoute({
+  getParentRoute: () => pagesLayout,
+  path: 'incidents',
+  component: function IncidentsRoute() {
+    const { organizationId } = useWorkspace();
+    const now = useNow(dashboardSettings.clock_tick_seconds);
+    return <IncidentsPage organizationId={organizationId} now={now} />;
+  },
+});
+
+const incidentRoute = createRoute({
+  getParentRoute: () => pagesLayout,
+  path: 'incidents/$incidentId',
+  component: function IncidentRoute() {
+    const { organizationId } = useWorkspace();
+    const now = useNow(dashboardSettings.clock_tick_seconds);
+    return <IncidentDetailPage organizationId={organizationId} incidentId={incidentRoute.useParams().incidentId} now={now} notFound={<NotFoundPage />} />;
+  },
+});
 const statusPagesRoute = nextMilestone('status-pages');
 const statusPageRoute = nextMilestone('status-pages/$statusPageId');
 const alertChannelsRoute = nextMilestone('alert-channels');
