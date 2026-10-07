@@ -13,5 +13,10 @@
     "label": "Alert channels",
     "empty": "No alert channel yet.",
     "create": "Create one"
+  },
+  "linked": {
+    "title": "Alert channels",
+    "info": "Channels alerted when this monitor goes down or comes back. Change them in the monitor form.",
+    "empty": "No channel is alerted for this monitor."
   }
 }

@@ -26,5 +26,12 @@
     "body_too_large": "Answer too large",
     "unknown": "Unknown error"
   },
-  "deleted_monitor": "Deleted monitor"
+  "deleted_monitor": "Deleted monitor",
+  "monitor": {
+    "title": "Incidents",
+    "empty": "No incident for this monitor.",
+    "for": ", for {{duration}}",
+    "more_one": "And {{count}} older incident in the incidents list.",
+    "more_other": "And {{count}} older incidents in the incidents list."
+  }
 }
