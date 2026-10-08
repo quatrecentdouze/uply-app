@@ -18,5 +18,49 @@
     "title": "Alert channels",
     "info": "Channels alerted when this monitor goes down or comes back. Change them in the monitor form.",
     "empty": "No channel is alerted for this monitor."
+  },
+  "form": {
+    "title_create": "Add an alert channel",
+    "title_edit": "Edit {{name}}",
+    "description": "Uply sends a message here when a linked monitor goes down or comes back.",
+    "type": "Channel type",
+    "name": "Name",
+    "recipients": "Recipients",
+    "recipients_hint": "Email addresses separated by commas or new lines, up to {{max}}.",
+    "webhook_url": "Webhook URL",
+    "discord_placeholder": "https://discord.com/api/webhooks/...",
+    "slack_placeholder": "https://hooks.slack.com/services/...",
+    "webhook_hint": "Uply never shows this address again once saved.",
+    "webhook_kept": "Saved webhook on {{host}}, ending in {{last_four}}. Leave empty to keep it.",
+    "enabled": "Send alerts",
+    "enabled_hint": "A channel turned off keeps its links but sends nothing.",
+    "cancel": "Cancel",
+    "create": "Add channel",
+    "save": "Save changes",
+    "errors": {
+      "max_length": "Use at most {{max}} characters.",
+      "recipient_count": "Add {{min}} to {{max}} addresses.",
+      "recipient": "{{address}} is not a valid email address.",
+      "webhook": "Enter an https address."
+    }
+  },
+  "card": {
+    "webhook": "Webhook on {{host}}, ending in {{last_four}}",
+    "test": "Send test",
+    "edit": "Edit",
+    "delete": "Delete",
+    "test_sent": "Test alert queued. It arrives in a few seconds."
+  },
+  "page": {
+    "description": "Where Uply sends its alerts. Link a channel to a monitor in the monitor form.",
+    "add": "Add channel",
+    "empty": "No alert channel yet.",
+    "list": "Alert channels"
+  },
+  "delete": {
+    "title": "Delete {{name}}?",
+    "description": "The monitors linked to it stop alerting there. This cannot be undone.",
+    "confirm": "Delete channel",
+    "cancel": "Cancel"
   }
 }

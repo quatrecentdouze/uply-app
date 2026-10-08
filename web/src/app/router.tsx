@@ -14,6 +14,7 @@ import { useWorkspace } from '@/app/hooks/useWorkspace';
 import { AuthLayout } from '@/app/layouts/AuthLayout';
 import { entryRedirect, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
 import { DashboardPage } from '@/app/pages/DashboardPage';
+import { AlertChannelsPage } from '@/features/alerting/pages/AlertChannelsPage';
 import { IncidentDetailPage } from '@/features/incidents/pages/IncidentDetailPage';
 import { IncidentsPage } from '@/features/incidents/pages/IncidentsPage';
 import { MonitorDetailPage } from '@/app/pages/MonitorDetailPage';
@@ -33,6 +34,7 @@ import { CreateOrganizationPage } from '@/features/organizations/pages/CreateOrg
 import { InvitationPage } from '@/features/organizations/pages/InvitationPage';
 import { dashboardSettings } from '@/features/monitors/model/settings';
 import type { ApiClient } from '@/shared/api/client';
+import { useMeta } from '@/shared/api/meta';
 import type { Me } from '@/shared/api/resources';
 import { useNow } from '@/shared/time/useNow';
 
@@ -240,7 +242,15 @@ const incidentRoute = createRoute({
 });
 const statusPagesRoute = nextMilestone('status-pages');
 const statusPageRoute = nextMilestone('status-pages/$statusPageId');
-const alertChannelsRoute = nextMilestone('alert-channels');
+const alertChannelsRoute = createRoute({
+  getParentRoute: () => pagesLayout,
+  path: 'alert-channels',
+  component: function AlertChannelsRoute() {
+    const { organizationId, can } = useWorkspace();
+    const alerting = useMeta()?.alerting ?? null;
+    return <AlertChannelsPage organizationId={organizationId} alerting={alerting} canManage={can('alert-channels.manage')} />;
+  },
+});
 const settingsOrganizationRoute = nextMilestone('settings/organization');
 const settingsMembersRoute = nextMilestone('settings/members');
 const settingsProfileRoute = nextMilestone('settings/profile');
