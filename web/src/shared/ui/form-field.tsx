@@ -17,7 +17,7 @@ export function FormField({ label, error, hint, trailing, className, ...input }:
   const hintId = `${id}-hint`;
   const describedBy = [error === undefined ? null : errorId, hint === undefined ? null : hintId].filter((value) => value !== null).join(' ');
   return (
-    <div className={cn('grid gap-2', className)}>
+    <div className={cn('grid content-start gap-2', className)}>
       <div className="flex items-center justify-between gap-3">
         <Label htmlFor={id} className="text-sm font-normal text-muted-foreground">
           {label}

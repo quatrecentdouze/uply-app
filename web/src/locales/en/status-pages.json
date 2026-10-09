@@ -1,0 +1,64 @@
+{
+  "list": {
+    "title": "Status pages",
+    "add": "New status page",
+    "empty": "No status page yet. Create one to share the state of your services.",
+    "table": "Status pages of the organization",
+    "page": "Page",
+    "address": "Address",
+    "monitors": "Monitors",
+    "status": "Status",
+    "path": "/status/{{slug}}",
+    "monitors_count_one": "{{count}} monitor",
+    "monitors_count_other": "{{count}} monitors"
+  },
+  "status": {
+    "published": "Published",
+    "draft": "Draft"
+  },
+  "form": {
+    "title_create": "New status page",
+    "description_create": "Give it a title and an address. Pick its monitors next.",
+    "title": "Title",
+    "slug": "Address",
+    "slug_hint": "Lowercase letters, digits and dashes.",
+    "cancel": "Cancel",
+    "create": "Create page",
+    "errors": {
+      "max_length": "Use at most {{max}} characters.",
+      "slug": "Use {{min}} to {{max}} lowercase letters, digits or dashes.",
+      "too_many_monitors": "A page shows at most {{max}} monitors."
+    }
+  },
+  "editor": {
+    "back": "All status pages",
+    "settings": "Page",
+    "address": "Public address: /status/{{slug}}",
+    "description": "Description",
+    "description_hint": "Shown under the title, up to {{max}} characters.",
+    "published": "Published",
+    "published_hint": "Anyone with the address can see a published page.",
+    "monitors": "Monitors",
+    "monitors_info": "The monitors shown on the page, in this order. The display name replaces the monitor name.",
+    "no_monitors": "No monitor on this page yet.",
+    "unknown_monitor": "Deleted monitor",
+    "display_name": "Display name of {{name}}",
+    "display_name_placeholder": "{{name}}",
+    "move_up": "Move {{name}} up",
+    "move_down": "Move {{name}} down",
+    "remove": "Remove {{name}}",
+    "add_label": "Add a monitor",
+    "choose": "Choose a monitor",
+    "add": "Add",
+    "delete": "Delete page",
+    "discard": "Discard changes",
+    "save": "Save page",
+    "saved": "The page is saved."
+  },
+  "delete": {
+    "title": "Delete {{name}}?",
+    "description": "Its public address stops working at once. This cannot be undone.",
+    "confirm": "Delete page",
+    "cancel": "Cancel"
+  }
+}
