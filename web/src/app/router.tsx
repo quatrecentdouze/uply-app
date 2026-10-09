@@ -19,6 +19,7 @@ import { IncidentDetailPage } from '@/features/incidents/pages/IncidentDetailPag
 import { IncidentsPage } from '@/features/incidents/pages/IncidentsPage';
 import { MonitorDetailPage } from '@/app/pages/MonitorDetailPage';
 import { MonitorsPage } from '@/app/pages/MonitorsPage';
+import { StatusPageEditorPage } from '@/app/pages/StatusPageEditorPage';
 import { NotFoundPage, StandaloneNotFoundPage } from '@/app/pages/NotFoundPage';
 import { meQuery, useLogout, useMe } from '@/features/auth/api/session';
 import { resetLinkOf } from '@/features/auth/model/forms';
@@ -32,6 +33,7 @@ import { organizationsQuery } from '@/features/organizations/api/organizations';
 import type { InvitationViewer } from '@/features/organizations/model/organizations';
 import { CreateOrganizationPage } from '@/features/organizations/pages/CreateOrganizationPage';
 import { InvitationPage } from '@/features/organizations/pages/InvitationPage';
+import { StatusPagesPage } from '@/features/status-pages/pages/StatusPagesPage';
 import { dashboardSettings } from '@/features/monitors/model/settings';
 import type { ApiClient } from '@/shared/api/client';
 import { useMeta } from '@/shared/api/meta';
@@ -240,8 +242,23 @@ const incidentRoute = createRoute({
     return <IncidentDetailPage organizationId={organizationId} incidentId={incidentRoute.useParams().incidentId} now={now} notFound={<NotFoundPage />} />;
   },
 });
-const statusPagesRoute = nextMilestone('status-pages');
-const statusPageRoute = nextMilestone('status-pages/$statusPageId');
+const statusPagesRoute = createRoute({
+  getParentRoute: () => pagesLayout,
+  path: 'status-pages',
+  component: function StatusPagesRoute() {
+    const { organizationId, can } = useWorkspace();
+    const meta = useMeta()?.status_pages ?? null;
+    return <StatusPagesPage organizationId={organizationId} meta={meta} canManage={can('status-pages.manage')} />;
+  },
+});
+
+const statusPageRoute = createRoute({
+  getParentRoute: () => pagesLayout,
+  path: 'status-pages/$statusPageId',
+  component: function StatusPageRoute() {
+    return <StatusPageEditorPage statusPageId={statusPageRoute.useParams().statusPageId} />;
+  },
+});
 const alertChannelsRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'alert-channels',
