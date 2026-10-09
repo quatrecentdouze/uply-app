@@ -1,9 +1,9 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '@/shared/api/apiClientContext';
-import { type ApiClient, expectData } from '@/shared/api/client';
+import { type ApiClient, expectData, expectSuccess } from '@/shared/api/client';
 import { ApiError, failureFromResponse } from '@/shared/api/errors';
 import { queryKeys } from '@/shared/api/queryKeys';
-import type { Organization, PublicInvitation } from '@/shared/api/resources';
+import type { Invitation, Member, Organization, PublicInvitation, Role } from '@/shared/api/resources';
 
 const listSize = 100;
 
@@ -75,5 +75,140 @@ export function useAcceptInvitation(token: string) {
     mutationFn: async (): Promise<Organization> =>
       (await expectData(client.POST('/v1/invitations/{token}/accept', { params: { path: { token } } }))).data,
     onSuccess: membershipChanged,
+  });
+}
+
+export function useRenameOrganization(organizationId: string) {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (name: string): Promise<Organization> =>
+      (await expectData(client.PATCH('/v1/organizations/{organization}', { params: { path: { organization: organizationId } }, body: { name } }))).data,
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.organizations() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.me() }),
+      ]);
+    },
+  });
+}
+
+export function useDeleteOrganization(organizationId: string) {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (password: string) => {
+      await expectSuccess(client.DELETE('/v1/organizations/{organization}', { params: { path: { organization: organizationId } }, body: { password } }));
+    },
+    onSuccess: async () => {
+      queryClient.removeQueries({ queryKey: queryKeys.organization(organizationId) });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.organizations() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.me() }),
+      ]);
+    },
+  });
+}
+
+export function useMembers(organizationId: string) {
+  const client = useApiClient();
+  return useQuery({
+    queryKey: queryKeys.members(organizationId),
+    queryFn: async (): Promise<Member[]> =>
+      (await expectData(client.GET('/v1/organizations/{organization}/members', { params: { path: { organization: organizationId }, query: { per_page: listSize } } }))).data,
+  });
+}
+
+export interface RoleChange {
+  membershipId: string;
+  role: Role;
+}
+
+export function useChangeRole(organizationId: string) {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ membershipId, role }: RoleChange): Promise<Member> =>
+      (
+        await expectData(
+          client.PATCH('/v1/organizations/{organization}/members/{membership}', { params: { path: { organization: organizationId, membership: membershipId } }, body: { role } }),
+        )
+      ).data,
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.members(organizationId) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.organizations() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.me() }),
+      ]);
+    },
+  });
+}
+
+export function useRemoveMember(organizationId: string) {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (membershipId: string) => {
+      await expectSuccess(
+        client.DELETE('/v1/organizations/{organization}/members/{membership}', { params: { path: { organization: organizationId, membership: membershipId } } }),
+      );
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.members(organizationId) });
+    },
+  });
+}
+
+export function useLeaveOrganization(organizationId: string) {
+  const client = useApiClient();
+  const membershipChanged = useMembershipChange();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (membershipId: string) => {
+      await expectSuccess(
+        client.DELETE('/v1/organizations/{organization}/members/{membership}', { params: { path: { organization: organizationId, membership: membershipId } } }),
+      );
+    },
+    onSuccess: async () => {
+      queryClient.removeQueries({ queryKey: queryKeys.organization(organizationId) });
+      await membershipChanged();
+    },
+  });
+}
+
+export function useInvitations(organizationId: string, enabled: boolean) {
+  const client = useApiClient();
+  return useQuery({
+    queryKey: queryKeys.invitations(organizationId),
+    enabled,
+    queryFn: async (): Promise<Invitation[]> =>
+      (await expectData(client.GET('/v1/organizations/{organization}/invitations', { params: { path: { organization: organizationId }, query: { per_page: listSize } } }))).data,
+  });
+}
+
+export function useInvite(organizationId: string) {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: { email: string; role: Role }): Promise<Invitation> =>
+      (await expectData(client.POST('/v1/organizations/{organization}/invitations', { params: { path: { organization: organizationId } }, body }))).data,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.invitations(organizationId) });
+    },
+  });
+}
+
+export function useRevokeInvitation(organizationId: string) {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (invitationId: string) => {
+      await expectSuccess(
+        client.DELETE('/v1/organizations/{organization}/invitations/{invitation}', { params: { path: { organization: organizationId, invitation: invitationId } } }),
+      );
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.invitations(organizationId) });
+    },
   });
 }
