@@ -36,6 +36,7 @@ describe('failureFromResponse', () => {
     [403, 'forbidden'],
     [404, 'not_found'],
     [419, 'session_expired'],
+    [423, 'password_confirmation'],
     [500, 'server'],
   ])('maps %i to %s', (status, kind) => {
     expect(failureFromResponse(status, { message: 'x' }, noHeaders).kind).toBe(kind);

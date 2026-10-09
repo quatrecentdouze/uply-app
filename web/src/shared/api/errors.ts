@@ -26,6 +26,7 @@ export type ApiFailure =
   | { kind: 'forbidden' }
   | { kind: 'not_found' }
   | { kind: 'session_expired' }
+  | { kind: 'password_confirmation' }
   | { kind: 'rate_limited'; retryAfterSeconds: number | null }
   | { kind: 'server'; status: number }
   | { kind: 'network' };
@@ -64,6 +65,7 @@ const httpStatus = {
   forbidden: 403,
   notFound: 404,
   sessionExpired: 419,
+  passwordConfirmation: 423,
   unprocessable: 422,
   tooManyRequests: 429,
 } as const;
@@ -93,6 +95,8 @@ export function failureFromResponse(status: number, body: unknown, headers: Head
       return { kind: 'not_found' };
     case httpStatus.sessionExpired:
       return { kind: 'session_expired' };
+    case httpStatus.passwordConfirmation:
+      return { kind: 'password_confirmation' };
     case httpStatus.tooManyRequests:
       return { kind: 'rate_limited', retryAfterSeconds: retryAfter(headers) };
     default:
@@ -138,6 +142,8 @@ export function errorTextKey(failure: ApiFailure): TextKey<'errors'> {
       return 'errors:not_found';
     case 'session_expired':
       return 'errors:session_expired';
+    case 'password_confirmation':
+      return 'errors:password_confirmation';
     case 'rate_limited':
       return 'errors:rate_limited';
     case 'server':

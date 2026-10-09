@@ -5,6 +5,7 @@
   "forbidden": "You do not have permission to do this.",
   "not_found": "We could not find what you were looking for.",
   "session_expired": "Your page was open for too long. Please try again.",
+  "password_confirmation": "Confirm your password to go on.",
   "rate_limited": "Too many attempts. Please wait a moment and try again.",
   "server": "The server ran into a problem. Please try again in a moment.",
   "network": "We could not reach Uply. Check your connection and try again.",
