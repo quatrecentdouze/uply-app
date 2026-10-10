@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { badgeText, initialsOf, navigationGroups, navigationLinks, shortcutOf } from '@/app/model/navigation';
+import { badgeText, initialsOf, navigationGroups, navigationLinks, settingsSections, shortcutOf } from '@/app/model/navigation';
 
 const press = { key: 'k', ctrlKey: false, metaKey: false, altKey: false, typing: false };
 
 describe('navigationGroups', () => {
   it('lists the groups and pages of the app shell in order', () => {
     expect(navigationGroups.map((group) => group.id)).toEqual(['monitoring', 'alerting', 'general']);
-    expect(navigationLinks().map((link) => link.to)).toEqual(['/', '/monitors', '/incidents', '/status-pages', '/alert-channels', '/settings/organization']);
+    expect(navigationLinks().map((link) => link.to)).toEqual(['/', '/monitors', '/incidents', '/status-pages', '/alert-channels', '/settings']);
   });
 
   it('puts the open incidents badge on incidents only', () => {
@@ -41,5 +41,11 @@ describe('shortcutOf', () => {
   it('opens the help with ? outside a field', () => {
     expect(shortcutOf({ ...press, key: '?' })).toBe('help');
     expect(shortcutOf({ ...press, key: '?', typing: true })).toBeNull();
+  });
+});
+
+describe('settingsSections', () => {
+  it('lists the four settings tabs in order', () => {
+    expect(settingsSections.map((section) => section.to)).toEqual(['/settings/organization', '/settings/members', '/settings/profile', '/settings/security']);
   });
 });

@@ -1,7 +1,7 @@
 import type { PageId } from '@/app/model/pages';
 import type { TextKey } from '@/shared/i18n/textKey';
 
-export type NavigationPath = '/' | '/monitors' | '/incidents' | '/status-pages' | '/alert-channels' | '/settings/organization';
+export type NavigationPath = '/' | '/monitors' | '/incidents' | '/status-pages' | '/alert-channels' | '/settings';
 
 export type NavigationAction = 'help' | 'logout';
 
@@ -35,11 +35,23 @@ export const navigationGroups: readonly NavigationGroup[] = [
     id: 'general',
     label: 'common:shell.groups.general',
     items: [
-      { kind: 'link', page: 'settings', to: '/settings/organization', badge: null },
+      { kind: 'link', page: 'settings', to: '/settings', badge: null },
       { kind: 'action', action: 'help' },
       { kind: 'action', action: 'logout' },
     ],
   },
+];
+
+export interface SettingsSection {
+  to: '/settings/organization' | '/settings/members' | '/settings/profile' | '/settings/security';
+  label: TextKey<'organizations'>;
+}
+
+export const settingsSections: readonly SettingsSection[] = [
+  { to: '/settings/organization', label: 'organizations:settings.tabs.organization' },
+  { to: '/settings/members', label: 'organizations:settings.tabs.members' },
+  { to: '/settings/profile', label: 'organizations:settings.tabs.profile' },
+  { to: '/settings/security', label: 'organizations:settings.tabs.security' },
 ];
 
 export const navigationActionLabels: Record<NavigationAction, TextKey<'common'>> = {
