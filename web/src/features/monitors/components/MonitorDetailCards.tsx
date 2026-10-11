@@ -183,7 +183,7 @@ export function TimingBreakdownCard({ stats }: { stats: MonitorStats | undefined
       <CardHeading id="timings-title" title={t('monitors:detail.timings.title')} info={t('monitors:detail.timings.info')} />
       {breakdown === null ? (
         <Skeleton className="mt-4 h-[90px] w-full" />
-      ) : breakdown.total === 0 ? (
+      ) : breakdown.segments.length === 0 ? (
         <p className="mt-4 text-muted-foreground">{t('monitors:response.no_data')}</p>
       ) : (
         <>

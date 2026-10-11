@@ -8,6 +8,7 @@ import { ApiClientContext } from '@/shared/api/apiClientContext';
 import { createApiClient } from '@/shared/api/client';
 import { createI18n } from '@/shared/i18n/i18n';
 import { type FakeFetch, fakeFetch, testOrigin } from '@/shared/testing/fakeFetch';
+import { TooltipProvider } from '@/shared/ui/tooltip';
 
 export interface RenderPageOptions {
   server?: FakeFetch;
@@ -33,7 +34,9 @@ export function renderPage(page: () => ReactNode, options: RenderPageOptions = {
     <I18nextProvider i18n={createI18n()}>
       <QueryClientProvider client={queryClient}>
         <ApiClientContext value={client}>
-          <RouterProvider router={router} />
+          <TooltipProvider>
+            <RouterProvider router={router} />
+          </TooltipProvider>
         </ApiClientContext>
       </QueryClientProvider>
     </I18nextProvider>,
