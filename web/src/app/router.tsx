@@ -12,7 +12,7 @@ import { AppLayout } from '@/app/layouts/AppLayout';
 import { useWorkspace } from '@/app/hooks/useWorkspace';
 import { AuthLayout } from '@/app/layouts/AuthLayout';
 import { SettingsLayout } from '@/app/layouts/SettingsLayout';
-import { entryRedirect, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
+import { entryRedirect, homeOf, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
 import { DashboardPage } from '@/app/pages/DashboardPage';
 import { AlertChannelsPage } from '@/features/alerting/pages/AlertChannelsPage';
 import { IncidentDetailPage } from '@/features/incidents/pages/IncidentDetailPage';
@@ -86,11 +86,20 @@ function resetSearch(search: Record<string, unknown>): { token?: string; email?:
   };
 }
 
-const home = '/';
+const home = '/dashboard';
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: Outlet,
   notFoundComponent: StandaloneNotFoundPage,
+});
+
+const homeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  beforeLoad: async ({ context }): Promise<never> => {
+    const me = await context.queryClient.query({ ...meQuery(context.apiClient), staleTime: 'static' });
+    throw redirect({ to: homeOf(sessionOf(me)) });
+  },
 });
 
 const entryLayout = createRoute({ getParentRoute: () => rootRoute, id: 'entry', component: AuthLayout });
@@ -201,7 +210,7 @@ const pagesLayout = createRoute({
 
 const dashboardRoute = createRoute({
   getParentRoute: () => pagesLayout,
-  path: '/',
+  path: 'dashboard',
   component: DashboardPage,
 });
 
@@ -290,7 +299,7 @@ const settingsOrganizationRoute = createRoute({
         nameBounds={bounds}
         canRename={can('organization.manage')}
         canDelete={can('organization.delete')}
-        onDeleted={() => navigate({ to: '/' })}
+        onDeleted={() => navigate({ to: '/dashboard' })}
       />
     );
   },
@@ -313,7 +322,7 @@ const settingsMembersRoute = createRoute({
         actorRole={organization.role}
         actorUserId={me.id}
         canManage={can('members.manage')}
-        onLeft={() => navigate({ to: '/' })}
+        onLeft={() => navigate({ to: '/dashboard' })}
       />
     );
   },
@@ -340,6 +349,7 @@ const settingsSecurityRoute = createRoute({
 });
 
 const routeTree = rootRoute.addChildren([
+  homeRoute,
   entryLayout.addChildren([
     loginRoute,
     registerRoute,

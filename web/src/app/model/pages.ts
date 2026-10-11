@@ -13,7 +13,7 @@ export const pageTitleKeys: Record<PageId, TextKey<'common'>> = {
 };
 
 const pagesBySection: Readonly<Record<string, PageId>> = {
-  '': 'dashboard',
+  dashboard: 'dashboard',
   monitors: 'monitors',
   incidents: 'incidents',
   'status-pages': 'status_pages',
@@ -22,6 +22,6 @@ const pagesBySection: Readonly<Record<string, PageId>> = {
 };
 
 export function pageOfPath(pathname: string): PageId | null {
-  const section = pathname.split('/').find((segment) => segment !== '') ?? '';
-  return pagesBySection[section] ?? null;
+  const section = pathname.split('/').find((segment) => segment !== '');
+  return section === undefined ? null : (pagesBySection[section] ?? null);
 }

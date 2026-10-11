@@ -43,7 +43,7 @@ describe('InvitationPage', () => {
     await page.user.click(await screen.findByRole('button', { name: 'Accept invitation' }));
 
     await waitFor(() => {
-      expect(page.router.state.location.pathname).toBe('/');
+      expect(page.router.state.location.pathname).toBe('/dashboard');
     });
     expect(window.localStorage.getItem('uply.organization')).toBe('org-acme');
   });

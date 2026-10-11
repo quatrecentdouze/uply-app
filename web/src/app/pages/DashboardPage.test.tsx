@@ -27,7 +27,7 @@ function openDashboard(data: Parameters<typeof withWorkspace>[1] = {}) {
     openIncidents: 1,
     ...data,
   });
-  return renderApp({ path: '/', server });
+  return renderApp({ path: '/dashboard', server });
 }
 
 async function card(name: string) {

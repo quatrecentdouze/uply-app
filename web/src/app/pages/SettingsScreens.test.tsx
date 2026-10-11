@@ -152,7 +152,7 @@ describe('settings', () => {
         expect(app.server.requestsTo('DELETE', `${base}/members/m-self`)).toHaveLength(1);
       });
       await waitFor(() => {
-        expect(app.router.state.location.pathname).toBe('/');
+        expect(app.router.state.location.pathname).toBe('/dashboard');
       });
     });
 

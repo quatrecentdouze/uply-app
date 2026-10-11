@@ -24,12 +24,12 @@ describe('RegisterPage', () => {
   it('creates the account and goes on', async () => {
     const backend = server();
     backend.respond({ method: 'POST', path: '/api/v1/auth/register', status: 201, body: {} });
-    const page = renderPage(() => <RegisterPage redirectTo="/" />, { server: backend, path: '/register' });
+    const page = renderPage(() => <RegisterPage redirectTo="/dashboard" />, { server: backend, path: '/register' });
 
     await fill(page, 'a long password', 'a long password');
 
     await waitFor(() => {
-      expect(page.router.state.location.pathname).toBe('/');
+      expect(page.router.state.location.pathname).toBe('/dashboard');
     });
     expect(backend.requestsTo('POST', '/api/v1/auth/register')[0]?.body).toEqual({
       name: 'Ada Lovelace',
@@ -41,7 +41,7 @@ describe('RegisterPage', () => {
 
   it('shows the password bounds from meta and checks them', async () => {
     const backend = server();
-    const page = renderPage(() => <RegisterPage redirectTo="/" />, { server: backend, path: '/register' });
+    const page = renderPage(() => <RegisterPage redirectTo="/dashboard" />, { server: backend, path: '/register' });
 
     expect(await screen.findByText('12 to 255 characters.')).toBeInTheDocument();
     await fill(page, 'short', 'other');
@@ -59,7 +59,7 @@ describe('RegisterPage', () => {
       status: 422,
       body: { message: 'Invalid.', errors: { email: ['The email has already been taken.'] } },
     });
-    const page = renderPage(() => <RegisterPage redirectTo="/" />, { server: backend, path: '/register' });
+    const page = renderPage(() => <RegisterPage redirectTo="/dashboard" />, { server: backend, path: '/register' });
 
     await fill(page, 'a long password', 'a long password');
 

@@ -31,7 +31,7 @@ export function CreateOrganizationPage({ canCancel }: { canCancel: boolean }) {
     try {
       const organization = await create.mutateAsync(values.name);
       rememberOrganization(organization.id);
-      await navigate({ to: '/' });
+      await navigate({ to: '/dashboard' });
     } catch (error) {
       reportFailure(form.setError, failureOf(error), fields, (key) => t(key));
     }
@@ -43,7 +43,7 @@ export function CreateOrganizationPage({ canCancel }: { canCancel: boolean }) {
       description={t('organizations:create.description')}
       footer={
         canCancel ? (
-          <Link to="/" className="text-primary hover:underline">
+          <Link to="/dashboard" className="text-primary hover:underline">
             {t('organizations:create.cancel')}
           </Link>
         ) : undefined

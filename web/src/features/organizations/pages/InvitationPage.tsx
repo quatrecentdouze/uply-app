@@ -30,7 +30,7 @@ function InvitationActions({ token, viewer, invitation, onSwitchAccount }: Invit
     const organization = await accept.mutateAsync().catch(() => null);
     if (organization !== null) {
       rememberOrganization(organization.id);
-      await navigate({ to: '/' });
+      await navigate({ to: '/dashboard' });
     }
   };
 
@@ -100,7 +100,7 @@ export function InvitationPage(props: InvitationPageProps) {
         title={t('organizations:invitation.unavailable')}
         description={lookup.data.kind === 'expired' ? t('errors:codes.invitation_expired') : t('organizations:invitation.missing')}
         footer={
-          <Link to="/" className="text-primary hover:underline">
+          <Link to="/dashboard" className="text-primary hover:underline">
             {t('organizations:invitation.home')}
           </Link>
         }

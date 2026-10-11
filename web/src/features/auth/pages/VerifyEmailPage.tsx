@@ -17,7 +17,7 @@ export function VerifyEmailPage() {
 
   useEffect(() => {
     if (verified) {
-      void navigate({ to: '/' });
+      void navigate({ to: '/dashboard' });
     }
   }, [verified, navigate]);
 

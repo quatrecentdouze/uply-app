@@ -15,7 +15,7 @@ describe('sessionOf', () => {
 
 describe('homeOf', () => {
   it('sends each session to its first screen', () => {
-    expect([guest, unverified, lonely, member].map(homeOf)).toEqual(['/login', '/verify-email', '/organizations/new', '/']);
+    expect([guest, unverified, lonely, member].map(homeOf)).toEqual(['/login', '/verify-email', '/organizations/new', '/dashboard']);
   });
 });
 
@@ -25,10 +25,10 @@ describe('entryRedirect', () => {
     ['an unverified user on a private page verifies first', 'member', unverified, '/verify-email'],
     ['a user without organization creates one', 'member', lonely, '/organizations/new'],
     ['a member stays', 'member', member, null],
-    ['a member on a guest page goes home', 'guest', member, '/'],
+    ['a member on a guest page goes home', 'guest', member, '/dashboard'],
     ['an unverified user on a guest page verifies', 'guest', unverified, '/verify-email'],
     ['a guest stays on a guest page', 'guest', guest, null],
-    ['a verified user leaves the verify page', 'unverified', member, '/'],
+    ['a verified user leaves the verify page', 'unverified', member, '/dashboard'],
     ['a guest cannot verify', 'unverified', guest, '/login?redirect=%2Fmonitors'],
     ['the create page needs a verified user', 'verified', unverified, '/verify-email'],
     ['the create page is open to a member from the switcher', 'verified', member, null],
@@ -41,7 +41,7 @@ describe('entryRedirect', () => {
   });
 
   it('does not ask to come back to the dashboard', () => {
-    expect(entryRedirect(guest, 'member', '/')).toEqual({ to: '/login', redirect: null });
+    expect(entryRedirect(guest, 'member', '/dashboard')).toEqual({ to: '/login', redirect: null });
   });
 });
 

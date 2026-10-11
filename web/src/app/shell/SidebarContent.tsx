@@ -59,7 +59,6 @@ function NavigationEntry({ item, collapsed, openIncidents, onAction, onNavigate 
   return (
     <Link
       to={item.to}
-      activeOptions={{ exact: item.to === '/' }}
       onClick={onNavigate}
       aria-label={collapsed ? label : undefined}
       className={cn(
@@ -93,7 +92,7 @@ export function SidebarContent(props: SidebarContentProps) {
             <BrandMark />
           </button>
         ) : (
-          <Link to="/" aria-label={t('common:app.home')} onClick={props.onNavigate} className="rounded-[14px]">
+          <Link to="/dashboard" aria-label={t('common:app.home')} onClick={props.onNavigate} className="rounded-[14px]">
             <BrandMark />
           </Link>
         )}

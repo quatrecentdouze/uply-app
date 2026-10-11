@@ -8,7 +8,7 @@ export type Session =
 
 export type RouteAccess = 'public' | 'guest' | 'unverified' | 'verified' | 'member';
 
-export type EntryPath = '/' | '/login' | '/verify-email' | '/organizations/new';
+export type EntryPath = '/dashboard' | '/login' | '/verify-email' | '/organizations/new';
 
 export interface EntryTarget {
   to: EntryPath;
@@ -34,11 +34,11 @@ export function homeOf(session: Session): EntryPath {
     case 'no_organization':
       return '/organizations/new';
     case 'member':
-      return '/';
+      return '/dashboard';
   }
 }
 
-const home = '/';
+const home = '/dashboard';
 
 function target(to: EntryPath, redirect: string | null = null): EntryTarget {
   return { to, redirect };

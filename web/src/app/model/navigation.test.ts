@@ -6,7 +6,7 @@ const press = { key: 'k', ctrlKey: false, metaKey: false, altKey: false, typing:
 describe('navigationGroups', () => {
   it('lists the groups and pages of the app shell in order', () => {
     expect(navigationGroups.map((group) => group.id)).toEqual(['monitoring', 'alerting', 'general']);
-    expect(navigationLinks().map((link) => link.to)).toEqual(['/', '/monitors', '/incidents', '/status-pages', '/alert-channels', '/settings']);
+    expect(navigationLinks().map((link) => link.to)).toEqual(['/dashboard', '/monitors', '/incidents', '/status-pages', '/alert-channels', '/settings']);
   });
 
   it('puts the open incidents badge on incidents only', () => {

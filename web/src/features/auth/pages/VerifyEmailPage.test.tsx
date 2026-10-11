@@ -42,7 +42,7 @@ describe('VerifyEmailPage', () => {
     const page = renderPage(() => <VerifyEmailPage />, { server: server(true), path: '/verify-email' });
 
     await waitFor(() => {
-      expect(page.router.state.location.pathname).toBe('/');
+      expect(page.router.state.location.pathname).toBe('/dashboard');
     });
   });
 });

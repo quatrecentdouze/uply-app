@@ -25,7 +25,7 @@ describe('CreateOrganizationPage', () => {
     await page.user.click(screen.getByRole('button', { name: 'Create organization' }));
 
     await waitFor(() => {
-      expect(page.router.state.location.pathname).toBe('/');
+      expect(page.router.state.location.pathname).toBe('/dashboard');
     });
     expect(backend.requestsTo('POST', '/api/v1/organizations')[0]?.body).toEqual({ name: 'Acme' });
     expect(window.localStorage.getItem(storageKeys.organization)).toBe(created.id);
@@ -49,6 +49,6 @@ describe('CreateOrganizationPage', () => {
     first.view.unmount();
 
     renderPage(() => <CreateOrganizationPage canCancel />, { server: server(), path: '/organizations/new' });
-    expect(await screen.findByRole('link', { name: 'Back to the dashboard' })).toHaveAttribute('href', '/');
+    expect(await screen.findByRole('link', { name: 'Back to the dashboard' })).toHaveAttribute('href', '/dashboard');
   });
 });

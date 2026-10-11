@@ -3,7 +3,7 @@ import { pageOfPath } from '@/app/model/pages';
 
 describe('pageOfPath', () => {
   it.each([
-    ['/', 'dashboard'],
+    ['/dashboard', 'dashboard'],
     ['/monitors', 'monitors'],
     ['/monitors/01jbx', 'monitors'],
     ['/incidents/01jbx', 'incidents'],
@@ -16,5 +16,6 @@ describe('pageOfPath', () => {
 
   it('knows no page for an unknown section', () => {
     expect(pageOfPath('/nowhere')).toBeNull();
+    expect(pageOfPath('/')).toBeNull();
   });
 });

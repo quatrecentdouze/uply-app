@@ -10,7 +10,7 @@ export function NotFoundPage() {
         title={t('common:not_found.title')}
         description={t('common:not_found.description')}
         footer={
-          <Link to="/" className="text-primary hover:underline">
+          <Link to="/dashboard" className="text-primary hover:underline">
             {t('common:not_found.home')}
           </Link>
         }

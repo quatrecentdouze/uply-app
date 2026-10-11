@@ -35,13 +35,19 @@ describe('entry guards', () => {
   it('sends a member away from the guest screens', async () => {
     const app = renderApp({ path: '/login', server: signedIn(fakeFetch()) });
 
-    await landsOn(app, '/');
+    await landsOn(app, '/dashboard');
+  });
+
+  it('sends a member from the root to the dashboard', async () => {
+    const app = renderApp({ path: '/', server: signedIn(fakeFetch()) });
+
+    await landsOn(app, '/dashboard');
   });
 
   it('keeps a member out of the verify screen', async () => {
     const app = renderApp({ path: '/verify-email', server: signedIn(fakeFetch()) });
 
-    await landsOn(app, '/');
+    await landsOn(app, '/dashboard');
   });
 
   it('lets anyone open an invitation', async () => {

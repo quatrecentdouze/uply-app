@@ -5,7 +5,7 @@ import { queryKeys } from '@/shared/api/queryKeys';
 import { fakeFetch } from '@/shared/testing/fakeFetch';
 import { meFixture, monitorFixture, organizationId } from '@/shared/testing/fixtures';
 
-function openApp(path = '/', openIncidents = 2) {
+function openApp(path = '/dashboard', openIncidents = 2) {
   const server = withWorkspace(signedIn(fakeFetch([{ method: 'GET', path: '/sanctum/csrf-cookie', status: 204 }])), {
     monitors: [monitorFixture({ id: 'mon-api', name: 'Public API' }), monitorFixture({ id: 'mon-site', name: 'Marketing site', url: 'https://www.example.test' })],
     openIncidents,
@@ -43,7 +43,7 @@ describe('app shell', () => {
   });
 
   it('hides the red dot without an open incident', async () => {
-    openApp('/', 0);
+    openApp('/dashboard', 0);
 
     expect(await screen.findByRole('link', { name: 'Notifications' })).toBeInTheDocument();
     expect(screen.queryByTestId('open-incident-dot')).toBeNull();
@@ -124,7 +124,7 @@ describe('app shell', () => {
       ],
     });
     const server = withWorkspace(signedIn(fakeFetch(), me));
-    const app = renderApp({ path: '/', server });
+    const app = renderApp({ path: '/dashboard', server });
 
     await app.user.click(await (await sidebar()).findByRole('button', { name: /current one Demo/ }));
     await app.user.click(await screen.findByRole('menuitemradio', { name: 'Acme' }));
@@ -143,6 +143,6 @@ describe('app shell', () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
     });
 
-    expect(app.router.state.location.pathname).toBe('/');
+    expect(app.router.state.location.pathname).toBe('/dashboard');
   });
 });

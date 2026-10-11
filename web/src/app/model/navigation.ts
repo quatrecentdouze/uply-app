@@ -1,7 +1,7 @@
 import type { PageId } from '@/app/model/pages';
 import type { TextKey } from '@/shared/i18n/textKey';
 
-export type NavigationPath = '/' | '/monitors' | '/incidents' | '/status-pages' | '/alert-channels' | '/settings';
+export type NavigationPath = '/dashboard' | '/monitors' | '/incidents' | '/status-pages' | '/alert-channels' | '/settings';
 
 export type NavigationAction = 'help' | 'logout';
 
@@ -20,7 +20,7 @@ export const navigationGroups: readonly NavigationGroup[] = [
     id: 'monitoring',
     label: 'common:shell.groups.monitoring',
     items: [
-      { kind: 'link', page: 'dashboard', to: '/', badge: null },
+      { kind: 'link', page: 'dashboard', to: '/dashboard', badge: null },
       { kind: 'link', page: 'monitors', to: '/monitors', badge: null },
       { kind: 'link', page: 'incidents', to: '/incidents', badge: 'open_incidents' },
       { kind: 'link', page: 'status_pages', to: '/status-pages', badge: null },
