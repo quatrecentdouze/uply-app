@@ -3,7 +3,6 @@ import {
   createRootRouteWithContext,
   createRoute,
   createRouter,
-  notFound,
   Outlet,
   redirect,
   type RouterHistory,
@@ -12,6 +11,7 @@ import {
 import { AppLayout } from '@/app/layouts/AppLayout';
 import { useWorkspace } from '@/app/hooks/useWorkspace';
 import { AuthLayout } from '@/app/layouts/AuthLayout';
+import { SettingsLayout } from '@/app/layouts/SettingsLayout';
 import { entryRedirect, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
 import { DashboardPage } from '@/app/pages/DashboardPage';
 import { AlertChannelsPage } from '@/features/alerting/pages/AlertChannelsPage';
@@ -33,6 +33,10 @@ import { organizationsQuery } from '@/features/organizations/api/organizations';
 import type { InvitationViewer } from '@/features/organizations/model/organizations';
 import { CreateOrganizationPage } from '@/features/organizations/pages/CreateOrganizationPage';
 import { InvitationPage } from '@/features/organizations/pages/InvitationPage';
+import { MembersPage } from '@/features/organizations/pages/MembersPage';
+import { OrganizationSettingsPage } from '@/features/organizations/pages/OrganizationSettingsPage';
+import { ProfilePage } from '@/features/organizations/pages/ProfilePage';
+import { SecurityPage } from '@/features/organizations/pages/SecurityPage';
 import { StatusPagesPage } from '@/features/status-pages/pages/StatusPagesPage';
 import { dashboardSettings } from '@/features/monitors/model/settings';
 import type { ApiClient } from '@/shared/api/client';
@@ -201,16 +205,6 @@ const dashboardRoute = createRoute({
   component: DashboardPage,
 });
 
-function nextMilestone<const Path extends string>(path: Path) {
-  return createRoute({
-    getParentRoute: () => pagesLayout,
-    path,
-    beforeLoad: (): never => {
-      throw notFound({ routeId: pagesLayout.id });
-    },
-  });
-}
-
 const monitorsRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'monitors',
@@ -268,10 +262,82 @@ const alertChannelsRoute = createRoute({
     return <AlertChannelsPage organizationId={organizationId} alerting={alerting} canManage={can('alert-channels.manage')} />;
   },
 });
-const settingsOrganizationRoute = nextMilestone('settings/organization');
-const settingsMembersRoute = nextMilestone('settings/members');
-const settingsProfileRoute = nextMilestone('settings/profile');
-const settingsSecurityRoute = nextMilestone('settings/security');
+const settingsLayout = createRoute({
+  getParentRoute: () => pagesLayout,
+  path: 'settings',
+  component: SettingsLayout,
+});
+
+const settingsIndexRoute = createRoute({
+  getParentRoute: () => settingsLayout,
+  path: '/',
+  beforeLoad: (): never => {
+    throw redirect({ to: '/settings/organization' });
+  },
+});
+
+const settingsOrganizationRoute = createRoute({
+  getParentRoute: () => settingsLayout,
+  path: 'organization',
+  component: function SettingsOrganizationRoute() {
+    const { organization, can } = useWorkspace();
+    const navigate = useNavigate();
+    const bounds = useMeta()?.organizations.lengths.organization_name ?? null;
+    return (
+      <OrganizationSettingsPage
+        key={organization.id}
+        organization={organization}
+        nameBounds={bounds}
+        canRename={can('organization.manage')}
+        canDelete={can('organization.delete')}
+        onDeleted={() => navigate({ to: '/' })}
+      />
+    );
+  },
+});
+
+const settingsMembersRoute = createRoute({
+  getParentRoute: () => settingsLayout,
+  path: 'members',
+  component: function SettingsMembersRoute() {
+    const { organization, can } = useWorkspace();
+    const navigate = useNavigate();
+    const me = useMe().data;
+    if (me === undefined || me === null) {
+      return null;
+    }
+    return (
+      <MembersPage
+        key={organization.id}
+        organizationId={organization.id}
+        actorRole={organization.role}
+        actorUserId={me.id}
+        canManage={can('members.manage')}
+        onLeft={() => navigate({ to: '/' })}
+      />
+    );
+  },
+});
+
+const settingsProfileRoute = createRoute({
+  getParentRoute: () => settingsLayout,
+  path: 'profile',
+  component: function SettingsProfileRoute() {
+    const me = useMe().data;
+    const lengths = useMeta()?.organizations.lengths ?? null;
+    return me === undefined || me === null ? null : <ProfilePage me={me} lengths={lengths} />;
+  },
+});
+
+const settingsSecurityRoute = createRoute({
+  getParentRoute: () => settingsLayout,
+  path: 'security',
+  component: function SettingsSecurityRoute() {
+    const me = useMe().data;
+    const navigate = useNavigate();
+    return me === undefined || me === null ? null : <SecurityPage me={me} onAccountDeleted={() => navigate({ to: '/login' })} />;
+  },
+});
 
 const routeTree = rootRoute.addChildren([
   entryLayout.addChildren([
@@ -294,10 +360,7 @@ const routeTree = rootRoute.addChildren([
       statusPagesRoute,
       statusPageRoute,
       alertChannelsRoute,
-      settingsOrganizationRoute,
-      settingsMembersRoute,
-      settingsProfileRoute,
-      settingsSecurityRoute,
+      settingsLayout.addChildren([settingsIndexRoute, settingsOrganizationRoute, settingsMembersRoute, settingsProfileRoute, settingsSecurityRoute]),
     ]),
   ]),
 ]);

@@ -145,12 +145,4 @@ describe('app shell', () => {
 
     expect(app.router.state.location.pathname).toBe('/');
   });
-
-  it('opens the not found page inside the shell for a screen of the next milestone', async () => {
-    const app = openApp();
-    await app.user.click(await (await sidebar()).findByRole('link', { name: /Settings/ }));
-
-    expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1, name: 'Settings' })).toBeInTheDocument();
-  });
 });

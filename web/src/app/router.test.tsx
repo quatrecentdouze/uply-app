@@ -59,10 +59,4 @@ describe('entry guards', () => {
 
     expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
   });
-
-  it('opens the not found page for a screen of the next milestone', async () => {
-    renderApp({ path: '/settings/members', server: signedIn(fakeFetch()) });
-
-    expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
-  });
 });
