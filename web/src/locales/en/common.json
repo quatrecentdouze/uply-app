@@ -58,6 +58,25 @@
     "description": "This page does not exist yet or was moved.",
     "home": "Back to the dashboard"
   },
+  "titles": {
+    "document": "{{page}} · Uply",
+    "landing": "Website and API monitoring",
+    "sign_in": "Sign in",
+    "sign_up": "Sign up",
+    "forgot_password": "Forgot password",
+    "reset_password": "Reset password",
+    "two_factor": "Two factor code",
+    "verify_email": "Verify your email",
+    "create_organization": "Create your organization",
+    "invitation": "Invitation",
+    "monitor": "Monitor",
+    "incident": "Incident",
+    "status_page": "Status page",
+    "organization": "Organization settings",
+    "members": "Members",
+    "profile": "Profile",
+    "security": "Security"
+  },
   "route_error": {
     "title": "This page could not load",
     "description": "Something went wrong while opening this page. Check your connection, then try again.",

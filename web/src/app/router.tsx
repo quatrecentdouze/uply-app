@@ -10,6 +10,7 @@ import {
   useNavigate,
 } from '@tanstack/react-router';
 import { AuthLayout } from '@/app/layouts/AuthLayout';
+import { RootLayout } from '@/app/layouts/RootLayout';
 import { entryRedirect, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
 import { NotFoundPage, StandaloneNotFoundPage } from '@/app/pages/NotFoundPage';
 import { RouteErrorPage } from '@/app/pages/RouteErrorPage';
@@ -27,6 +28,7 @@ import { CreateOrganizationPage } from '@/features/organizations/pages/CreateOrg
 import { InvitationPage } from '@/features/organizations/pages/InvitationPage';
 import type { ApiClient } from '@/shared/api/client';
 import type { Me } from '@/shared/api/resources';
+import type { TextKey } from '@/shared/i18n/textKey';
 
 export interface RouterContext {
   queryClient: QueryClient;
@@ -36,6 +38,9 @@ export interface RouterContext {
 declare module '@tanstack/react-router' {
   interface Register {
     router: AppRouter;
+  }
+  interface StaticDataRouteOption {
+    title?: TextKey<'common'>;
   }
 }
 
@@ -73,13 +78,14 @@ function resetSearch(search: Record<string, unknown>): { token?: string; email?:
 const home = '/dashboard';
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
-  component: Outlet,
+  component: RootLayout,
   notFoundComponent: StandaloneNotFoundPage,
 });
 
 const landingRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
+  staticData: { title: 'common:titles.landing' },
   beforeLoad: ({ context, location }) => guard(context, 'guest', location.href),
   component: lazyRouteComponent(() => import('@/app/pages/landing/LandingPage'), 'LandingPage'),
 });
@@ -89,6 +95,7 @@ const entryLayout = createRoute({ getParentRoute: () => rootRoute, id: 'entry', 
 const loginRoute = createRoute({
   getParentRoute: () => entryLayout,
   path: 'login',
+  staticData: { title: 'common:titles.sign_in' },
   validateSearch: loginSearch,
   beforeLoad: ({ context, location }) => guard(context, 'guest', location.href),
   component: function LoginRoute() {
@@ -100,6 +107,7 @@ const loginRoute = createRoute({
 const registerRoute = createRoute({
   getParentRoute: () => entryLayout,
   path: 'register',
+  staticData: { title: 'common:titles.sign_up' },
   validateSearch: redirectSearch,
   beforeLoad: ({ context, location }) => guard(context, 'guest', location.href),
   component: function RegisterRoute() {
@@ -110,6 +118,7 @@ const registerRoute = createRoute({
 const forgotPasswordRoute = createRoute({
   getParentRoute: () => entryLayout,
   path: 'forgot-password',
+  staticData: { title: 'common:titles.forgot_password' },
   beforeLoad: ({ context, location }) => guard(context, 'guest', location.href),
   component: ForgotPasswordPage,
 });
@@ -117,6 +126,7 @@ const forgotPasswordRoute = createRoute({
 const resetPasswordRoute = createRoute({
   getParentRoute: () => entryLayout,
   path: 'reset-password',
+  staticData: { title: 'common:titles.reset_password' },
   validateSearch: resetSearch,
   beforeLoad: ({ context, location }) => guard(context, 'guest', location.href),
   component: function ResetPasswordRoute() {
@@ -127,6 +137,7 @@ const resetPasswordRoute = createRoute({
 const twoFactorRoute = createRoute({
   getParentRoute: () => entryLayout,
   path: 'two-factor-challenge',
+  staticData: { title: 'common:titles.two_factor' },
   validateSearch: redirectSearch,
   beforeLoad: ({ context, location }) => guard(context, 'guest', location.href),
   component: function TwoFactorRoute() {
@@ -137,6 +148,7 @@ const twoFactorRoute = createRoute({
 const verifyEmailRoute = createRoute({
   getParentRoute: () => entryLayout,
   path: 'verify-email',
+  staticData: { title: 'common:titles.verify_email' },
   beforeLoad: ({ context, location }) => guard(context, 'unverified', location.href),
   component: VerifyEmailPage,
 });
@@ -144,6 +156,7 @@ const verifyEmailRoute = createRoute({
 const createOrganizationRoute = createRoute({
   getParentRoute: () => entryLayout,
   path: 'organizations/new',
+  staticData: { title: 'common:titles.create_organization' },
   beforeLoad: ({ context, location }) => guard(context, 'verified', location.href),
   component: function CreateOrganizationRoute() {
     const memberships = useMe().data?.memberships.length ?? 0;
@@ -161,6 +174,7 @@ function viewerOf(me: Me | null): InvitationViewer {
 const invitationRoute = createRoute({
   getParentRoute: () => entryLayout,
   path: 'invitations/$token',
+  staticData: { title: 'common:titles.invitation' },
   beforeLoad: ({ context, location }) => guard(context, 'public', location.href),
   component: function InvitationRoute() {
     const { token } = invitationRoute.useParams();
@@ -193,54 +207,63 @@ const pagesLayout = createRoute({
 const dashboardRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'dashboard',
+  staticData: { title: 'common:pages.dashboard' },
   component: lazyRouteComponent(() => import('@/app/pages/DashboardPage'), 'DashboardPage'),
 });
 
 const monitorsRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'monitors',
+  staticData: { title: 'common:pages.monitors' },
   component: lazyRouteComponent(() => import('@/app/pages/MonitorsPage'), 'MonitorsPage'),
 });
 
 const monitorRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'monitors/$monitorId',
+  staticData: { title: 'common:titles.monitor' },
   component: lazyRouteComponent(() => import('@/app/routes/MonitorRoutes'), 'MonitorRoute'),
 });
 
 const incidentsRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'incidents',
+  staticData: { title: 'common:pages.incidents' },
   component: lazyRouteComponent(() => import('@/app/routes/IncidentRoutes'), 'IncidentsRoute'),
 });
 
 const incidentRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'incidents/$incidentId',
+  staticData: { title: 'common:titles.incident' },
   component: lazyRouteComponent(() => import('@/app/routes/IncidentRoutes'), 'IncidentRoute'),
 });
 
 const statusPagesRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'status-pages',
+  staticData: { title: 'common:pages.status_pages' },
   component: lazyRouteComponent(() => import('@/app/routes/StatusPageRoutes'), 'StatusPagesRoute'),
 });
 
 const statusPageRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'status-pages/$statusPageId',
+  staticData: { title: 'common:titles.status_page' },
   component: lazyRouteComponent(() => import('@/app/routes/StatusPageRoutes'), 'StatusPageRoute'),
 });
 
 const alertChannelsRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'alert-channels',
+  staticData: { title: 'common:pages.alert_channels' },
   component: lazyRouteComponent(() => import('@/app/routes/AlertChannelRoutes'), 'AlertChannelsRoute'),
 });
 
 const settingsLayout = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'settings',
+  staticData: { title: 'common:pages.settings' },
   component: lazyRouteComponent(() => import('@/app/layouts/SettingsLayout'), 'SettingsLayout'),
 });
 
@@ -255,24 +278,28 @@ const settingsIndexRoute = createRoute({
 const settingsOrganizationRoute = createRoute({
   getParentRoute: () => settingsLayout,
   path: 'organization',
+  staticData: { title: 'common:titles.organization' },
   component: lazyRouteComponent(() => import('@/app/routes/SettingsRoutes'), 'SettingsOrganizationRoute'),
 });
 
 const settingsMembersRoute = createRoute({
   getParentRoute: () => settingsLayout,
   path: 'members',
+  staticData: { title: 'common:titles.members' },
   component: lazyRouteComponent(() => import('@/app/routes/SettingsRoutes'), 'SettingsMembersRoute'),
 });
 
 const settingsProfileRoute = createRoute({
   getParentRoute: () => settingsLayout,
   path: 'profile',
+  staticData: { title: 'common:titles.profile' },
   component: lazyRouteComponent(() => import('@/app/routes/SettingsRoutes'), 'SettingsProfileRoute'),
 });
 
 const settingsSecurityRoute = createRoute({
   getParentRoute: () => settingsLayout,
   path: 'security',
+  staticData: { title: 'common:titles.security' },
   component: lazyRouteComponent(() => import('@/app/routes/SettingsRoutes'), 'SettingsSecurityRoute'),
 });
 

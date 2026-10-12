@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { guest, renderApp } from '@/app/testing/renderApp';
 
@@ -10,5 +10,8 @@ describe('App', () => {
     expect(screen.getAllByRole('link', { name: 'Get started' })[0]).toHaveAttribute('href', '/register');
     expect(screen.getAllByRole('link', { name: 'Sign in' })[0]).toHaveAttribute('href', '/login');
     expect(app.router.state.location.pathname).toBe('/');
+    await waitFor(() => {
+      expect(document.title).toBe('Website and API monitoring · Uply');
+    });
   });
 });

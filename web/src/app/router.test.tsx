@@ -1,6 +1,6 @@
 import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { guest, renderApp, signedIn } from '@/app/testing/renderApp';
+import { guest, renderApp, signedIn, withWorkspace } from '@/app/testing/renderApp';
 import { fakeFetch } from '@/shared/testing/fakeFetch';
 import { meFixture } from '@/shared/testing/fixtures';
 
@@ -16,6 +16,9 @@ describe('entry guards', () => {
 
     await landsOn(app, '/login?redirect=%2Fincidents');
     expect(await screen.findByRole('heading', { name: 'Sign in to Uply' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(document.title).toBe('Sign in · Uply');
+    });
   });
 
   it('sends an unverified user to the verify screen', async () => {
@@ -39,9 +42,12 @@ describe('entry guards', () => {
   });
 
   it('sends a member from the root to the dashboard', async () => {
-    const app = renderApp({ path: '/', server: signedIn(fakeFetch()) });
+    const app = renderApp({ path: '/', server: withWorkspace(signedIn(fakeFetch())) });
 
     await landsOn(app, '/dashboard');
+    await waitFor(() => {
+      expect(document.title).toBe('Dashboard · Uply');
+    });
   });
 
   it('keeps a member out of the verify screen', async () => {
@@ -77,5 +83,8 @@ describe('entry guards', () => {
     renderApp({ path: '/nowhere', server: guest() });
 
     expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(document.title).toBe('Page not found · Uply');
+    });
   });
 });
