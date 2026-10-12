@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "label": "Sections",
+    "features": "Features",
+    "faq": "FAQ",
+    "sign_in": "Sign in",
+    "get_started": "Get started"
+  },
+  "hero": {
+    "pill": "HTTP and HTTPS monitoring with public status pages",
+    "title_start": "Your websites and APIs,",
+    "title_end": "watched every minute.",
+    "description": "Uply checks your URLs on a schedule, measures their response time and opens an incident when a service goes down. Your team hears about it by email, Discord or Slack, and your users see it on a public status page.",
+    "notes": {
+      "intervals": "Checks from every 30 seconds to every hour",
+      "channels": "Alerts at the outage and at the recovery"
+    }
+  }
+}

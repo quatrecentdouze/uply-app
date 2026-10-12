@@ -10,7 +10,7 @@ import {
   useNavigate,
 } from '@tanstack/react-router';
 import { AuthLayout } from '@/app/layouts/AuthLayout';
-import { entryRedirect, homeOf, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
+import { entryRedirect, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
 import { NotFoundPage, StandaloneNotFoundPage } from '@/app/pages/NotFoundPage';
 import { meQuery, useLogout, useMe } from '@/features/auth/api/session';
 import { resetLinkOf } from '@/features/auth/model/forms';
@@ -76,13 +76,11 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
   notFoundComponent: StandaloneNotFoundPage,
 });
 
-const homeRoute = createRoute({
+const landingRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  beforeLoad: async ({ context }): Promise<never> => {
-    const me = await context.queryClient.query({ ...meQuery(context.apiClient), staleTime: 'static' });
-    throw redirect({ to: homeOf(sessionOf(me)) });
-  },
+  beforeLoad: ({ context, location }) => guard(context, 'guest', location.href),
+  component: lazyRouteComponent(() => import('@/app/pages/landing/LandingPage'), 'LandingPage'),
 });
 
 const entryLayout = createRoute({ getParentRoute: () => rootRoute, id: 'entry', component: AuthLayout });
@@ -278,7 +276,7 @@ const settingsSecurityRoute = createRoute({
 });
 
 const routeTree = rootRoute.addChildren([
-  homeRoute,
+  landingRoute,
   entryLayout.addChildren([
     loginRoute,
     registerRoute,

@@ -2,6 +2,7 @@ export {
   Activity,
   ArrowDown,
   ArrowLeft,
+  ArrowRight,
   ArrowUp,
   Bell,
   BellRing,
