@@ -3,23 +3,14 @@ import {
   createRootRouteWithContext,
   createRoute,
   createRouter,
+  lazyRouteComponent,
   Outlet,
   redirect,
   type RouterHistory,
   useNavigate,
 } from '@tanstack/react-router';
-import { AppLayout } from '@/app/layouts/AppLayout';
-import { useWorkspace } from '@/app/hooks/useWorkspace';
 import { AuthLayout } from '@/app/layouts/AuthLayout';
-import { SettingsLayout } from '@/app/layouts/SettingsLayout';
 import { entryRedirect, homeOf, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
-import { DashboardPage } from '@/app/pages/DashboardPage';
-import { AlertChannelsPage } from '@/features/alerting/pages/AlertChannelsPage';
-import { IncidentDetailPage } from '@/features/incidents/pages/IncidentDetailPage';
-import { IncidentsPage } from '@/features/incidents/pages/IncidentsPage';
-import { MonitorDetailPage } from '@/app/pages/MonitorDetailPage';
-import { MonitorsPage } from '@/app/pages/MonitorsPage';
-import { StatusPageEditorPage } from '@/app/pages/StatusPageEditorPage';
 import { NotFoundPage, StandaloneNotFoundPage } from '@/app/pages/NotFoundPage';
 import { meQuery, useLogout, useMe } from '@/features/auth/api/session';
 import { resetLinkOf } from '@/features/auth/model/forms';
@@ -33,16 +24,8 @@ import { organizationsQuery } from '@/features/organizations/api/organizations';
 import type { InvitationViewer } from '@/features/organizations/model/organizations';
 import { CreateOrganizationPage } from '@/features/organizations/pages/CreateOrganizationPage';
 import { InvitationPage } from '@/features/organizations/pages/InvitationPage';
-import { MembersPage } from '@/features/organizations/pages/MembersPage';
-import { OrganizationSettingsPage } from '@/features/organizations/pages/OrganizationSettingsPage';
-import { ProfilePage } from '@/features/organizations/pages/ProfilePage';
-import { SecurityPage } from '@/features/organizations/pages/SecurityPage';
-import { StatusPagesPage } from '@/features/status-pages/pages/StatusPagesPage';
-import { dashboardSettings } from '@/features/monitors/model/settings';
 import type { ApiClient } from '@/shared/api/client';
-import { useMeta } from '@/shared/api/meta';
 import type { Me } from '@/shared/api/resources';
-import { useNow } from '@/shared/time/useNow';
 
 export interface RouterContext {
   queryClient: QueryClient;
@@ -198,7 +181,7 @@ const appLayout = createRoute({
   id: 'app',
   beforeLoad: ({ context, location }) => guard(context, 'member', location.href),
   loader: ({ context }) => context.queryClient.query({ ...organizationsQuery(context.apiClient), staleTime: 'static' }),
-  component: AppLayout,
+  component: lazyRouteComponent(() => import('@/app/layouts/AppLayout'), 'AppLayout'),
 });
 
 const pagesLayout = createRoute({
@@ -211,70 +194,55 @@ const pagesLayout = createRoute({
 const dashboardRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'dashboard',
-  component: DashboardPage,
+  component: lazyRouteComponent(() => import('@/app/pages/DashboardPage'), 'DashboardPage'),
 });
 
 const monitorsRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'monitors',
-  component: MonitorsPage,
+  component: lazyRouteComponent(() => import('@/app/pages/MonitorsPage'), 'MonitorsPage'),
 });
+
 const monitorRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'monitors/$monitorId',
-  component: function MonitorRoute() {
-    return <MonitorDetailPage monitorId={monitorRoute.useParams().monitorId} />;
-  },
+  component: lazyRouteComponent(() => import('@/app/routes/MonitorRoutes'), 'MonitorRoute'),
 });
+
 const incidentsRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'incidents',
-  component: function IncidentsRoute() {
-    const { organizationId } = useWorkspace();
-    const now = useNow(dashboardSettings.clock_tick_seconds);
-    return <IncidentsPage organizationId={organizationId} now={now} />;
-  },
+  component: lazyRouteComponent(() => import('@/app/routes/IncidentRoutes'), 'IncidentsRoute'),
 });
 
 const incidentRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'incidents/$incidentId',
-  component: function IncidentRoute() {
-    const { organizationId } = useWorkspace();
-    const now = useNow(dashboardSettings.clock_tick_seconds);
-    return <IncidentDetailPage organizationId={organizationId} incidentId={incidentRoute.useParams().incidentId} now={now} notFound={<NotFoundPage />} />;
-  },
+  component: lazyRouteComponent(() => import('@/app/routes/IncidentRoutes'), 'IncidentRoute'),
 });
+
 const statusPagesRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'status-pages',
-  component: function StatusPagesRoute() {
-    const { organizationId, can } = useWorkspace();
-    const meta = useMeta()?.status_pages ?? null;
-    return <StatusPagesPage organizationId={organizationId} meta={meta} canManage={can('status-pages.manage')} />;
-  },
+  component: lazyRouteComponent(() => import('@/app/routes/StatusPageRoutes'), 'StatusPagesRoute'),
 });
 
 const statusPageRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'status-pages/$statusPageId',
-  component: function StatusPageRoute() {
-    return <StatusPageEditorPage statusPageId={statusPageRoute.useParams().statusPageId} />;
-  },
+  component: lazyRouteComponent(() => import('@/app/routes/StatusPageRoutes'), 'StatusPageRoute'),
 });
+
 const alertChannelsRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'alert-channels',
-  component: function AlertChannelsRoute() {
-    const { organizationId, can } = useWorkspace();
-    const alerting = useMeta()?.alerting ?? null;
-    return <AlertChannelsPage organizationId={organizationId} alerting={alerting} canManage={can('alert-channels.manage')} />;
-  },
+  component: lazyRouteComponent(() => import('@/app/routes/AlertChannelRoutes'), 'AlertChannelsRoute'),
 });
+
 const settingsLayout = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'settings',
-  component: SettingsLayout,
+  component: lazyRouteComponent(() => import('@/app/layouts/SettingsLayout'), 'SettingsLayout'),
 });
 
 const settingsIndexRoute = createRoute({
@@ -288,64 +256,25 @@ const settingsIndexRoute = createRoute({
 const settingsOrganizationRoute = createRoute({
   getParentRoute: () => settingsLayout,
   path: 'organization',
-  component: function SettingsOrganizationRoute() {
-    const { organization, can } = useWorkspace();
-    const navigate = useNavigate();
-    const bounds = useMeta()?.organizations.lengths.organization_name ?? null;
-    return (
-      <OrganizationSettingsPage
-        key={organization.id}
-        organization={organization}
-        nameBounds={bounds}
-        canRename={can('organization.manage')}
-        canDelete={can('organization.delete')}
-        onDeleted={() => navigate({ to: '/dashboard' })}
-      />
-    );
-  },
+  component: lazyRouteComponent(() => import('@/app/routes/SettingsRoutes'), 'SettingsOrganizationRoute'),
 });
 
 const settingsMembersRoute = createRoute({
   getParentRoute: () => settingsLayout,
   path: 'members',
-  component: function SettingsMembersRoute() {
-    const { organization, can } = useWorkspace();
-    const navigate = useNavigate();
-    const me = useMe().data;
-    if (me === undefined || me === null) {
-      return null;
-    }
-    return (
-      <MembersPage
-        key={organization.id}
-        organizationId={organization.id}
-        actorRole={organization.role}
-        actorUserId={me.id}
-        canManage={can('members.manage')}
-        onLeft={() => navigate({ to: '/dashboard' })}
-      />
-    );
-  },
+  component: lazyRouteComponent(() => import('@/app/routes/SettingsRoutes'), 'SettingsMembersRoute'),
 });
 
 const settingsProfileRoute = createRoute({
   getParentRoute: () => settingsLayout,
   path: 'profile',
-  component: function SettingsProfileRoute() {
-    const me = useMe().data;
-    const lengths = useMeta()?.organizations.lengths ?? null;
-    return me === undefined || me === null ? null : <ProfilePage me={me} lengths={lengths} />;
-  },
+  component: lazyRouteComponent(() => import('@/app/routes/SettingsRoutes'), 'SettingsProfileRoute'),
 });
 
 const settingsSecurityRoute = createRoute({
   getParentRoute: () => settingsLayout,
   path: 'security',
-  component: function SettingsSecurityRoute() {
-    const me = useMe().data;
-    const navigate = useNavigate();
-    return me === undefined || me === null ? null : <SecurityPage me={me} onAccountDeleted={() => navigate({ to: '/login' })} />;
-  },
+  component: lazyRouteComponent(() => import('@/app/routes/SettingsRoutes'), 'SettingsSecurityRoute'),
 });
 
 const routeTree = rootRoute.addChildren([
