@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { bucketLabelFormat, bucketTooltipFormat, toneTextKeys, uptimeFloor, uptimePoints, uptimeTone, windows, windowTextKeys } from '@/features/monitors/model/dashboard';
-import { dashboardSettings } from '@/features/monitors/model/settings';
+import { bucketLabelFormat, bucketTooltipFormat, toneTextKeys, uptimeFloor, uptimePoints, windows, windowTextKeys } from '@/features/monitors/model/dashboard';
 import type { Window } from '@/shared/api/queryKeys';
 import type { Overview } from '@/shared/api/resources';
 import { formatDate } from '@/shared/time/format';
@@ -9,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenu
 import { ChevronDown } from '@/shared/ui/icons';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { CardHeading, Pill, SurfaceCard } from '@/shared/ui/surface-card';
+import { uptimeSettings, uptimeTone } from '@/shared/uptime/uptime';
 
 interface UptimeCardProps {
   overview: Overview | undefined;
@@ -51,7 +51,7 @@ export function WindowMenu({ window, onWindowChange }: Pick<UptimeCardProps, 'wi
 export function UptimeCard({ overview, window, onWindowChange }: UptimeCardProps) {
   const { t, i18n } = useTranslation(['monitors']);
   const percent = overview?.uptime_percent ?? null;
-  const tone = uptimeTone(percent, dashboardSettings.uptime_thresholds);
+  const tone = uptimeTone(percent, uptimeSettings.thresholds);
   const points = uptimePoints(overview?.series ?? []);
   const context = { locale: i18n.language };
   const trend = points.map((point) => ({

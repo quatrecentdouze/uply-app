@@ -10,23 +10,8 @@ import {
   stateBreakdown,
   uptimeFloor,
   uptimePoints,
-  uptimeTone,
 } from '@/features/monitors/model/dashboard';
 import { monitorFixture, overviewFixture } from '@/shared/testing/fixtures';
-
-const thresholds = { healthy: 99.9, degraded: 99 };
-
-describe('uptimeTone', () => {
-  it.each([
-    [100, 'positive'],
-    [99.9, 'positive'],
-    [99.5, 'warning'],
-    [98.2, 'alert'],
-    [null, 'neutral'],
-  ] as const)('reads %s as %s', (percent, tone) => {
-    expect(uptimeTone(percent, thresholds)).toBe(tone);
-  });
-});
 
 describe('responseTone', () => {
   it('flags a slow answer', () => {

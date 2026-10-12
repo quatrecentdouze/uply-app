@@ -1,8 +1,4 @@
 {
-  "uptime_thresholds": {
-    "healthy": 99.9,
-    "degraded": 99
-  },
   "slow_response_ms": 1000,
   "panel_monitors": 6,
   "recent_incidents": 5,

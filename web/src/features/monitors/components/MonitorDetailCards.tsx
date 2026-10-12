@@ -7,13 +7,11 @@ import {
   displayState,
   responsePoints,
   toneTextKeys,
-  uptimeTone,
   windows,
   windowTabKeys,
 } from '@/features/monitors/model/dashboard';
 import { type TimingPhase, timingBreakdown, timingTextKeys } from '@/features/monitors/model/monitorDetail';
 import { intervalText } from '@/features/monitors/model/monitorForm';
-import { dashboardSettings } from '@/features/monitors/model/settings';
 import type { Window } from '@/shared/api/queryKeys';
 import type { Monitor, MonitorStats } from '@/shared/api/resources';
 import { formatDate, formatRelative } from '@/shared/time/format';
@@ -24,6 +22,7 @@ import { Label } from '@/shared/ui/label';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { CardHeading, Pill, SurfaceCard } from '@/shared/ui/surface-card';
 import { Switch } from '@/shared/ui/switch';
+import { uptimeSettings, uptimeTone } from '@/shared/uptime/uptime';
 
 export interface MonitorHeaderActions {
   onTogglePause: (paused: boolean) => void;
@@ -91,7 +90,7 @@ export function MonitorHeaderCard({ monitor, now, actions }: { monitor: Monitor;
 export function UptimeStatCard({ window, stats }: { window: Window; stats: MonitorStats | undefined }) {
   const { t } = useTranslation(['monitors']);
   const percent = stats?.uptime_percent ?? null;
-  const tone = uptimeTone(percent, dashboardSettings.uptime_thresholds);
+  const tone = uptimeTone(percent, uptimeSettings.thresholds);
   const id = `uptime-${window}`;
   return (
     <SurfaceCard aria-labelledby={id} className="p-4 sm:p-5">

@@ -1,15 +1,15 @@
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { MonitorStatePill } from '@/features/monitors/components/MonitorStatePill';
-import { displayState, uptimeTone } from '@/features/monitors/model/dashboard';
+import { displayState } from '@/features/monitors/model/dashboard';
 import { intervalText } from '@/features/monitors/model/monitorForm';
 import { pauseActionOf } from '@/features/monitors/model/monitorList';
-import { dashboardSettings } from '@/features/monitors/model/settings';
 import type { Monitor } from '@/shared/api/resources';
 import { formatRelative } from '@/shared/time/format';
 import { cellClass, DataTable, rowClass } from '@/shared/ui/data-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/shared/ui/dropdown-menu';
 import { Ellipsis, Pause, Pencil, Play, Trash2 } from '@/shared/ui/icons';
+import { uptimeSettings, uptimeTone } from '@/shared/uptime/uptime';
 
 export interface MonitorActions {
   onEdit: (monitor: Monitor) => void;
@@ -72,7 +72,7 @@ export function MonitorRowMenu({ monitor, actions }: { monitor: Monitor; actions
 
 function MonitorRow({ monitor, now, actions }: { monitor: Monitor; now: Date; actions: MonitorActions | null }) {
   const { t, i18n } = useTranslation(['monitors']);
-  const tone = uptimeTone(monitor.uptime_24h, dashboardSettings.uptime_thresholds);
+  const tone = uptimeTone(monitor.uptime_24h, uptimeSettings.thresholds);
   const interval = intervalText(monitor.interval_seconds);
   return (
     <tr className={rowClass}>

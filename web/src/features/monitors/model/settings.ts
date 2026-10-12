@@ -1,26 +1,17 @@
 import { z } from 'zod';
 import shipped from '@/features/monitors/model/dashboardSettings.json';
 
-const settingsSchema = z
-  .object({
-    uptime_thresholds: z.object({
-      healthy: z.number().min(0).max(100),
-      degraded: z.number().min(0).max(100),
-    }),
-    slow_response_ms: z.number().int().min(1),
-    panel_monitors: z.number().int().min(1),
-    recent_incidents: z.number().int().min(1),
-    list_size: z.number().int().min(1).max(100),
-    default_window: z.enum(['24h', '7d', '30d']),
-    clock_tick_seconds: z.number().int().min(1),
-    search_delay_ms: z.number().int().min(0),
-    checks_page_size: z.number().int().min(1).max(100),
-    detail_incidents: z.number().int().min(1).max(100),
-  })
-  .refine((settings) => settings.uptime_thresholds.degraded <= settings.uptime_thresholds.healthy, {
-    path: ['uptime_thresholds', 'degraded'],
-    message: 'must not exceed uptime_thresholds.healthy',
-  });
+const settingsSchema = z.object({
+  slow_response_ms: z.number().int().min(1),
+  panel_monitors: z.number().int().min(1),
+  recent_incidents: z.number().int().min(1),
+  list_size: z.number().int().min(1).max(100),
+  default_window: z.enum(['24h', '7d', '30d']),
+  clock_tick_seconds: z.number().int().min(1),
+  search_delay_ms: z.number().int().min(0),
+  checks_page_size: z.number().int().min(1).max(100),
+  detail_incidents: z.number().int().min(1).max(100),
+});
 
 export type DashboardSettings = z.infer<typeof settingsSchema>;
 

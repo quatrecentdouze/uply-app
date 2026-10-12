@@ -1,8 +1,7 @@
 import type { Window } from '@/shared/api/queryKeys';
 import type { Monitor, Overview, SeriesPoint } from '@/shared/api/resources';
 import type { TextKey } from '@/shared/i18n/textKey';
-
-export type Tone = 'positive' | 'warning' | 'alert' | 'neutral';
+import type { Tone } from '@/shared/uptime/uptime';
 
 export type DisplayState = 'up' | 'down' | 'pending' | 'paused';
 
@@ -40,21 +39,6 @@ export function isWindow(value: string): value is Window {
 
 export function displayState(monitor: Pick<Monitor, 'state' | 'is_paused'>): DisplayState {
   return monitor.is_paused ? 'paused' : monitor.state;
-}
-
-export interface UptimeThresholds {
-  healthy: number;
-  degraded: number;
-}
-
-export function uptimeTone(percent: number | null, thresholds: UptimeThresholds): Tone {
-  if (percent === null) {
-    return 'neutral';
-  }
-  if (percent >= thresholds.healthy) {
-    return 'positive';
-  }
-  return percent >= thresholds.degraded ? 'warning' : 'alert';
 }
 
 export function responseTone(milliseconds: number | null, slowMilliseconds: number): Tone {

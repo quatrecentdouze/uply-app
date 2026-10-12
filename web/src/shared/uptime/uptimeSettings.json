@@ -1,0 +1,6 @@
+{
+  "thresholds": {
+    "healthy": 99.9,
+    "degraded": 99
+  }
+}
