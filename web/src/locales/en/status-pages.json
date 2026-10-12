@@ -55,6 +55,13 @@
     "save": "Save page",
     "saved": "The page is saved."
   },
+  "public": {
+    "overall": {
+      "operational": "All systems operational",
+      "partial_outage": "Partial outage",
+      "major_outage": "Major outage"
+    }
+  },
   "delete": {
     "title": "Delete {{name}}?",
     "description": "Its public address stops working at once. This cannot be undone.",

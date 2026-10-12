@@ -26,6 +26,10 @@ export type AlertChannel = Schemas['AlertChannelResource'];
 export type ChannelType = Schemas['ChannelType'];
 export type StatusPage = Schemas['StatusPageResource'];
 export type PageMonitor = Schemas['PageMonitorResource'];
+export type PublicStatusPage = Schemas['PublicStatusPageResource'];
+export type PublicMonitor = Schemas['PublicMonitorResource'];
+export type PublicBar = Schemas['PublicBarResource'];
+export type PublicIncident = Schemas['PublicIncidentResource'];
 export type Member = Schemas['MemberResource'];
 export type Invitation = Schemas['InvitationResource'];
 

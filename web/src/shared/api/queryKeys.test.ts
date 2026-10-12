@@ -24,6 +24,10 @@ describe('queryKeys', () => {
     expect(startsWith(queryKeys.monitors.lists('org-2'), queryKeys.organization('org-1'))).toBe(false);
   });
 
+  it('keeps a public status page out of any organization scope', () => {
+    expect(startsWith(queryKeys.publicStatusPage('demo-services'), ['organizations'])).toBe(false);
+  });
+
   it('keeps the organizations list out of any organization scope', () => {
     expect(startsWith(queryKeys.organizations(), ['organizations'])).toBe(false);
   });

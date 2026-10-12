@@ -51,6 +51,7 @@ export const queryKeys = {
     list: (organizationId: string) => [...queryKeys.statusPages.all(organizationId), 'list'] as const,
     detail: (organizationId: string, statusPageId: string) => [...queryKeys.statusPages.all(organizationId), 'detail', statusPageId] as const,
   },
+  publicStatusPage: (slug: string) => ['public-status-pages', slug] as const,
   members: (organizationId: string) => [...organizationScope(organizationId), 'members'] as const,
   invitations: (organizationId: string) => [...organizationScope(organizationId), 'invitations'] as const,
 } as const;
