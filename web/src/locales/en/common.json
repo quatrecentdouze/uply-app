@@ -58,6 +58,12 @@
     "description": "This page does not exist yet or was moved.",
     "home": "Back to the dashboard"
   },
+  "route_error": {
+    "title": "This page could not load",
+    "description": "Something went wrong while opening this page. Check your connection, then try again.",
+    "retry": "Try again",
+    "home": "Back to the home page"
+  },
   "duration": {
     "seconds": "{{seconds}} s",
     "minutes": "{{minutes}} min {{seconds}} s",

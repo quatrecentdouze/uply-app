@@ -60,6 +60,19 @@ describe('entry guards', () => {
     expect(app.router.state.location.pathname).toBe(`/invitations/${token}`);
   });
 
+  it('shows the route error page when the session cannot load, then retries', async () => {
+    const server = fakeFetch([{ method: 'GET', path: '/api/v1/me', status: 500, body: { message: 'Server Error' } }]);
+    const app = renderApp({ path: '/login', server });
+
+    expect(await screen.findByRole('heading', { name: 'This page could not load' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Back to the home page' })).toHaveAttribute('href', '/');
+
+    guest(server);
+    await app.user.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(await screen.findByRole('heading', { name: 'Sign in to Uply' })).toBeInTheDocument();
+  });
+
   it('opens the not found page of the router for an unknown address', async () => {
     renderApp({ path: '/nowhere', server: guest() });
 

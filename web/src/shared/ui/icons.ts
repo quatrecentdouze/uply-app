@@ -26,6 +26,7 @@ export {
   Menu,
   MessageSquare,
   PanelLeft,
+  RotateCw,
   Pause,
   Pencil,
   Play,
