@@ -1,3 +1,4 @@
+import { cn } from 'cn';
 import { useTranslation } from 'react-i18next';
 import { useMonitorChecks } from '@/features/monitors/api/monitors';
 import { checkDetailText, checksOf, checkTimeFormat } from '@/features/monitors/model/monitorDetail';
@@ -28,6 +29,26 @@ function CheckRow({ check }: { check: CheckResult }) {
   );
 }
 
+export function ChecksTable({ checks, className }: { checks: readonly CheckResult[]; className?: string }) {
+  const { t } = useTranslation(['monitors']);
+  return (
+    <DataTable
+      label={t('monitors:detail.checks_table')}
+      className={cn('table-fixed', className)}
+      head={[
+        { label: t('monitors:detail.checked_at'), className: 'w-[32%]' },
+        { label: t('monitors:detail.result'), className: 'w-[18%]' },
+        { label: t('monitors:detail.detail'), className: 'w-[30%]' },
+        { label: t('monitors:list.response'), className: 'w-[20%] text-right' },
+      ]}
+    >
+      {checks.map((check, index) => (
+        <CheckRow key={`${check.checked_at ?? ''}-${String(index)}`} check={check} />
+      ))}
+    </DataTable>
+  );
+}
+
 export function RecentChecksCard({ organizationId, monitorId }: { organizationId: string; monitorId: string }) {
   const { t } = useTranslation(['monitors']);
   const query = useMonitorChecks(organizationId, monitorId, dashboardSettings.checks_page_size);
@@ -42,20 +63,7 @@ export function RecentChecksCard({ organizationId, monitorId }: { organizationId
       ) : checks.length === 0 ? (
         <p className="py-6 text-center text-muted-foreground">{t('monitors:detail.no_checks')}</p>
       ) : (
-        <DataTable
-          label={t('monitors:detail.checks_table')}
-          className="min-w-[560px] table-fixed"
-          head={[
-            { label: t('monitors:detail.checked_at'), className: 'w-[32%]' },
-            { label: t('monitors:detail.result'), className: 'w-[18%]' },
-            { label: t('monitors:detail.detail'), className: 'w-[30%]' },
-            { label: t('monitors:list.response'), className: 'w-[20%] text-right' },
-          ]}
-        >
-          {checks.map((check, index) => (
-            <CheckRow key={`${check.checked_at ?? ''}-${String(index)}`} check={check} />
-          ))}
-        </DataTable>
+        <ChecksTable checks={checks} className="min-w-[560px]" />
       )}
       {query.hasNextPage ? (
         <div className="mt-3 flex justify-center">
