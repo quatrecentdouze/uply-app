@@ -39,6 +39,7 @@ export {
   Settings,
   ShieldCheck,
   Siren,
+  Timer,
   Trash2,
   User,
   UserPlus,

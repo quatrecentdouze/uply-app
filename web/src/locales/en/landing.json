@@ -15,5 +15,17 @@
       "intervals": "Checks from every 30 seconds to every hour",
       "channels": "Alerts at the outage and at the recovery"
     }
+  },
+  "showcase": {
+    "title": "Dashboard",
+    "badge": "Sample data",
+    "caption": "Sample data. Every card above is a real component of Uply."
+  },
+  "capabilities": {
+    "label": "What Uply covers",
+    "checks": "HTTP and HTTPS checks",
+    "uptime": "Uptime over 24 h, 7 d and 30 d",
+    "alerts": "Email, Discord and Slack alerts",
+    "status_pages": "Public status pages"
   }
 }
