@@ -1,0 +1,126 @@
+{
+  "now": "2026-10-29T12:00:00Z",
+  "monitors": [
+    {
+      "id": "sample-api",
+      "name": "Public API",
+      "url": "https://api.example.com/health",
+      "state": "up",
+      "is_paused": false,
+      "last_response_ms": 142,
+      "uptime_24h": 100
+    },
+    {
+      "id": "sample-checkout",
+      "name": "Checkout",
+      "url": "https://shop.example.com/checkout",
+      "state": "down",
+      "is_paused": false,
+      "last_response_ms": 312,
+      "uptime_24h": 97.91
+    },
+    {
+      "id": "sample-website",
+      "name": "Website",
+      "url": "https://www.example.com",
+      "state": "up",
+      "is_paused": false,
+      "last_response_ms": 88,
+      "uptime_24h": 99.97
+    },
+    {
+      "id": "sample-docs",
+      "name": "Docs",
+      "url": "https://docs.example.com",
+      "state": "up",
+      "is_paused": false,
+      "last_response_ms": 1240,
+      "uptime_24h": 99.93
+    },
+    {
+      "id": "sample-staging",
+      "name": "Staging API",
+      "url": "https://staging.example.com/health",
+      "state": "up",
+      "is_paused": true,
+      "last_response_ms": 205,
+      "uptime_24h": null
+    }
+  ],
+  "incidents": [
+    {
+      "id": "sample-incident-3",
+      "monitor_id": "sample-checkout",
+      "started_at": "2026-10-29T11:42:10Z",
+      "resolved_at": null,
+      "failure_kind": "http_status",
+      "http_status": 503
+    },
+    {
+      "id": "sample-incident-2",
+      "monitor_id": "sample-api",
+      "started_at": "2026-10-28T22:05:40Z",
+      "resolved_at": "2026-10-28T22:09:52Z",
+      "failure_kind": "timeout",
+      "http_status": null
+    },
+    {
+      "id": "sample-incident-1",
+      "monitor_id": "sample-website",
+      "started_at": "2026-10-27T08:31:00Z",
+      "resolved_at": "2026-10-27T08:33:20Z",
+      "failure_kind": "dns",
+      "http_status": null
+    }
+  ],
+  "checks": [
+    {
+      "checked_at": "2026-10-29T11:43:30Z",
+      "outcome": "down",
+      "failure_kind": "http_status",
+      "http_status": 503,
+      "response_ms": 312
+    },
+    {
+      "checked_at": "2026-10-29T11:42:30Z",
+      "outcome": "down",
+      "failure_kind": "http_status",
+      "http_status": 503,
+      "response_ms": 298
+    },
+    {
+      "checked_at": "2026-10-29T11:42:10Z",
+      "outcome": "down",
+      "failure_kind": "http_status",
+      "http_status": 503,
+      "response_ms": 305
+    },
+    {
+      "checked_at": "2026-10-29T11:41:10Z",
+      "outcome": "up",
+      "failure_kind": null,
+      "http_status": 200,
+      "response_ms": 186
+    }
+  ],
+  "status_page": {
+    "title": "Example status",
+    "overall_state": "partial_outage",
+    "monitors": [
+      {
+        "id": "sample-website",
+        "display_name": "Website",
+        "state": "up",
+        "uptime_90d": 99.98,
+        "bars": [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 99.93, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 99.86, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
+      },
+      {
+        "id": "sample-checkout",
+        "display_name": "Checkout",
+        "state": "down",
+        "uptime_90d": 99.71,
+        "bars": [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 99.31, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 98.62, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 99.95, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 97.91]
+      }
+    ]
+  }
+}
