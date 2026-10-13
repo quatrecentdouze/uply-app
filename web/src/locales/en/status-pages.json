@@ -32,6 +32,8 @@
   },
   "editor": {
     "back": "All status pages",
+    "open_public": "Open the public page",
+    "new_tab": "(opens in a new tab)",
     "settings": "Page",
     "address": "Public address: /status/{{slug}}",
     "description": "Description",

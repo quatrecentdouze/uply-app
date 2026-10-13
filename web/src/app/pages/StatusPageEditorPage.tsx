@@ -10,7 +10,7 @@ import { isFailure } from '@/shared/api/errors';
 import { useMeta } from '@/shared/api/meta';
 import type { StatusPage } from '@/shared/api/resources';
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog';
-import { ArrowLeft } from '@/shared/ui/icons';
+import { ArrowLeft, ExternalLink } from '@/shared/ui/icons';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { useConfirmAction } from '@/shared/ui/use-confirm-action';
 
@@ -34,10 +34,25 @@ export function StatusPageEditorPage({ statusPageId }: { statusPageId: string })
 
   return (
     <div className="grid gap-4 2xl:gap-5">
-      <Link to="/status-pages" className="flex w-fit items-center gap-2 text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        {t('status-pages:editor.back')}
-      </Link>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <Link to="/status-pages" className="flex min-h-10 w-fit items-center gap-2 text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          {t('status-pages:editor.back')}
+        </Link>
+        {current?.is_published === true ? (
+          <Link
+            to="/status/$slug"
+            params={{ slug: current.slug }}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex min-h-10 items-center gap-2 rounded-[11px] border-2 border-line-strong bg-surface-raised px-3.5 text-sm hover:bg-secondary"
+          >
+            {t('status-pages:editor.open_public')}{' '}
+            <span className="sr-only">{t('status-pages:editor.new_tab')}</span>
+            <ExternalLink className="size-4" aria-hidden="true" />
+          </Link>
+        ) : null}
+      </div>
       {current === undefined || meta === null || monitors === undefined ? (
         <Skeleton className="h-[320px] w-full" />
       ) : (

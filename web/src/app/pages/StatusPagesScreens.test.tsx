@@ -100,6 +100,22 @@ describe('status page editor', () => {
     });
   });
 
+  it('links to the public page in a new tab once the page is published', async () => {
+    const app = open('/status-pages/page-1');
+    app.server.respond({ method: 'PATCH', path: `${base}/page-1`, body: { data: { ...page, is_published: true } } });
+
+    await screen.findByLabelText('Title');
+    expect(screen.queryByRole('link', { name: /Open the public page/ })).toBeNull();
+
+    await app.user.click(screen.getByRole('switch', { name: 'Published' }));
+    await app.user.click(screen.getByRole('button', { name: 'Save page' }));
+
+    const link = await screen.findByRole('link', { name: 'Open the public page (opens in a new tab)' });
+    expect(link).toHaveAttribute('href', '/status/acme-status');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
   it('shows a taken address under its field', async () => {
     const app = open('/status-pages/page-1');
     app.server.respond({ method: 'PATCH', path: `${base}/page-1`, status: 422, body: { message: 'Invalid.', errors: { slug: ['The slug has already been taken.'] } } });
