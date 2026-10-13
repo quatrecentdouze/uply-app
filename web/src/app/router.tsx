@@ -189,6 +189,19 @@ const invitationRoute = createRoute({
   },
 });
 
+const publicLayout = createRoute({
+  getParentRoute: () => rootRoute,
+  id: 'public',
+  component: lazyRouteComponent(() => import('@/app/layouts/PublicLayout'), 'PublicLayout'),
+});
+
+const publicStatusPageRoute = createRoute({
+  getParentRoute: () => publicLayout,
+  path: 'status/$slug',
+  staticData: { title: 'common:titles.status_page' },
+  component: lazyRouteComponent(() => import('@/app/routes/PublicRoutes'), 'PublicStatusPageRoute'),
+});
+
 const appLayout = createRoute({
   getParentRoute: () => rootRoute,
   id: 'app',
@@ -315,6 +328,7 @@ const routeTree = rootRoute.addChildren([
     createOrganizationRoute,
     invitationRoute,
   ]),
+  publicLayout.addChildren([publicStatusPageRoute]),
   appLayout.addChildren([
     pagesLayout.addChildren([
       dashboardRoute,

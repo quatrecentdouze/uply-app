@@ -59,7 +59,40 @@
     "overall": {
       "operational": "All systems operational",
       "partial_outage": "Partial outage",
-      "major_outage": "Major outage"
+      "major_outage": "Major outage",
+      "unknown": "Status not available"
+    },
+    "loading": "Loading the status page",
+    "monitors": "Services",
+    "no_monitors": "This page shows no service yet.",
+    "states": {
+      "up": "Operational",
+      "down": "Down",
+      "pending": "Pending",
+      "paused": "Paused"
+    },
+    "uptime": "{{value, number(maximumFractionDigits: 2)}}% uptime",
+    "uptime_none": "No data yet",
+    "strip": "Uptime of {{name}} over the last {{days}} days: {{value, number(maximumFractionDigits: 2)}}%",
+    "strip_no_data": "Uptime of {{name}} over the last {{days}} days: no data yet",
+    "days_ago_one": "{{count}} day ago",
+    "days_ago_other": "{{count}} days ago",
+    "today": "Today",
+    "bar": "{{date}}: {{value, number(maximumFractionDigits: 2)}}% uptime",
+    "bar_no_data": "{{date}}: no data",
+    "incidents_title_one": "Incidents of the last day",
+    "incidents_title_other": "Incidents of the last {{count}} days",
+    "incidents_recent": "Recent incidents",
+    "incidents_empty_one": "No incident in the last day.",
+    "incidents_empty_other": "No incident in the last {{count}} days.",
+    "incidents_none": "No recent incident.",
+    "started": "Started {{time}}",
+    "ongoing": "Ongoing",
+    "resolved_after": "Resolved after {{duration}}",
+    "not_found": {
+      "title": "Status page not found",
+      "description": "This status page does not exist or is not published.",
+      "home": "Go to Uply"
     }
   },
   "delete": {

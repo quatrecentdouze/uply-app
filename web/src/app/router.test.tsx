@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { guest, renderApp, signedIn, withWorkspace } from '@/app/testing/renderApp';
 import { fakeFetch } from '@/shared/testing/fakeFetch';
-import { meFixture } from '@/shared/testing/fixtures';
+import { meFixture, metaFixture, publicStatusPageFixture } from '@/shared/testing/fixtures';
 
 async function landsOn(app: ReturnType<typeof renderApp>, href: string) {
   await waitFor(() => {
@@ -77,6 +77,18 @@ describe('entry guards', () => {
     await app.user.click(screen.getByRole('button', { name: 'Try again' }));
 
     expect(await screen.findByRole('heading', { name: 'Sign in to Uply' })).toBeInTheDocument();
+  });
+
+  it('opens a public status page in the public layout without asking for the session', async () => {
+    const server = fakeFetch([
+      { method: 'GET', path: '/api/v1/public/status-pages/demo-services', body: { data: publicStatusPageFixture() } },
+      { method: 'GET', path: '/api/v1/meta', body: { data: metaFixture() } },
+    ]);
+    renderApp({ path: '/status/demo-services', server });
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Demo services' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Powered by Uply' })).toHaveAttribute('href', '/');
+    expect(server.requestsTo('GET', '/api/v1/me')).toHaveLength(0);
   });
 
   it('opens the not found page of the router for an unknown address', async () => {

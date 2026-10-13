@@ -77,6 +77,13 @@
     "profile": "Profile",
     "security": "Security"
   },
+  "load_error": {
+    "message": "This could not load. Check your connection, then retry.",
+    "retry": "Retry"
+  },
+  "public": {
+    "powered_by": "Powered by Uply"
+  },
   "route_error": {
     "title": "This page could not load",
     "description": "Something went wrong while opening this page. Check your connection, then try again.",

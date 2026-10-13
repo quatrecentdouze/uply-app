@@ -1,5 +1,5 @@
 import type { Meta } from '@/shared/api/meta';
-import type { AlertChannel, Incident, Me, Monitor, MonitorListResponse, Overview } from '@/shared/api/resources';
+import type { AlertChannel, Incident, Me, Monitor, MonitorListResponse, Overview, PublicBar, PublicStatusPage } from '@/shared/api/resources';
 
 export const organizationId = '01jbxorganization0000000000';
 
@@ -145,6 +145,32 @@ export function alertChannelFixture(overrides: Partial<AlertChannel> = {}): Aler
     webhook_hint: null,
     created_at: '2026-10-28T08:00:00Z',
     updated_at: '2026-10-28T08:00:00Z',
+    ...overrides,
+  };
+}
+
+const barDays = 90;
+
+export function publicBarsFixture(uptime: (index: number) => number | null = () => 100): PublicBar[] {
+  return Array.from({ length: barDays }, (_, index) => ({
+    date: new Date(Date.UTC(2026, 7, 1 + index)).toISOString().slice(0, 10),
+    uptime_percent: uptime(index),
+  }));
+}
+
+export function publicStatusPageFixture(overrides: Partial<PublicStatusPage> = {}): PublicStatusPage {
+  return {
+    title: 'Demo services',
+    description: 'Live state of the demo services.',
+    overall_state: 'partial_outage',
+    monitors: [
+      { id: '01jbxmonitor00000000000001', display_name: 'Website', state: 'up', uptime_90d: 99.95, bars: publicBarsFixture() },
+      { id: '01jbxmonitor00000000000002', display_name: 'Public API', state: 'down', uptime_90d: 98.5, bars: publicBarsFixture((index) => (index === 89 ? 62.5 : index < 10 ? null : 100)) },
+    ],
+    incidents: [
+      { display_name: 'Public API', started_at: '2026-10-29T08:15:00Z', resolved_at: null, duration_seconds: null },
+      { display_name: 'Website', started_at: '2026-10-27T13:00:00Z', resolved_at: '2026-10-27T13:04:12Z', duration_seconds: 252 },
+    ],
     ...overrides,
   };
 }
