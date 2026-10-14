@@ -44,6 +44,7 @@ export {
   User,
   UserPlus,
   Users,
+  WifiOff,
   X,
   type LucideIcon,
 } from 'lucide-react';

@@ -47,7 +47,7 @@ function Shell() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
 
-  useOrganizationRealtime({ connection, client, organizationId: organization.id });
+  const live = useOrganizationRealtime({ connection, client, organizationId: organization.id });
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -135,6 +135,7 @@ function Shell() {
           title={title}
           me={me}
           hasOpenIncident={(openIncidents ?? 0) > 0}
+          livePaused={live === 'paused'}
           onMenu={() => {
             setDrawerOpen(true);
           }}

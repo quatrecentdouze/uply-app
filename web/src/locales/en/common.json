@@ -32,7 +32,9 @@
     "open_profile": "Open the profile menu of {{name}}",
     "profile": "Profile settings",
     "security": "Security settings",
-    "logout": "Log out"
+    "logout": "Log out",
+    "live_paused": "Live updates paused",
+    "live_paused_info": "The live connection is down. Pages still load their data when you open them."
   },
   "shortcuts": {
     "title": "Keyboard shortcuts",

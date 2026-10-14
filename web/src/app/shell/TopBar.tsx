@@ -10,12 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu';
-import { Bell, ChevronsUpDown, Menu, ShieldCheck, User } from '@/shared/ui/icons';
+import { Bell, ChevronsUpDown, Menu, ShieldCheck, User, WifiOff } from '@/shared/ui/icons';
 
 interface TopBarProps {
   title: string;
   me: Me;
   hasOpenIncident: boolean;
+  livePaused: boolean;
   onMenu: () => void;
 }
 
@@ -58,7 +59,7 @@ function ProfileMenu({ me }: { me: Me }) {
   );
 }
 
-export function TopBar({ title, me, hasOpenIncident, onMenu }: TopBarProps) {
+export function TopBar({ title, me, hasOpenIncident, livePaused, onMenu }: TopBarProps) {
   const { t } = useTranslation(['common']);
   return (
     <header className="flex h-[78px] items-center justify-between gap-3 border-b-2 border-divider px-3 sm:px-[18px] md:h-topbar lg:px-5 2xl:pr-[26px] 2xl:pl-[25px]">
@@ -67,6 +68,12 @@ export function TopBar({ title, me, hasOpenIncident, onMenu }: TopBarProps) {
       </button>
       <h1 className="mr-auto truncate text-[19px] font-normal tracking-[-0.4px] sm:text-2xl lg:text-[25px] 2xl:text-[28px] 2xl:tracking-[-0.65px]">{title}</h1>
       <div className="flex items-center gap-2 sm:gap-3 2xl:gap-[21px]">
+        {livePaused ? (
+          <p role="status" title={t('common:shell.live_paused_info')} className="flex h-10 items-center gap-2 rounded-full bg-warning-soft px-3 text-sm text-warning">
+            <WifiOff className="size-[18px] shrink-0" aria-hidden="true" />
+            <span className="max-md:sr-only">{t('common:shell.live_paused')}</span>
+          </p>
+        ) : null}
         <Link
           to="/incidents"
           aria-label={hasOpenIncident ? t('common:shell.notifications_open') : t('common:shell.notifications')}
