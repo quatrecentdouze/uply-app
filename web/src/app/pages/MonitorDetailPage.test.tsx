@@ -127,4 +127,21 @@ describe('monitor detail page', () => {
     expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Delete' })).toBeNull();
   });
+
+  it('offers a retry on the cards whose data could not load', async () => {
+    const app = openDetail();
+    app.server.respond({ method: 'GET', path: `${base}/monitors/mon-1/stats`, status: 500, body: { message: 'Server Error' } });
+    app.server.respond({ method: 'GET', path: `${base}/monitors/mon-1/alert-channels`, status: 500, body: { message: 'Server Error' } });
+    await app.queryClient.resetQueries({ queryKey: ['organizations', organizationId, 'monitors', 'stats'] });
+    await app.queryClient.resetQueries({ queryKey: ['organizations', organizationId, 'alert-channels'] });
+
+    const linked = within(await screen.findByRole('region', { name: 'Alert channels' }));
+    expect(await linked.findByRole('button', { name: 'Retry' })).toBeInTheDocument();
+    expect(await within(screen.getByRole('region', { name: 'Uptime over 24 h' })).findByRole('button', { name: 'Retry' })).toBeInTheDocument();
+
+    app.server.respond({ method: 'GET', path: `${base}/monitors/mon-1/alert-channels`, body: { data: [alertChannelFixture({ name: 'On-call email' })] } });
+    await app.user.click(linked.getByRole('button', { name: 'Retry' }));
+
+    expect(await linked.findByText('On-call email')).toBeInTheDocument();
+  });
 });

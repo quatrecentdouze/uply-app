@@ -23,6 +23,8 @@ import { Skeleton } from '@/shared/ui/skeleton';
 import { CardHeading, Pill, SurfaceCard } from '@/shared/ui/surface-card';
 import { Switch } from '@/shared/ui/switch';
 import { uptimeSettings, uptimeTone } from '@/shared/uptime/uptime';
+import type { Retry } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 export interface MonitorHeaderActions {
   onTogglePause: (paused: boolean) => void;
@@ -87,7 +89,7 @@ export function MonitorHeaderCard({ monitor, now, actions }: { monitor: Monitor;
   );
 }
 
-export function UptimeStatCard({ window, stats }: { window: Window; stats: MonitorStats | undefined }) {
+export function UptimeStatCard({ window, stats, retry = null }: { window: Window; stats: MonitorStats | undefined; retry?: Retry }) {
   const { t } = useTranslation(['monitors']);
   const percent = stats?.uptime_percent ?? null;
   const tone = uptimeTone(percent, uptimeSettings.thresholds);
@@ -96,7 +98,11 @@ export function UptimeStatCard({ window, stats }: { window: Window; stats: Monit
     <SurfaceCard aria-labelledby={id} className="p-4 sm:p-5">
       <CardHeading id={id} title={t('monitors:detail.uptime', { window: t(windowTabKeys[window]) })} />
       {stats === undefined ? (
-        <Skeleton className="mt-2 h-[45px] w-32" />
+        retry === null ? (
+          <Skeleton className="mt-2 h-[45px] w-32" />
+        ) : (
+          <LoadError onRetry={retry} className="items-start py-2" />
+        )
       ) : (
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <p className="text-[32px] leading-[45px] font-normal">{percent === null ? t('monitors:uptime.no_data') : t('monitors:uptime.percent', { value: percent })}</p>
@@ -112,9 +118,10 @@ interface MonitorResponseCardProps {
   stats: MonitorStats | undefined;
   window: Window;
   onWindowChange: (window: Window) => void;
+  retry?: Retry;
 }
 
-export function MonitorResponseCard({ stats, window, onWindowChange }: MonitorResponseCardProps) {
+export function MonitorResponseCard({ stats, window, onWindowChange, retry = null }: MonitorResponseCardProps) {
   const { t, i18n } = useTranslation(['monitors']);
   const context = { locale: i18n.language };
   const trend = responsePoints(stats?.series ?? []).map((point) => ({
@@ -158,7 +165,7 @@ export function MonitorResponseCard({ stats, window, onWindowChange }: MonitorRe
       </div>
       <div role="tabpanel" className="mt-4 h-[200px]">
         {stats === undefined ? (
-          <Skeleton className="h-full w-full" />
+          retry === null ? <Skeleton className="h-full w-full" /> : <LoadError onRetry={retry} />
         ) : (
           <BarTrend points={trend} ariaLabel={t('monitors:response.chart')} formatTick={(value) => t('monitors:response.average', { value })} />
         )}
@@ -174,14 +181,14 @@ const phaseColors: Record<TimingPhase, string> = {
   ttfb: 'bg-primary',
 };
 
-export function TimingBreakdownCard({ stats }: { stats: MonitorStats | undefined }) {
+export function TimingBreakdownCard({ stats, retry = null }: { stats: MonitorStats | undefined; retry?: Retry }) {
   const { t } = useTranslation(['monitors']);
   const breakdown = stats === undefined ? null : timingBreakdown(stats.timings);
   return (
     <SurfaceCard aria-labelledby="timings-title" className="p-4 sm:p-5">
       <CardHeading id="timings-title" title={t('monitors:detail.timings.title')} info={t('monitors:detail.timings.info')} />
       {breakdown === null ? (
-        <Skeleton className="mt-4 h-[90px] w-full" />
+        retry === null ? <Skeleton className="mt-4 h-[90px] w-full" /> : <LoadError onRetry={retry} />
       ) : breakdown.segments.length === 0 ? (
         <p className="mt-4 text-muted-foreground">{t('monitors:response.no_data')}</p>
       ) : (

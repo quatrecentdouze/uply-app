@@ -103,4 +103,17 @@ describe('monitors page', () => {
     expect(rows.queryByRole('button', { name: /Actions for/ })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Add monitor' })).toBeNull();
   });
+
+  it('offers a retry when the list cannot load', async () => {
+    const me = meFixture();
+    const server = withWorkspace(signedIn(fakeFetch(), me), { monitors });
+    server.respond({ method: 'GET', path: `${base}/monitors`, status: 500, body: { message: 'Server Error' } });
+    const app = renderApp({ path: '/monitors', server });
+
+    const retry = await screen.findByRole('button', { name: 'Retry' });
+    server.respond({ method: 'GET', path: `${base}/monitors`, body: listOf(monitors) });
+    await app.user.click(retry);
+
+    expect((await table()).getByRole('link', { name: /Public API/ })).toBeInTheDocument();
+  });
 });

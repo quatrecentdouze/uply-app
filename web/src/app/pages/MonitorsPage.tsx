@@ -18,6 +18,8 @@ import { Input } from '@/shared/ui/input';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { SurfaceCard } from '@/shared/ui/surface-card';
 import { useConfirmAction } from '@/shared/ui/use-confirm-action';
+import { retryOf } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 interface EditorState {
   open: boolean;
@@ -56,6 +58,7 @@ export function MonitorsPage() {
 
   const list = monitors.data?.data;
   const emptiness = list === undefined ? 'none' : emptinessOf(list, filters);
+  const retry = retryOf(monitors);
 
   return (
     <SurfaceCard aria-labelledby="monitors-title" className="px-2.5 pt-4 pb-3 sm:px-5">
@@ -105,7 +108,11 @@ export function MonitorsPage() {
         ) : null}
       </div>
       {list === undefined ? (
-        <Skeleton className="h-[220px] w-full" />
+        retry === null ? (
+          <Skeleton className="h-[220px] w-full" />
+        ) : (
+          <LoadError onRetry={retry} />
+        )
       ) : emptiness === 'none' ? (
         <MonitorTable monitors={list} now={now} actions={actions} />
       ) : (

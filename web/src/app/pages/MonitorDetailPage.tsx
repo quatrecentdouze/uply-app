@@ -18,6 +18,8 @@ import { useNow } from '@/shared/time/useNow';
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { useConfirmAction } from '@/shared/ui/use-confirm-action';
+import { retryOf } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 export function MonitorDetailPage({ monitorId }: { monitorId: string }) {
   const { t } = useTranslation(['monitors']);
@@ -44,7 +46,8 @@ export function MonitorDetailPage({ monitorId }: { monitorId: string }) {
   }
   const current = monitor.data?.data;
   if (current === undefined) {
-    return <Skeleton className="h-[140px] w-full" />;
+    const retry = retryOf(monitor);
+    return retry === null ? <Skeleton className="h-[140px] w-full" /> : <LoadError onRetry={retry} />;
   }
   const canManage = can('monitors.manage') && monitoring !== null;
 
@@ -71,17 +74,17 @@ export function MonitorDetailPage({ monitorId }: { monitorId: string }) {
         }
       />
       <div className="grid gap-4 sm:grid-cols-3 2xl:gap-5">
-        <UptimeStatCard window="24h" stats={day.data} />
-        <UptimeStatCard window="7d" stats={week.data} />
-        <UptimeStatCard window="30d" stats={month.data} />
+        <UptimeStatCard window="24h" stats={day.data} retry={retryOf(day)} />
+        <UptimeStatCard window="7d" stats={week.data} retry={retryOf(week)} />
+        <UptimeStatCard window="30d" stats={month.data} retry={retryOf(month)} />
       </div>
       <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_var(--spacing-panel-compact)] 2xl:grid-cols-[minmax(0,1fr)_var(--spacing-panel)] 2xl:gap-5">
         <div className="grid min-w-0 gap-4 2xl:gap-5">
-          <MonitorResponseCard stats={response.data} window={responseWindow} onWindowChange={setResponseWindow} />
+          <MonitorResponseCard stats={response.data} window={responseWindow} onWindowChange={setResponseWindow} retry={retryOf(response)} />
           <RecentChecksCard organizationId={organizationId} monitorId={current.id} />
         </div>
         <div className="grid min-w-0 gap-4 2xl:gap-5">
-          <TimingBreakdownCard stats={day.data} />
+          <TimingBreakdownCard stats={day.data} retry={retryOf(day)} />
           <MonitorIncidentsCard organizationId={organizationId} monitorId={current.id} now={now} size={dashboardSettings.detail_incidents} />
           <LinkedChannelsCard organizationId={organizationId} monitorId={current.id} />
         </div>

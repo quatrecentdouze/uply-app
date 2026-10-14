@@ -8,6 +8,8 @@ import { useDurationText } from '@/shared/time/useDurationText';
 import { ChevronRight } from '@/shared/ui/icons';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { CardHeading, Pill, SurfaceCard } from '@/shared/ui/surface-card';
+import { retryOf } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 interface MonitorIncidentsCardProps {
   organizationId: string;
@@ -45,13 +47,15 @@ function IncidentItem({ incident, now }: { incident: Incident; now: Date }) {
 
 export function MonitorIncidentsCard({ organizationId, monitorId, now, size }: MonitorIncidentsCardProps) {
   const { t } = useTranslation(['incidents']);
-  const incidents = useIncidents(organizationId, { monitor: monitorId, perPage: size }).data;
+  const query = useIncidents(organizationId, { monitor: monitorId, perPage: size });
+  const incidents = query.data;
+  const retry = retryOf(query);
   return (
     <SurfaceCard aria-labelledby="monitor-incidents-title" className="p-4 sm:p-5">
       <CardHeading id="monitor-incidents-title" title={t('incidents:monitor.title')} />
       <div className="mt-3">
         {incidents === undefined ? (
-          <Skeleton className="h-[110px] w-full" />
+          retry === null ? <Skeleton className="h-[110px] w-full" /> : <LoadError onRetry={retry} />
         ) : incidents.data.length === 0 ? (
           <p className="py-4 text-muted-foreground">{t('incidents:monitor.empty')}</p>
         ) : (

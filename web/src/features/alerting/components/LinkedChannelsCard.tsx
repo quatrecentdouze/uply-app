@@ -3,16 +3,20 @@ import { useMonitorChannels } from '@/features/alerting/api/alertChannels';
 import { channelStatus, channelStatusTextKeys, channelTypeTextKeys, sortedChannels } from '@/features/alerting/model/channels';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { CardHeading, Pill, SurfaceCard } from '@/shared/ui/surface-card';
+import { retryOf } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 export function LinkedChannelsCard({ organizationId, monitorId }: { organizationId: string; monitorId: string }) {
   const { t } = useTranslation(['alerting']);
-  const channels = useMonitorChannels(organizationId, monitorId).data;
+  const query = useMonitorChannels(organizationId, monitorId);
+  const channels = query.data;
+  const retry = retryOf(query);
   return (
     <SurfaceCard aria-labelledby="linked-channels-title" className="p-4 sm:p-5">
       <CardHeading id="linked-channels-title" title={t('alerting:linked.title')} info={t('alerting:linked.info')} />
       <div className="mt-3">
         {channels === undefined ? (
-          <Skeleton className="h-[60px] w-full" />
+          retry === null ? <Skeleton className="h-[60px] w-full" /> : <LoadError onRetry={retry} />
         ) : channels.length === 0 ? (
           <p className="py-2 text-muted-foreground">{t('alerting:linked.empty')}</p>
         ) : (

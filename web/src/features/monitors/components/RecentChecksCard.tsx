@@ -7,6 +7,8 @@ import type { CheckResult } from '@/shared/api/resources';
 import { formatDate } from '@/shared/time/format';
 import { Button } from '@/shared/ui/button';
 import { cellClass, DataTable, rowClass } from '@/shared/ui/data-table';
+import { retryOf } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { CardHeading, Pill, SurfaceCard } from '@/shared/ui/surface-card';
 
@@ -53,13 +55,14 @@ export function RecentChecksCard({ organizationId, monitorId }: { organizationId
   const { t } = useTranslation(['monitors']);
   const query = useMonitorChecks(organizationId, monitorId, dashboardSettings.checks_page_size);
   const checks = checksOf(query.data?.pages);
+  const retry = retryOf(query);
   return (
     <SurfaceCard aria-labelledby="checks-title" className="px-2.5 pt-4 pb-3 sm:px-5">
       <div className="mb-[13px]">
         <CardHeading id="checks-title" title={t('monitors:detail.checks_title')} />
       </div>
       {query.data === undefined ? (
-        <Skeleton className="h-[160px] w-full" />
+        retry === null ? <Skeleton className="h-[160px] w-full" /> : <LoadError onRetry={retry} />
       ) : checks.length === 0 ? (
         <p className="py-6 text-center text-muted-foreground">{t('monitors:detail.no_checks')}</p>
       ) : (
