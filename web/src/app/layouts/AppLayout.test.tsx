@@ -144,5 +144,6 @@ describe('app shell', () => {
     });
 
     expect(app.router.state.location.pathname).toBe('/dashboard');
+    expect(await screen.findByRole('button', { name: 'Retry' })).toBeInTheDocument();
   });
 });

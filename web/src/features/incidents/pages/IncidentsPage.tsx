@@ -11,6 +11,8 @@ import { Button } from '@/shared/ui/button';
 import { cellClass, DataTable, rowClass } from '@/shared/ui/data-table';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Pill, SurfaceCard } from '@/shared/ui/surface-card';
+import { retryOf } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 interface IncidentsPageProps {
   organizationId: string;
@@ -47,7 +49,9 @@ export function IncidentsPage({ organizationId, now }: IncidentsPageProps) {
   const { t } = useTranslation(['incidents']);
   const [filter, setFilter] = useState<IncidentFilter>('all');
   const [page, setPage] = useState(1);
-  const incidents = useIncidents(organizationId, { ...(filter === 'all' ? {} : { state: filter }), page }).data;
+  const query = useIncidents(organizationId, { ...(filter === 'all' ? {} : { state: filter }), page });
+  const incidents = query.data;
+  const retry = retryOf(query);
   const pages = incidents === undefined ? null : pageWindow(incidents.meta);
 
   return (
@@ -72,7 +76,11 @@ export function IncidentsPage({ organizationId, now }: IncidentsPageProps) {
         ))}
       </div>
       {incidents === undefined ? (
-        <Skeleton className="h-[220px] w-full" />
+        retry === null ? (
+          <Skeleton className="h-[220px] w-full" />
+        ) : (
+          <LoadError onRetry={retry} />
+        )
       ) : incidents.data.length === 0 ? (
         <p className="py-10 text-center text-muted-foreground">{filter === 'all' ? t('incidents:recent.empty') : t('incidents:list.no_match')}</p>
       ) : (

@@ -15,8 +15,10 @@ import { CurrentOrganizationProvider } from '@/features/organizations/components
 import { useCurrentOrganization } from '@/features/organizations/hooks/currentOrganization';
 import { useApiClient } from '@/shared/api/apiClientContext';
 import { realtimeConnection, useMeta } from '@/shared/api/meta';
+import { retryOf } from '@/shared/api/retry';
 import { useOrganizationRealtime } from '@/shared/realtime/useOrganizationRealtime';
 import { browserStore, storageKeys } from '@/shared/storage/storage';
+import { LoadError } from '@/shared/ui/load-error';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/shared/ui/sheet';
 
 function isTyping(target: EventTarget | null): boolean {
@@ -149,6 +151,14 @@ function Shell() {
 
 export function AppLayout() {
   const organizations = useOrganizations();
+  const retry = retryOf(organizations);
+  if (retry !== null) {
+    return (
+      <div className="grid min-h-svh place-items-center bg-page px-4">
+        <LoadError onRetry={retry} />
+      </div>
+    );
+  }
   if (!organizations.isSuccess) {
     return null;
   }

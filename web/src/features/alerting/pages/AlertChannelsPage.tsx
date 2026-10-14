@@ -13,6 +13,8 @@ import { Hash, type LucideIcon, Mail, MessageSquare, Pencil, Plus, Send, Trash2 
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Pill, SurfaceCard } from '@/shared/ui/surface-card';
 import { useConfirmAction } from '@/shared/ui/use-confirm-action';
+import { retryOf } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 interface AlertChannelsPageProps {
   organizationId: string;
@@ -88,7 +90,9 @@ interface EditorState {
 
 export function AlertChannelsPage({ organizationId, alerting, canManage }: AlertChannelsPageProps) {
   const { t } = useTranslation(['alerting', 'errors']);
-  const channels = useAlertChannels(organizationId).data;
+  const query = useAlertChannels(organizationId);
+  const channels = query.data;
+  const retry = retryOf(query);
   const remove = useDeleteChannel(organizationId);
   const test = useTestChannel(organizationId);
   const [editor, setEditor] = useState<EditorState>({ open: false, channel: null });
@@ -127,7 +131,11 @@ export function AlertChannelsPage({ organizationId, alerting, canManage }: Alert
         ) : null}
       </div>
       {channels === undefined ? (
-        <Skeleton className="h-[200px] w-full" />
+        retry === null ? (
+          <Skeleton className="h-[200px] w-full" />
+        ) : (
+          <LoadError onRetry={retry} />
+        )
       ) : channels.length === 0 ? (
         <SurfaceCard className="p-8 text-center text-muted-foreground">{t('alerting:page.empty')}</SurfaceCard>
       ) : (

@@ -13,6 +13,8 @@ import { ConfirmDialog } from '@/shared/ui/confirm-dialog';
 import { ArrowLeft, ExternalLink } from '@/shared/ui/icons';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { useConfirmAction } from '@/shared/ui/use-confirm-action';
+import { retryOf } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 export function StatusPageEditorPage({ statusPageId }: { statusPageId: string }) {
   const { t } = useTranslation(['status-pages']);
@@ -20,7 +22,9 @@ export function StatusPageEditorPage({ statusPageId }: { statusPageId: string })
   const { organizationId, can } = useWorkspace();
   const meta = useMeta()?.status_pages ?? null;
   const page = useStatusPage(organizationId, statusPageId);
-  const monitors = useMonitorList(organizationId, { perPage: dashboardSettings.list_size }).data?.data;
+  const monitorList = useMonitorList(organizationId, { perPage: dashboardSettings.list_size });
+  const monitors = monitorList.data?.data;
+  const retry = retryOf(page) ?? retryOf(monitorList);
   const remove = useDeleteStatusPage(organizationId);
   const deletion = useConfirmAction(async (target: StatusPage) => {
     await remove.mutateAsync(target.id);
@@ -54,7 +58,11 @@ export function StatusPageEditorPage({ statusPageId }: { statusPageId: string })
         ) : null}
       </div>
       {current === undefined || meta === null || monitors === undefined ? (
-        <Skeleton className="h-[320px] w-full" />
+        retry === null ? (
+          <Skeleton className="h-[320px] w-full" />
+        ) : (
+          <LoadError onRetry={retry} />
+        )
       ) : (
         <StatusPageEditor
           organizationId={organizationId}

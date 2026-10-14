@@ -17,6 +17,8 @@ import { FormField } from '@/shared/ui/form-field';
 import { Plus } from '@/shared/ui/icons';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Pill, SurfaceCard } from '@/shared/ui/surface-card';
+import { retryOf } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 interface StatusPagesPageProps {
   organizationId: string;
@@ -107,7 +109,9 @@ function StatusPageRow({ page }: { page: StatusPage }) {
 
 export function StatusPagesPage({ organizationId, meta, canManage }: StatusPagesPageProps) {
   const { t } = useTranslation(['status-pages']);
-  const pages = useStatusPages(organizationId).data;
+  const query = useStatusPages(organizationId);
+  const pages = query.data;
+  const retry = retryOf(query);
   const [creating, setCreating] = useState(false);
   const writable = canManage && meta !== null;
 
@@ -131,7 +135,11 @@ export function StatusPagesPage({ organizationId, meta, canManage }: StatusPages
         ) : null}
       </div>
       {pages === undefined ? (
-        <Skeleton className="h-[160px] w-full" />
+        retry === null ? (
+          <Skeleton className="h-[160px] w-full" />
+        ) : (
+          <LoadError onRetry={retry} />
+        )
       ) : pages.length === 0 ? (
         <p className="py-10 text-center text-muted-foreground">{t('status-pages:list.empty')}</p>
       ) : (

@@ -21,6 +21,8 @@ import { NativeSelect, NativeSelectOption } from '@/shared/ui/native-select';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { CardHeading, Pill, SurfaceCard } from '@/shared/ui/surface-card';
 import { useConfirmAction } from '@/shared/ui/use-confirm-action';
+import { retryOf } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 interface MembersPageProps {
   organizationId: string;
@@ -186,8 +188,12 @@ function InvitationRow({ invitation, onRevoke }: { invitation: Invitation; onRev
 
 export function MembersPage({ organizationId, actorRole, actorUserId, canManage, onLeft }: MembersPageProps) {
   const { t } = useTranslation(['organizations', 'errors']);
-  const members = useMembers(organizationId).data;
-  const invitations = useInvitations(organizationId, canManage).data;
+  const memberQuery = useMembers(organizationId);
+  const invitationQuery = useInvitations(organizationId, canManage);
+  const members = memberQuery.data;
+  const invitations = invitationQuery.data;
+  const retryMembers = retryOf(memberQuery);
+  const retryInvitations = retryOf(invitationQuery);
   const changeRole = useChangeRole(organizationId);
   const remove = useRemoveMember(organizationId);
   const leave = useLeaveOrganization(organizationId);
@@ -230,7 +236,11 @@ export function MembersPage({ organizationId, actorRole, actorUserId, canManage,
           </div>
         )}
         {list === undefined ? (
-          <Skeleton className="h-[140px] w-full" />
+          retryMembers === null ? (
+            <Skeleton className="h-[140px] w-full" />
+          ) : (
+            <LoadError onRetry={retryMembers} />
+          )
         ) : (
           <DataTable
             label={t('organizations:settings.members.table')}
@@ -263,7 +273,11 @@ export function MembersPage({ organizationId, actorRole, actorUserId, canManage,
           <CardHeading id="invitations-title" title={t('organizations:settings.members.invitations')} />
           <InviteForm organizationId={organizationId} actorRole={actorRole} />
           {invitations === undefined ? (
-            <Skeleton className="h-[80px] w-full" />
+            retryInvitations === null ? (
+              <Skeleton className="h-[80px] w-full" />
+            ) : (
+              <LoadError onRetry={retryInvitations} />
+            )
           ) : invitations.length === 0 ? (
             <p className="pb-2 text-muted-foreground">{t('organizations:settings.members.no_invitations')}</p>
           ) : (

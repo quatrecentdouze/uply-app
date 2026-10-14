@@ -12,6 +12,8 @@ import { useDurationText } from '@/shared/time/useDurationText';
 import { ArrowLeft } from '@/shared/ui/icons';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { CardHeading, Pill, SurfaceCard } from '@/shared/ui/surface-card';
+import { retryOf } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 interface IncidentDetailPageProps {
   organizationId: string;
@@ -111,6 +113,7 @@ export function IncidentDetailPage({ organizationId, incidentId, now, notFound }
     return notFound;
   }
   const incident = query.data;
+  const retry = retryOf(query);
   return (
     <div className="grid gap-4 2xl:gap-5">
       <Link to="/incidents" className="flex w-fit items-center gap-2 text-muted-foreground hover:text-foreground">
@@ -118,7 +121,11 @@ export function IncidentDetailPage({ organizationId, incidentId, now, notFound }
         {t('incidents:detail.back')}
       </Link>
       {incident === undefined ? (
-        <Skeleton className="h-[160px] w-full" />
+        retry === null ? (
+          <Skeleton className="h-[160px] w-full" />
+        ) : (
+          <LoadError onRetry={retry} />
+        )
       ) : (
         <>
           <IncidentSummary incident={incident} now={now} />
