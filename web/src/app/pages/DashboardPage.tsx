@@ -10,6 +10,7 @@ import { dashboardSettings } from '@/features/monitors/model/settings';
 import { useCurrentOrganization } from '@/features/organizations/hooks/currentOrganization';
 import type { Window } from '@/shared/api/queryKeys';
 import { useNow } from '@/shared/time/useNow';
+import { retryOf } from '@/shared/api/retry';
 
 export function DashboardPage() {
   const { organization } = useCurrentOrganization();
@@ -24,15 +25,15 @@ export function DashboardPage() {
   return (
     <div>
       <div className="mb-4 grid gap-4 sm:mb-5 sm:grid-cols-2 sm:gap-[18px] lg:gap-6 2xl:mb-[25px]">
-        <UptimeCard overview={uptime.data?.data} window={uptimeWindow} onWindowChange={setUptimeWindow} />
-        <MonitorStatesCard overview={uptime.data?.data} />
+        <UptimeCard overview={uptime.data?.data} window={uptimeWindow} onWindowChange={setUptimeWindow} retry={retryOf(uptime)} />
+        <MonitorStatesCard overview={uptime.data?.data} retry={retryOf(uptime)} />
       </div>
       <div className="grid items-start gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_var(--spacing-panel-compact)] 2xl:grid-cols-[minmax(0,1fr)_var(--spacing-panel)] 2xl:gap-[25px]">
         <div className="flex min-w-0 flex-col gap-4 2xl:gap-5">
-          <ResponseTimeCard overview={response.data?.data} window={responseWindow} onWindowChange={setResponseWindow} />
-          <RecentIncidentsCard incidents={incidents.data?.data} now={now} />
+          <ResponseTimeCard overview={response.data?.data} window={responseWindow} onWindowChange={setResponseWindow} retry={retryOf(response)} />
+          <RecentIncidentsCard incidents={incidents.data?.data} now={now} retry={retryOf(incidents)} />
         </div>
-        <MonitorPanel monitors={monitors.data?.data} />
+        <MonitorPanel monitors={monitors.data?.data} retry={retryOf(monitors)} />
       </div>
     </div>
   );

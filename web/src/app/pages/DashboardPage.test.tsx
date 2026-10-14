@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { renderApp, signedIn, withWorkspace } from '@/app/testing/renderApp';
 import { fakeFetch } from '@/shared/testing/fakeFetch';
-import { incidentFixture, monitorFixture, organizationId, overviewFixture } from '@/shared/testing/fixtures';
+import { incidentFixture, listOf, monitorFixture, organizationId, overviewFixture } from '@/shared/testing/fixtures';
 
 const monitors = [
   monitorFixture({ id: 'mon-up', name: 'Public API', state: 'up', last_response_ms: 120 }),
@@ -113,5 +113,22 @@ describe('DashboardPage', () => {
     expect(await screen.findByText('No monitor yet. Add one to start watching a service.')).toBeInTheDocument();
     expect(screen.getByText('No incident so far. Everything is running.')).toBeInTheDocument();
     expect((await card('Uptime')).getByText('No data yet')).toBeInTheDocument();
+  });
+
+  it('offers a retry on each card whose data could not load', async () => {
+    const base = `/api/v1/organizations/${organizationId}`;
+    const server = withWorkspace(signedIn(fakeFetch()), { monitors });
+    server.respond({ method: 'GET', path: `${base}/monitors`, status: 500, body: { message: 'Server Error' } });
+    server.respond({ method: 'GET', path: `${base}/overview`, status: 500, body: { message: 'Server Error' } });
+    const app = renderApp({ path: '/dashboard', server });
+
+    const panel = await card('Monitors');
+    await panel.findByRole('button', { name: 'Retry' });
+    expect(within(await screen.findByRole('region', { name: 'Uptime' })).getByRole('button', { name: 'Retry' })).toBeInTheDocument();
+
+    server.respond({ method: 'GET', path: `${base}/monitors`, body: listOf(monitors) });
+    await app.user.click(panel.getByRole('button', { name: 'Retry' }));
+
+    expect(await panel.findByRole('link', { name: /Billing API/ })).toBeInTheDocument();
   });
 });

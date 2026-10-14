@@ -6,10 +6,13 @@ import { formatDate } from '@/shared/time/format';
 import { useDurationText } from '@/shared/time/useDurationText';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { CardHeading, Pill, SurfaceCard } from '@/shared/ui/surface-card';
+import type { Retry } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 interface RecentIncidentsCardProps {
   incidents: readonly Incident[] | undefined;
   now: Date;
+  retry?: Retry;
 }
 
 const headCell = 'h-[35px] border-y-2 border-line-strong bg-chip px-2.5 text-sm font-light whitespace-nowrap text-quiet 2xl:px-4';
@@ -38,7 +41,7 @@ function IncidentRow({ incident, now }: { incident: Incident; now: Date }) {
   );
 }
 
-export function RecentIncidentsCard({ incidents, now }: RecentIncidentsCardProps) {
+export function RecentIncidentsCard({ incidents, now, retry = null }: RecentIncidentsCardProps) {
   const { t } = useTranslation(['incidents']);
   return (
     <SurfaceCard aria-labelledby="incidents-title" className="overflow-x-auto px-2.5 pt-3.5 pb-2 sm:px-5 sm:pt-4">
@@ -54,7 +57,7 @@ export function RecentIncidentsCard({ incidents, now }: RecentIncidentsCardProps
         />
       </div>
       {incidents === undefined ? (
-        <Skeleton className="h-[120px] w-full" />
+        retry === null ? <Skeleton className="h-[120px] w-full" /> : <LoadError onRetry={retry} />
       ) : incidents.length === 0 ? (
         <p className="py-6 text-center text-muted-foreground">{t('incidents:recent.empty')}</p>
       ) : (

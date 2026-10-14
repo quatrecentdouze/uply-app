@@ -6,6 +6,8 @@ import type { Monitor } from '@/shared/api/resources';
 import { Activity, ChevronRight, Plus } from '@/shared/ui/icons';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { CardHeading, Pill, type PillTone, SurfaceCard } from '@/shared/ui/surface-card';
+import type { Retry } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 const stateTones: Record<DisplayState, PillTone> = {
   up: 'positive',
@@ -51,7 +53,7 @@ function MonitorRow({ monitor }: { monitor: Monitor }) {
   );
 }
 
-export function MonitorPanel({ monitors }: { monitors: readonly Monitor[] | undefined }) {
+export function MonitorPanel({ monitors, retry = null }: { monitors: readonly Monitor[] | undefined; retry?: Retry }) {
   const { t } = useTranslation(['monitors']);
   const shown = monitors === undefined ? undefined : panelMonitors(monitors, dashboardSettings.panel_monitors);
   return (
@@ -66,7 +68,9 @@ export function MonitorPanel({ monitors }: { monitors: readonly Monitor[] | unde
         }
       />
       <div className="mt-[17px]">
-        {shown === undefined ? (
+        {shown === undefined && retry !== null ? (
+          <LoadError onRetry={retry} />
+        ) : shown === undefined ? (
           <div className="flex flex-col gap-[17px]">
             <Skeleton className="h-[118px] w-full" />
             <Skeleton className="h-[118px] w-full" />

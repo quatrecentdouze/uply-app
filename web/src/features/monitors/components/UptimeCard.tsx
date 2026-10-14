@@ -9,9 +9,12 @@ import { ChevronDown } from '@/shared/ui/icons';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { CardHeading, Pill, SurfaceCard } from '@/shared/ui/surface-card';
 import { uptimeSettings, uptimeTone } from '@/shared/uptime/uptime';
+import type { Retry } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 interface UptimeCardProps {
   overview: Overview | undefined;
+  retry?: Retry;
   window: Window;
   onWindowChange: (window: Window) => void;
 }
@@ -48,7 +51,7 @@ export function WindowMenu({ window, onWindowChange }: Pick<UptimeCardProps, 'wi
   );
 }
 
-export function UptimeCard({ overview, window, onWindowChange }: UptimeCardProps) {
+export function UptimeCard({ overview, window, onWindowChange, retry = null }: UptimeCardProps) {
   const { t, i18n } = useTranslation(['monitors']);
   const percent = overview?.uptime_percent ?? null;
   const tone = uptimeTone(percent, uptimeSettings.thresholds);
@@ -67,7 +70,7 @@ export function UptimeCard({ overview, window, onWindowChange }: UptimeCardProps
       <CardHeading id="uptime-title" title={t('monitors:uptime.title')} info={t('monitors:uptime.info')} action={<WindowMenu window={window} onWindowChange={onWindowChange} />} />
       <div className="mt-2.5 flex items-center gap-[18px]">
         {overview === undefined ? (
-          <Skeleton className="h-[45px] w-40" />
+          retry === null ? <Skeleton className="h-[45px] w-40" /> : null
         ) : (
           <p className="text-[32px] leading-[45px] font-normal whitespace-nowrap xl:text-[33px] 2xl:text-[37px]">
             {percent === null ? t('monitors:uptime.no_data') : t('monitors:uptime.percent', { value: percent })}
@@ -76,7 +79,7 @@ export function UptimeCard({ overview, window, onWindowChange }: UptimeCardProps
         <Pill tone={tone}>{t(toneTextKeys[tone])}</Pill>
       </div>
       <div className="absolute right-[19px] bottom-[15px] left-5 h-[167px]">
-        {overview === undefined ? <Skeleton className="h-full w-full" /> : <AreaTrend points={trend} ariaLabel={t('monitors:uptime.chart')} floor={uptimeFloor(points)} />}
+        {overview === undefined ? retry === null ? <Skeleton className="h-full w-full" /> : <LoadError onRetry={retry} /> : <AreaTrend points={trend} ariaLabel={t('monitors:uptime.chart')} floor={uptimeFloor(points)} />}
       </div>
     </SurfaceCard>
   );

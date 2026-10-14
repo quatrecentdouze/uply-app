@@ -6,14 +6,17 @@ import { formatDate } from '@/shared/time/format';
 import { BarTrend } from '@/shared/ui/chart-trends';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { CardHeading, SurfaceCard } from '@/shared/ui/surface-card';
+import type { Retry } from '@/shared/api/retry';
+import { LoadError } from '@/shared/ui/load-error';
 
 interface ResponseTimeCardProps {
   overview: Overview | undefined;
+  retry?: Retry;
   window: Window;
   onWindowChange: (window: Window) => void;
 }
 
-export function ResponseTimeCard({ overview, window, onWindowChange }: ResponseTimeCardProps) {
+export function ResponseTimeCard({ overview, window, onWindowChange, retry = null }: ResponseTimeCardProps) {
   const { t, i18n } = useTranslation(['monitors']);
   const series = overview?.series ?? [];
   const average = averageResponse(series);
@@ -31,7 +34,7 @@ export function ResponseTimeCard({ overview, window, onWindowChange }: ResponseT
       <CardHeading id="response-title" title={t('monitors:response.title')} info={t('monitors:response.info')} />
       <p className="sr-only">{t('monitors:response.average_label')}</p>
       {overview === undefined ? (
-        <Skeleton className="mt-2.5 h-[45px] w-40" />
+        retry === null ? <Skeleton className="mt-2.5 h-[45px] w-40" /> : null
       ) : (
         <p className="mt-2.5 text-[32px] leading-[45px] font-normal xl:text-[33px] 2xl:text-[38px]">
           {average === null ? t('monitors:response.no_data') : t('monitors:response.average', { value: average })}
@@ -55,7 +58,7 @@ export function ResponseTimeCard({ overview, window, onWindowChange }: ResponseT
       </div>
       <div role="tabpanel" className="absolute right-3 bottom-4 left-3 h-[178px] sm:right-5 sm:left-5">
         {overview === undefined ? (
-          <Skeleton className="h-full w-full" />
+          retry === null ? <Skeleton className="h-full w-full" /> : <LoadError onRetry={retry} />
         ) : (
           <BarTrend points={trend} ariaLabel={t('monitors:response.chart')} formatTick={(value) => t('monitors:response.average', { value })} />
         )}
