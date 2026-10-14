@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
+import { landingContainer } from '@/app/pages/landing/container';
 import { Brand } from '@/shared/ui/brand';
 import { Button } from '@/shared/ui/button';
 
@@ -9,7 +10,7 @@ export function LandingHeader() {
   const { t } = useTranslation(['landing', 'common']);
   return (
     <header className="sticky top-0 z-40 border-b border-divider bg-page/90 backdrop-blur-md">
-      <div className="mx-auto flex h-[74px] w-[min(1160px,calc(100%-32px))] items-center gap-3 sm:h-[92px] sm:w-[min(1160px,calc(100%-64px))] sm:gap-8">
+      <div className={`${landingContainer} flex h-[74px] items-center gap-3 sm:h-[92px] sm:gap-8`}>
         <Link to="/" aria-label={t('common:app.home')} className="rounded-[14px]">
           <Brand name={t('common:app.name')} className="[&>span:first-child]:size-10 [&>span:last-child]:text-xl sm:[&>span:first-child]:size-[45px] sm:[&>span:last-child]:text-[23px]" />
         </Link>

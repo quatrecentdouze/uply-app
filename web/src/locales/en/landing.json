@@ -58,6 +58,66 @@
       "text": "A verified email for every account, and two factor authentication with recovery codes."
     }
   },
+  "steps": {
+    "title_start": "From a URL",
+    "title_end": "to a status page.",
+    "description": "Three steps and a few minutes. Nothing to install on your servers.",
+    "add": {
+      "title": "Add a monitor",
+      "text": "Paste a URL, then pick the interval, the method, the timeout and the status codes you accept."
+    },
+    "alert": {
+      "title": "Link your alert channels",
+      "text": "Choose who hears about it: email recipients, a Discord webhook or a Slack webhook."
+    },
+    "share": {
+      "title": "Share a status page",
+      "text": "Publish a page with the monitors you choose and send its address to your users."
+    }
+  },
+  "faq": {
+    "title_start": "Plain answers.",
+    "title_end": "Before you start.",
+    "description": "What Uply does today, without the fine print.",
+    "cta": "Create your account",
+    "items": {
+      "checks": {
+        "question": "What does Uply check?",
+        "answer": "HTTP and HTTPS addresses, with a GET or a HEAD request. A check passes when the status code is one you accept, 200 to 299 by default, and the answer arrives before the timeout: 10 seconds by default, 30 seconds at most."
+      },
+      "intervals": {
+        "question": "How often is a service checked?",
+        "answer": "Each monitor has its own interval: every 30 seconds, every 1, 2, 5, 10, 15 or 30 minutes, or every hour. One minute is the default."
+      },
+      "alerts": {
+        "question": "When am I alerted?",
+        "answer": "When 2 checks in a row fail, and again when 2 checks in a row pass. A failed check runs again after 20 seconds. Alerts go by email, Discord and Slack, in plain text, to every enabled channel linked to the monitor."
+      },
+      "status_pages": {
+        "question": "What do my users see on a status page?",
+        "answer": "The overall state, each monitor you chose with its uptime and one bar per day over the last 90 days, and the incidents of the last 14 days. Never a URL, an error message or a cause."
+      },
+      "teams": {
+        "question": "Can my team work in Uply together?",
+        "answer": "Yes. Invite people by email to your organization as owner, admin, member or viewer. A viewer sees everything and changes nothing."
+      },
+      "security": {
+        "question": "How is my account protected?",
+        "answer": "Every account verifies its email first. You can also turn on two factor authentication with an authenticator app, and keep recovery codes for a lost phone."
+      }
+    }
+  },
+  "closing": {
+    "title_start": "Start with one endpoint.",
+    "title_end": "Watch it from now on.",
+    "description": "Create an account, add a URL, and the first check runs within seconds."
+  },
+  "footer": {
+    "label": "Footer",
+    "tagline": "Monitoring for websites and APIs.",
+    "license": "Uply is an open source portfolio project under the MIT license.",
+    "sample": "Previews use sample data"
+  },
   "capabilities": {
     "label": "What Uply covers",
     "checks": "HTTP and HTTPS checks",
