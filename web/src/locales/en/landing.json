@@ -21,6 +21,43 @@
     "badge": "Sample data",
     "caption": "Sample data. Every card above is a real component of Uply."
   },
+  "features": {
+    "title_start": "Every check counts.",
+    "title_end": "Every outage on record.",
+    "description": "Uply does a few things and does them on time: it checks, it confirms, it alerts and it keeps the history.",
+    "checks": {
+      "title": "Checks that confirm before they alert.",
+      "text": "Each monitor runs on its own interval, from every 30 seconds to every hour. A failed check runs again 20 seconds later, and a state only changes after two results in a row."
+    },
+    "status_pages": {
+      "title": "A status page your users can read.",
+      "text": "Pick the monitors to show, name them your way and publish. The page shows 90 days of uptime and the recent incidents, never a URL or an error message."
+    },
+    "alerts": {
+      "title": "Alerts where your team is",
+      "text": "Email, Discord and Slack, when a service goes down and when it comes back up."
+    },
+    "incidents": {
+      "title": "Incidents with a timeline",
+      "text": "Opened at the first failure of a confirmed outage, resolved at the first success, with every alert sent."
+    },
+    "dashboard": {
+      "title": "A live dashboard",
+      "text": "Uptime over 24 hours, 7 days and 30 days, response times and states, updated as the checks land."
+    },
+    "timings": {
+      "title": "Where the time goes",
+      "text": "DNS, connect, TLS and first byte for each monitor, next to its recent checks."
+    },
+    "teams": {
+      "title": "Built for teams",
+      "text": "Organizations, invitations by email and four roles: owner, admin, member and viewer."
+    },
+    "security": {
+      "title": "A careful sign in",
+      "text": "A verified email for every account, and two factor authentication with recovery codes."
+    }
+  },
   "capabilities": {
     "label": "What Uply covers",
     "checks": "HTTP and HTTPS checks",
