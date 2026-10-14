@@ -134,4 +134,28 @@ describe('useOrganizationRealtime', () => {
 
     expect(socket.joined).toEqual([]);
   });
+
+  it('reports the connection state, paused while unavailable or failed', () => {
+    const socket = fakeSocket();
+    const queryClient = new QueryClient();
+    function Status({ live }: { live: boolean }) {
+      const status = useOrganizationRealtime({ connection: live ? connection : null, client, organizationId, createSocket: () => socket });
+      return <output>{status}</output>;
+    }
+    const wrapper = ({ children }: { children: ReactNode }) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+    const view = render(<Status live />, { wrapper });
+
+    expect(view.getByRole('status')).toHaveTextContent('connecting');
+    act(() => {
+      socket.changeState('connected');
+    });
+    expect(view.getByRole('status')).toHaveTextContent('live');
+    act(() => {
+      socket.changeState('unavailable');
+    });
+    expect(view.getByRole('status')).toHaveTextContent('paused');
+
+    view.rerender(<Status live={false} />);
+    expect(view.getByRole('status')).toHaveTextContent('off');
+  });
 });

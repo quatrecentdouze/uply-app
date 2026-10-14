@@ -5,10 +5,12 @@ export interface FakeSocket extends RealtimeSocket {
   left: string[];
   disconnected: boolean;
   emit(channel: string, event: string, payload: unknown): void;
+  changeState(state: string): void;
 }
 
 export function fakeSocket(): FakeSocket {
   const listeners = new Map<string, Map<string, (payload: unknown) => void>>();
+  const stateListeners: ((state: string) => void)[] = [];
   const socket: FakeSocket = {
     joined: [],
     left: [],
@@ -33,6 +35,14 @@ export function fakeSocket(): FakeSocket {
     },
     emit(channel, event, payload) {
       listeners.get(channel)?.get(event)?.(payload);
+    },
+    onStateChange(listener) {
+      stateListeners.push(listener);
+    },
+    changeState(state) {
+      for (const listener of stateListeners) {
+        listener(state);
+      }
     },
   };
   return socket;

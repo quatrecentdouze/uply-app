@@ -2,6 +2,7 @@ import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 import { type ApiClient, expectData } from '@/shared/api/client';
 import type { RealtimeConnection } from '@/shared/api/meta';
+import { connectionStateOf } from '@/shared/realtime/status';
 
 export interface RealtimeChannel {
   listen(event: string, callback: (payload: unknown) => void): unknown;
@@ -11,10 +12,11 @@ export interface RealtimeSocket {
   private(channel: string): RealtimeChannel;
   leave(channel: string): void;
   disconnect(): void;
+  onStateChange(listener: (state: string) => void): void;
 }
 
 export function createEchoSocket(connection: RealtimeConnection, client: ApiClient): RealtimeSocket {
-  return new Echo<'reverb'>({
+  const echo = new Echo<'reverb'>({
     broadcaster: 'reverb',
     Pusher,
     key: connection.key,
@@ -36,4 +38,21 @@ export function createEchoSocket(connection: RealtimeConnection, client: ApiClie
       },
     },
   });
+  return {
+    private: (channel) => echo.private(channel),
+    leave: (channel) => {
+      echo.leave(channel);
+    },
+    disconnect: () => {
+      echo.disconnect();
+    },
+    onStateChange: (listener) => {
+      echo.connector.pusher.connection.bind('state_change', (change: unknown) => {
+        const state = connectionStateOf(change);
+        if (state !== null) {
+          listener(state);
+        }
+      });
+    },
+  };
 }
