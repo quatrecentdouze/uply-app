@@ -11,7 +11,7 @@ function commandLines(): string[] {
 
 function citedScripts(): string[] {
   return commandLines().flatMap((line) => {
-    const run = /^npm run ([a-z:-]+)/.exec(line);
+    const run = /^npm run ([a-z0-9:-]+)/.exec(line);
     if (run?.[1] !== undefined) {
       return [run[1]];
     }
@@ -23,7 +23,7 @@ describe('README', () => {
   it('cites only npm scripts that exist in web', () => {
     const cited = citedScripts();
 
-    expect(cited).toEqual(expect.arrayContaining(['dev', 'lint', 'typecheck', 'test', 'build', 'api:types']));
+    expect(cited).toEqual(expect.arrayContaining(['dev', 'lint', 'typecheck', 'test', 'build', 'api:types', 'e2e', 'screenshots']));
     expect(cited.filter((script) => !scripts.includes(script))).toEqual([]);
   });
 
