@@ -9,7 +9,7 @@ export function AuthLayout() {
       <Link to="/" aria-label={t('common:app.home')} className="mb-9 rounded-[14px]">
         <Brand name={t('common:app.name')} />
       </Link>
-      <main className="w-full max-w-[460px]">
+      <main id="main" tabIndex={-1} className="w-full max-w-[460px] outline-none">
         <Outlet />
       </main>
     </div>

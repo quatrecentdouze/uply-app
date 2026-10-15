@@ -6,7 +6,7 @@ export function PublicLayout() {
   const { t } = useTranslation(['common']);
   return (
     <div className="flex min-h-svh flex-col bg-page">
-      <main id="main" className="mx-auto w-[min(880px,calc(100%-32px))] flex-1 py-8 sm:py-12">
+      <main id="main" tabIndex={-1} className="mx-auto outline-none w-[min(880px,calc(100%-32px))] flex-1 py-8 sm:py-12">
         <Outlet />
       </main>
       <footer className="border-t-2 border-divider py-6">

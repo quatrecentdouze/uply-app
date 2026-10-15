@@ -140,7 +140,7 @@ function Shell() {
             setDrawerOpen(true);
           }}
         />
-        <main className="mx-auto max-w-[1800px] px-3 py-4 sm:px-[18px] sm:py-5 lg:px-5 2xl:pt-[25px] 2xl:pr-6 2xl:pb-[23px] 2xl:pl-[25px]">
+        <main id="main" tabIndex={-1} className="mx-auto max-w-[1800px] outline-none px-3 py-4 sm:px-[18px] sm:py-5 lg:px-5 2xl:pt-[25px] 2xl:pr-6 2xl:pb-[23px] 2xl:pl-[25px]">
           <Outlet />
         </main>
       </div>

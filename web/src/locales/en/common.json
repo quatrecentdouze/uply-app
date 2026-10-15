@@ -80,6 +80,7 @@
     "security": "Security"
   },
   "loading": "Loading",
+  "skip_link": "Skip to content",
   "load_error": {
     "message": "This could not load. Check your connection, then retry.",
     "retry": "Retry"

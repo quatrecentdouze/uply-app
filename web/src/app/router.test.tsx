@@ -101,6 +101,21 @@ describe('entry guards', () => {
     expect(server.requestsTo('GET', '/api/v1/me')).toHaveLength(0);
   });
 
+  it.each([
+    ['the landing', '/', guest()],
+    ['sign in', '/login', guest()],
+    ['the dashboard', '/dashboard', withWorkspace(signedIn(fakeFetch()))],
+  ])('starts %s with a skip link to its main content', async (_, path, server) => {
+    const app = renderApp({ path, server });
+
+    await waitFor(() => {
+      expect(document.getElementById('main')).not.toBeNull();
+    });
+    await app.user.tab();
+    expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveFocus();
+    expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveAttribute('href', '#main');
+  });
+
   it('opens the not found page of the router for an unknown address', async () => {
     renderApp({ path: '/nowhere', server: guest() });
 

@@ -11,7 +11,7 @@ export function LandingPage() {
   return (
     <div className="min-h-svh bg-page">
       <LandingHeader />
-      <main id="main">
+      <main id="main" tabIndex={-1} className="outline-none">
         <div className={landingContainer}>
           <LandingHero />
           <LandingShowcase />

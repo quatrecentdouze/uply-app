@@ -157,6 +157,10 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+  :where(a, button, summary, [role="button"], [role="tab"], [role="switch"], [role="checkbox"], [role="menuitem"], [role="option"], [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
