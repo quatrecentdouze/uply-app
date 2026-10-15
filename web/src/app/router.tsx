@@ -11,7 +11,7 @@ import {
 } from '@tanstack/react-router';
 import { AuthLayout } from '@/app/layouts/AuthLayout';
 import { RootLayout } from '@/app/layouts/RootLayout';
-import { entryRedirect, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
+import { entryRedirect, isVerifiedFlag, landingRedirect, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
 import { NotFoundPage, StandaloneNotFoundPage } from '@/app/pages/NotFoundPage';
 import { RouteErrorPage } from '@/app/pages/RouteErrorPage';
 import { meQuery, useLogout, useMe } from '@/features/auth/api/session';
@@ -82,11 +82,22 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
   notFoundComponent: StandaloneNotFoundPage,
 });
 
+function verifiedSearch(search: Record<string, unknown>): { verified?: true } {
+  return isVerifiedFlag(search.verified) ? { verified: true } : {};
+}
+
 const landingRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   staticData: { title: 'common:titles.landing' },
-  beforeLoad: ({ context, location }) => guard(context, 'guest', location.href),
+  validateSearch: verifiedSearch,
+  beforeLoad: async ({ context, search }) => {
+    const me = await context.queryClient.query({ ...meQuery(context.apiClient), staleTime: 'static' });
+    const target = landingRedirect(sessionOf(me), search.verified === true);
+    if (target !== null) {
+      throw redirect({ href: target });
+    }
+  },
   component: lazyRouteComponent(() => import('@/app/pages/landing/LandingPage'), 'LandingPage'),
 });
 
@@ -221,7 +232,8 @@ const dashboardRoute = createRoute({
   getParentRoute: () => pagesLayout,
   path: 'dashboard',
   staticData: { title: 'common:pages.dashboard' },
-  component: lazyRouteComponent(() => import('@/app/pages/DashboardPage'), 'DashboardPage'),
+  validateSearch: verifiedSearch,
+  component: lazyRouteComponent(() => import('@/app/routes/DashboardRoutes'), 'DashboardRoute'),
 });
 
 const monitorsRoute = createRoute({

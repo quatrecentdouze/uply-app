@@ -76,6 +76,18 @@ export function targetHref(entry: EntryTarget): string {
   return entry.redirect === null ? entry.to : `${entry.to}?${new URLSearchParams({ redirect: entry.redirect }).toString()}`;
 }
 
+export function landingRedirect(session: Session, verified: boolean): string | null {
+  if (session.kind === 'guest') {
+    return null;
+  }
+  const home = homeOf(session);
+  return verified && home === '/dashboard' ? `${home}?${new URLSearchParams({ verified: '1' }).toString()}` : home;
+}
+
+export function isVerifiedFlag(value: unknown): boolean {
+  return value === 1 || value === '1' || value === true;
+}
+
 export function safeRedirect(value: unknown): string | null {
   if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') || value.includes('\\')) {
     return null;

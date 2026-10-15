@@ -50,6 +50,16 @@ describe('entry guards', () => {
     });
   });
 
+  it('brings a member back from the verification link to a one time verified message', async () => {
+    const app = renderApp({ path: '/?verified=1', server: withWorkspace(signedIn(fakeFetch())) });
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Your email is verified. Welcome to Uply.');
+    await landsOn(app, '/dashboard');
+
+    await app.user.click(screen.getByRole('button', { name: 'Dismiss the message' }));
+    expect(screen.queryByText('Your email is verified. Welcome to Uply.')).toBeNull();
+  });
+
   it('keeps a member out of the verify screen', async () => {
     const app = renderApp({ path: '/verify-email', server: signedIn(fakeFetch()) });
 

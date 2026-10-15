@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { entryRedirect, homeOf, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
+import { entryRedirect, homeOf, isVerifiedFlag, landingRedirect, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
 import { meFixture } from '@/shared/testing/fixtures';
 
 const guest = sessionOf(null);
@@ -42,6 +42,20 @@ describe('entryRedirect', () => {
 
   it('does not ask to come back to the dashboard', () => {
     expect(entryRedirect(guest, 'member', '/dashboard')).toEqual({ to: '/login', redirect: null });
+  });
+});
+
+describe('landingRedirect', () => {
+  it('shows the landing to a guest and sends a session home, with the verified notice for a member', () => {
+    expect(landingRedirect(guest, false)).toBeNull();
+    expect(landingRedirect(member, false)).toBe('/dashboard');
+    expect(landingRedirect(member, true)).toBe('/dashboard?verified=1');
+    expect(landingRedirect(lonely, true)).toBe('/organizations/new');
+    expect(landingRedirect(unverified, false)).toBe('/verify-email');
+  });
+
+  it('reads the verified flag of the link sent after a verification', () => {
+    expect([1, '1', true, '0', undefined].map(isVerifiedFlag)).toEqual([true, true, true, false, false]);
   });
 });
 
