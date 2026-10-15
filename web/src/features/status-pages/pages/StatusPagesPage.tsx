@@ -10,7 +10,7 @@ import { failureOf } from '@/shared/api/errors';
 import { reportFailure } from '@/shared/api/formFailure';
 import type { StatusPage } from '@/shared/api/resources';
 import { Button } from '@/shared/ui/button';
-import { cellClass, DataTable, rowClass } from '@/shared/ui/data-table';
+import { cellClass, DataTable, rowClass, secondaryCell } from '@/shared/ui/data-table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog';
 import { FormAlert } from '@/shared/ui/form-alert';
 import { FormField } from '@/shared/ui/form-field';
@@ -94,12 +94,12 @@ function StatusPageRow({ page }: { page: StatusPage }) {
   return (
     <tr className={rowClass}>
       <td className={`${cellClass} max-w-0 truncate pl-[18px]`}>
-        <Link to="/status-pages/$statusPageId" params={{ statusPageId: page.id }} className="hover:text-primary">
+        <Link to="/status-pages/$statusPageId" params={{ statusPageId: page.id }} className="flex min-h-10 items-center hover:text-primary">
           {page.title}
         </Link>
       </td>
-      <td className={`${cellClass} truncate text-muted-foreground`}>{t('status-pages:list.path', { slug: page.slug })}</td>
-      <td className={`${cellClass} whitespace-nowrap`}>{t('status-pages:list.monitors_count', { count: page.monitors.length })}</td>
+      <td className={`${cellClass} ${secondaryCell} truncate text-muted-foreground`}>{t('status-pages:list.path', { slug: page.slug })}</td>
+      <td className={`${cellClass} ${secondaryCell} whitespace-nowrap`}>{t('status-pages:list.monitors_count', { count: page.monitors.length })}</td>
       <td className={`${cellClass} pr-4 text-right`}>
         <Pill tone={page.is_published ? 'positive' : 'neutral'}>{page.is_published ? t('status-pages:status.published') : t('status-pages:status.draft')}</Pill>
       </td>
@@ -145,12 +145,12 @@ export function StatusPagesPage({ organizationId, meta, canManage }: StatusPages
       ) : (
         <DataTable
           label={t('status-pages:list.table')}
-          className="min-w-[640px] table-fixed"
+          className="table-fixed md:min-w-[640px]"
           head={[
-            { label: t('status-pages:list.page'), className: 'w-[34%]' },
-            { label: t('status-pages:list.address'), className: 'w-[30%]' },
-            { label: t('status-pages:list.monitors'), className: 'w-[18%]' },
-            { label: t('status-pages:list.status'), className: 'w-[18%] text-right' },
+            { label: t('status-pages:list.page'), className: 'w-[64%] md:w-[34%]' },
+            { label: t('status-pages:list.address'), className: 'w-[30%]', secondary: true },
+            { label: t('status-pages:list.monitors'), className: 'w-[18%]', secondary: true },
+            { label: t('status-pages:list.status'), className: 'w-[36%] text-right md:w-[18%]' },
           ]}
         >
           {pages.map((page) => (

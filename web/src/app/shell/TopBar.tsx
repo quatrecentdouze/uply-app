@@ -63,7 +63,7 @@ export function TopBar({ title, me, hasOpenIncident, livePaused, onMenu }: TopBa
   const { t } = useTranslation(['common']);
   return (
     <header className="flex h-[78px] items-center justify-between gap-3 border-b-2 border-divider px-3 sm:px-[18px] md:h-topbar lg:px-5 2xl:pr-[26px] 2xl:pl-[25px]">
-      <button type="button" onClick={onMenu} aria-label={t('common:shell.open_navigation')} className="grid h-[35px] w-8 place-items-center lg:hidden">
+      <button type="button" onClick={onMenu} aria-label={t('common:shell.open_navigation')} className="-ml-1 grid size-10 place-items-center lg:hidden">
         <Menu className="size-6" aria-hidden="true" />
       </button>
       <h1 className="mr-auto truncate text-[19px] font-normal tracking-[-0.4px] sm:text-2xl lg:text-[25px] 2xl:text-[28px] 2xl:tracking-[-0.65px]">{title}</h1>

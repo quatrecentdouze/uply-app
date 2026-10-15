@@ -86,7 +86,7 @@ function IncidentSummary({ incident, now }: { incident: Incident; now: Date }) {
           {incident.monitor.name === null ? (
             name
           ) : (
-            <Link to="/monitors/$monitorId" params={{ monitorId: incident.monitor.id }} className="hover:text-primary">
+            <Link to="/monitors/$monitorId" params={{ monitorId: incident.monitor.id }} className="inline-flex min-h-10 items-center hover:text-primary">
               {name}
             </Link>
           )}
@@ -116,7 +116,7 @@ export function IncidentDetailPage({ organizationId, incidentId, now, notFound }
   const retry = retryOf(query);
   return (
     <div className="grid gap-4 2xl:gap-5">
-      <Link to="/incidents" className="flex w-fit items-center gap-2 text-muted-foreground hover:text-foreground">
+      <Link to="/incidents" className="flex min-h-10 w-fit items-center gap-2 text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden="true" />
         {t('incidents:detail.back')}
       </Link>

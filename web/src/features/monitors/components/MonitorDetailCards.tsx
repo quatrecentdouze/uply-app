@@ -46,7 +46,7 @@ export function MonitorHeaderCard({ monitor, now, actions }: { monitor: Monitor;
           </h2>
           <MonitorStatePill state={displayState(monitor)} />
         </div>
-        <a href={monitor.url} target="_blank" rel="noreferrer noopener" className="flex min-w-0 items-center gap-1.5 text-muted-foreground hover:text-foreground">
+        <a href={monitor.url} target="_blank" rel="noreferrer noopener" className="flex min-h-10 min-w-0 items-center gap-1.5 text-muted-foreground hover:text-foreground">
           <span className="truncate">{monitor.url}</span>
           <ExternalLink className="size-4 shrink-0" aria-hidden="true" />
         </a>
@@ -157,7 +157,7 @@ export function MonitorResponseCard({ stats, window, onWindowChange, retry = nul
             onClick={() => {
               onWindowChange(candidate);
             }}
-            className="h-[31px] min-w-[85px] rounded-[22px] px-[17px] text-base text-muted-foreground aria-selected:bg-bright aria-selected:text-ink"
+            className="h-10 min-w-[85px] rounded-[22px] md:h-[31px] px-[17px] text-base text-muted-foreground aria-selected:bg-bright aria-selected:text-ink"
           >
             {t(windowTabKeys[candidate])}
           </button>

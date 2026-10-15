@@ -68,11 +68,11 @@ function ChannelCard({ channel, manage, notice }: ChannelCardProps) {
               <Send aria-hidden="true" />
               {t('alerting:card.test')}
             </Button>
-            <Button type="button" variant="outline" className="h-9 rounded-[10px]" onClick={manage.onEdit}>
+            <Button type="button" variant="outline" className="h-10 rounded-[10px] md:h-9" onClick={manage.onEdit}>
               <Pencil aria-hidden="true" />
               {t('alerting:card.edit')}
             </Button>
-            <Button type="button" variant="destructive" className="ml-auto h-9 rounded-[10px]" onClick={manage.onDelete}>
+            <Button type="button" variant="destructive" className="ml-auto h-10 rounded-[10px] md:h-9" onClick={manage.onDelete}>
               <Trash2 aria-hidden="true" />
               {t('alerting:card.delete')}
             </Button>

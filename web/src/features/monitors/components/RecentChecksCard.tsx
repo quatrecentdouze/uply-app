@@ -6,7 +6,7 @@ import { dashboardSettings } from '@/features/monitors/model/settings';
 import type { CheckResult } from '@/shared/api/resources';
 import { formatDate } from '@/shared/time/format';
 import { Button } from '@/shared/ui/button';
-import { cellClass, DataTable, rowClass } from '@/shared/ui/data-table';
+import { cellClass, DataTable, rowClass, secondaryCell } from '@/shared/ui/data-table';
 import { retryOf } from '@/shared/api/retry';
 import { LoadError } from '@/shared/ui/load-error';
 import { Skeleton } from '@/shared/ui/skeleton';
@@ -23,7 +23,7 @@ function CheckRow({ check }: { check: CheckResult }) {
       <td className={cellClass}>
         <Pill tone={check.outcome === 'up' ? 'positive' : 'alert'}>{t(check.outcome === 'up' ? 'monitors:states.up' : 'monitors:states.down')}</Pill>
       </td>
-      <td className={`${cellClass} truncate`}>{detail.status === null ? t(detail.key) : t(detail.key, { status: detail.status })}</td>
+      <td className={`${cellClass} ${secondaryCell} truncate`}>{detail.status === null ? t(detail.key) : t(detail.key, { status: detail.status })}</td>
       <td className={`${cellClass} pr-4 text-right whitespace-nowrap`}>
         {check.response_ms === null ? t('monitors:list.no_data') : t('monitors:response.average', { value: check.response_ms })}
       </td>
@@ -38,10 +38,10 @@ export function ChecksTable({ checks, className }: { checks: readonly CheckResul
       label={t('monitors:detail.checks_table')}
       className={cn('table-fixed', className)}
       head={[
-        { label: t('monitors:detail.checked_at'), className: 'w-[32%]' },
-        { label: t('monitors:detail.result'), className: 'w-[18%]' },
-        { label: t('monitors:detail.detail'), className: 'w-[30%]' },
-        { label: t('monitors:list.response'), className: 'w-[20%] text-right' },
+        { label: t('monitors:detail.checked_at'), className: 'w-[40%] md:w-[32%]' },
+        { label: t('monitors:detail.result'), className: 'w-[28%] md:w-[18%]' },
+        { label: t('monitors:detail.detail'), className: 'w-[30%]', secondary: true },
+        { label: t('monitors:list.response'), className: 'w-[32%] text-right md:w-[20%]' },
       ]}
     >
       {checks.map((check, index) => (
@@ -66,7 +66,7 @@ export function RecentChecksCard({ organizationId, monitorId }: { organizationId
       ) : checks.length === 0 ? (
         <p className="py-6 text-center text-muted-foreground">{t('monitors:detail.no_checks')}</p>
       ) : (
-        <ChecksTable checks={checks} className="min-w-[560px]" />
+        <ChecksTable checks={checks} className="md:min-w-[560px]" />
       )}
       {query.hasNextPage ? (
         <div className="mt-3 flex justify-center">
@@ -75,7 +75,7 @@ export function RecentChecksCard({ organizationId, monitorId }: { organizationId
             variant="outline"
             disabled={query.isFetchingNextPage}
             aria-busy={query.isFetchingNextPage}
-            className="h-9 rounded-[10px]"
+            className="h-10 rounded-[10px] md:h-9"
             onClick={() => {
               void query.fetchNextPage();
             }}

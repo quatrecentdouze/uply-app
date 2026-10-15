@@ -129,6 +129,7 @@ export function StatusPageEditor({ organizationId, page, meta, monitors, canMana
                           type="button"
                           variant="ghost"
                           size="icon"
+                          className="size-10 md:size-8"
                           aria-label={t('status-pages:editor.move_up', { name })}
                           disabled={index === 0}
                           onClick={() => {
@@ -141,6 +142,7 @@ export function StatusPageEditor({ organizationId, page, meta, monitors, canMana
                           type="button"
                           variant="ghost"
                           size="icon"
+                          className="size-10 md:size-8"
                           aria-label={t('status-pages:editor.move_down', { name })}
                           disabled={index === list.fields.length - 1}
                           onClick={() => {
@@ -153,6 +155,7 @@ export function StatusPageEditor({ organizationId, page, meta, monitors, canMana
                           type="button"
                           variant="ghost"
                           size="icon"
+                          className="size-10 md:size-8"
                           aria-label={t('status-pages:editor.remove', { name })}
                           onClick={() => {
                             list.remove(index);

@@ -6,7 +6,7 @@ import { intervalText } from '@/features/monitors/model/monitorForm';
 import { pauseActionOf } from '@/features/monitors/model/monitorList';
 import type { Monitor } from '@/shared/api/resources';
 import { formatRelative } from '@/shared/time/format';
-import { cellClass, DataTable, rowClass } from '@/shared/ui/data-table';
+import { cellClass, DataTable, rowClass, secondaryCell } from '@/shared/ui/data-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/shared/ui/dropdown-menu';
 import { Ellipsis, Pause, Pencil, Play, Trash2 } from '@/shared/ui/icons';
 import { uptimeSettings, uptimeTone } from '@/shared/uptime/uptime';
@@ -35,7 +35,7 @@ export function MonitorRowMenu({ monitor, actions }: { monitor: Monitor; actions
   const pause = pauseActionOf(monitor);
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger aria-label={t('monitors:list.actions', { name: monitor.name })} className="grid size-9 place-items-center rounded-[10px] text-muted-foreground hover:bg-secondary hover:text-foreground">
+      <DropdownMenuTrigger aria-label={t('monitors:list.actions', { name: monitor.name })} className="grid size-10 place-items-center md:size-9 rounded-[10px] text-muted-foreground hover:bg-secondary hover:text-foreground">
         <Ellipsis className="size-5" aria-hidden="true" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -85,16 +85,16 @@ function MonitorRow({ monitor, now, actions }: { monitor: Monitor; now: Date; ac
       <td className={cellClass}>
         <MonitorStatePill state={displayState(monitor)} />
       </td>
-      <td className={`${cellClass} whitespace-nowrap ${toneText[tone]}`}>
+      <td className={`${cellClass} ${secondaryCell} whitespace-nowrap ${toneText[tone]}`}>
         {monitor.uptime_24h === null ? t('monitors:list.no_data') : t('monitors:uptime.percent', { value: monitor.uptime_24h })}
       </td>
-      <td className={`${cellClass} whitespace-nowrap`}>
+      <td className={`${cellClass} ${secondaryCell} whitespace-nowrap`}>
         {monitor.last_response_ms === null ? t('monitors:list.no_data') : t('monitors:response.average', { value: monitor.last_response_ms })}
       </td>
-      <td className={`${cellClass} whitespace-nowrap text-muted-foreground`}>
+      <td className={`${cellClass} ${secondaryCell} whitespace-nowrap text-muted-foreground`}>
         {monitor.last_checked_at === null ? t('monitors:list.never') : formatRelative(monitor.last_checked_at, now, { locale: i18n.language })}
       </td>
-      <td className={`${cellClass} whitespace-nowrap text-muted-foreground`}>{t(interval.key, { count: interval.count })}</td>
+      <td className={`${cellClass} ${secondaryCell} whitespace-nowrap text-muted-foreground`}>{t(interval.key, { count: interval.count })}</td>
       <td className={`${cellClass} pr-4 text-right`}>{actions === null ? null : <MonitorRowMenu monitor={monitor} actions={actions} />}</td>
     </tr>
   );
@@ -105,15 +105,15 @@ export function MonitorTable({ monitors, now, actions }: MonitorTableProps) {
   return (
     <DataTable
       label={t('monitors:list.table')}
-      className="min-w-[860px] table-fixed"
+      className="table-fixed md:min-w-[860px]"
       head={[
-        { label: t('monitors:list.monitor'), className: 'w-[32%]' },
-        { label: t('monitors:list.state'), className: 'w-[12%]' },
-        { label: t('monitors:list.uptime'), className: 'w-[12%]' },
-        { label: t('monitors:list.response'), className: 'w-[11%]' },
-        { label: t('monitors:list.checked'), className: 'w-[14%]' },
-        { label: t('monitors:list.interval'), className: 'w-[13%]' },
-        { label: t('monitors:list.actions_head'), className: 'w-[6%]', hidden: true },
+        { label: t('monitors:list.monitor'), className: 'w-[60%] md:w-[32%]' },
+        { label: t('monitors:list.state'), className: 'w-[26%] md:w-[12%]' },
+        { label: t('monitors:list.uptime'), className: 'w-[12%]', secondary: true },
+        { label: t('monitors:list.response'), className: 'w-[11%]', secondary: true },
+        { label: t('monitors:list.checked'), className: 'w-[14%]', secondary: true },
+        { label: t('monitors:list.interval'), className: 'w-[13%]', secondary: true },
+        { label: t('monitors:list.actions_head'), className: 'w-[14%] md:w-[6%]', hidden: true },
       ]}
     >
       {monitors.map((monitor) => (

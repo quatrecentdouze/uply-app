@@ -8,7 +8,7 @@ import type { Incident } from '@/shared/api/resources';
 import { formatDate } from '@/shared/time/format';
 import { useDurationText } from '@/shared/time/useDurationText';
 import { Button } from '@/shared/ui/button';
-import { cellClass, DataTable, rowClass } from '@/shared/ui/data-table';
+import { cellClass, DataTable, rowClass, secondaryCell } from '@/shared/ui/data-table';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Pill, SurfaceCard } from '@/shared/ui/surface-card';
 import { retryOf } from '@/shared/api/retry';
@@ -30,14 +30,14 @@ function IncidentRow({ incident, now }: { incident: Incident; now: Date }) {
   return (
     <tr className={rowClass}>
       <td className={`${cellClass} max-w-0 truncate pl-[18px]`}>
-        <Link to="/incidents/$incidentId" params={{ incidentId: incident.id }} aria-label={t('incidents:recent.open', { name })} className="hover:text-primary">
+        <Link to="/incidents/$incidentId" params={{ incidentId: incident.id }} aria-label={t('incidents:recent.open', { name })} className="flex min-h-10 items-center hover:text-primary">
           {name}
         </Link>
       </td>
-      <td className={`${cellClass} whitespace-nowrap text-muted-foreground`}>{incident.started_at === null ? '' : formatDate(incident.started_at, context, startedFormat)}</td>
-      <td className={`${cellClass} whitespace-nowrap text-muted-foreground`}>{incident.resolved_at === null ? '' : formatDate(incident.resolved_at, context, startedFormat)}</td>
+      <td className={`${cellClass} ${secondaryCell} whitespace-nowrap text-muted-foreground`}>{incident.started_at === null ? '' : formatDate(incident.started_at, context, startedFormat)}</td>
+      <td className={`${cellClass} ${secondaryCell} whitespace-nowrap text-muted-foreground`}>{incident.resolved_at === null ? '' : formatDate(incident.resolved_at, context, startedFormat)}</td>
       <td className={`${cellClass} whitespace-nowrap`}>{seconds === null ? '' : durationText(seconds)}</td>
-      <td className={`${cellClass} truncate text-muted-foreground`}>{cause.status === null ? t(cause.key) : t(cause.key, { status: cause.status })}</td>
+      <td className={`${cellClass} ${secondaryCell} truncate text-muted-foreground`}>{cause.status === null ? t(cause.key) : t(cause.key, { status: cause.status })}</td>
       <td className={`${cellClass} pr-4 text-right`}>
         <Pill tone={status === 'open' ? 'alert' : 'positive'}>{t(statusTextKeys[status])}</Pill>
       </td>
@@ -69,7 +69,7 @@ export function IncidentsPage({ organizationId, now }: IncidentsPageProps) {
               setFilter(candidate);
               setPage(1);
             }}
-            className="h-[31px] rounded-[22px] px-[17px] text-base text-muted-foreground aria-pressed:bg-bright aria-pressed:text-ink"
+            className="h-10 rounded-[22px] md:h-[31px] px-[17px] text-base text-muted-foreground aria-pressed:bg-bright aria-pressed:text-ink"
           >
             {t(incidentFilterTextKeys[candidate])}
           </button>
@@ -86,14 +86,14 @@ export function IncidentsPage({ organizationId, now }: IncidentsPageProps) {
       ) : (
         <DataTable
           label={t('incidents:list.table')}
-          className="min-w-[860px] table-fixed"
+          className="table-fixed md:min-w-[860px]"
           head={[
-            { label: t('incidents:recent.monitor'), className: 'w-[24%]' },
-            { label: t('incidents:recent.started'), className: 'w-[16%]' },
-            { label: t('incidents:list.resolved'), className: 'w-[16%]' },
-            { label: t('incidents:recent.duration'), className: 'w-[13%]' },
-            { label: t('incidents:recent.cause'), className: 'w-[17%]' },
-            { label: t('incidents:recent.status'), className: 'w-[14%] text-right' },
+            { label: t('incidents:recent.monitor'), className: 'w-[40%] md:w-[24%]' },
+            { label: t('incidents:recent.started'), className: 'w-[16%]', secondary: true },
+            { label: t('incidents:list.resolved'), className: 'w-[16%]', secondary: true },
+            { label: t('incidents:recent.duration'), className: 'w-[30%] md:w-[13%]' },
+            { label: t('incidents:recent.cause'), className: 'w-[17%]', secondary: true },
+            { label: t('incidents:recent.status'), className: 'w-[30%] text-right md:w-[14%]' },
           ]}
         >
           {incidents.data.map((incident) => (
@@ -107,7 +107,7 @@ export function IncidentsPage({ organizationId, now }: IncidentsPageProps) {
           <Button
             type="button"
             variant="outline"
-            className="h-9 rounded-[10px]"
+            className="h-10 rounded-[10px] md:h-9"
             disabled={!pages.hasPrevious}
             onClick={() => {
               setPage(pages.page - 1);
@@ -118,7 +118,7 @@ export function IncidentsPage({ organizationId, now }: IncidentsPageProps) {
           <Button
             type="button"
             variant="outline"
-            className="h-9 rounded-[10px]"
+            className="h-10 rounded-[10px] md:h-9"
             disabled={!pages.hasNext}
             onClick={() => {
               setPage(pages.page + 1);

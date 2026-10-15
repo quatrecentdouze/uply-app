@@ -23,7 +23,7 @@ export function CardHeading({ id, title, info, infoLabel, action }: CardHeadingP
         {title}
         {info === undefined ? null : (
           <Tooltip>
-            <TooltipTrigger aria-label={infoLabel ?? info} className="inline-flex items-center text-faint">
+            <TooltipTrigger aria-label={infoLabel ?? info} className="-m-2.5 grid size-10 place-items-center rounded-full text-faint">
               <Info className="size-[19px]" strokeWidth={1.4} aria-hidden="true" />
             </TooltipTrigger>
             <TooltipContent className="max-w-64">{info}</TooltipContent>

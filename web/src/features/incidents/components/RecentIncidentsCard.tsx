@@ -27,13 +27,13 @@ function IncidentRow({ incident, now }: { incident: Incident; now: Date }) {
   return (
     <tr className="h-[51px] text-base">
       <td className="max-w-0 truncate pr-2.5 pl-[18px]">
-        <Link to="/incidents/$incidentId" params={{ incidentId: incident.id }} aria-label={t('incidents:recent.open', { name })} className="hover:text-primary">
+        <Link to="/incidents/$incidentId" params={{ incidentId: incident.id }} aria-label={t('incidents:recent.open', { name })} className="flex min-h-10 items-center hover:text-primary">
           {name}
         </Link>
       </td>
-      <td className="px-2.5 whitespace-nowrap text-muted-foreground 2xl:px-4">{incident.started_at === null ? '' : formatDate(incident.started_at, { locale: i18n.language }, startedFormat)}</td>
+      <td className="px-2.5 whitespace-nowrap text-muted-foreground max-md:hidden 2xl:px-4">{incident.started_at === null ? '' : formatDate(incident.started_at, { locale: i18n.language }, startedFormat)}</td>
       <td className="px-2.5 whitespace-nowrap 2xl:px-4">{seconds === null ? '' : durationText(seconds)}</td>
-      <td className="truncate px-2.5 text-muted-foreground 2xl:px-4">{cause.status === null ? t(cause.key) : t(cause.key, { status: cause.status })}</td>
+      <td className="truncate px-2.5 text-muted-foreground max-md:hidden 2xl:px-4">{cause.status === null ? t(cause.key) : t(cause.key, { status: cause.status })}</td>
       <td className="pr-4 pl-2.5 text-right">
         <Pill tone={status === 'open' ? 'alert' : 'positive'}>{t(statusTextKeys[status])}</Pill>
       </td>
@@ -50,7 +50,7 @@ export function RecentIncidentsCard({ incidents, now, retry = null }: RecentInci
           id="incidents-title"
           title={t('incidents:recent.title')}
           action={
-            <Link to="/incidents" className="flex h-[35px] items-center rounded-[14px] bg-chip px-[13px] text-sm">
+            <Link to="/incidents" className="flex h-10 items-center md:h-[35px] rounded-[14px] bg-chip px-[13px] text-sm">
               {t('incidents:recent.view_all')}
             </Link>
           }
@@ -61,22 +61,22 @@ export function RecentIncidentsCard({ incidents, now, retry = null }: RecentInci
       ) : incidents.length === 0 ? (
         <p className="py-6 text-center text-muted-foreground">{t('incidents:recent.empty')}</p>
       ) : (
-        <table className="w-full min-w-[620px] table-fixed border-separate border-spacing-0 text-left">
+        <table className="w-full table-fixed border-separate border-spacing-0 text-left md:min-w-[620px]">
           <thead>
             <tr>
-              <th scope="col" className={`${headCell} w-[27%] rounded-l-[10px] border-l-2 pl-[18px]`}>
+              <th scope="col" className={`${headCell} w-[38%] rounded-l-[10px] border-l-2 pl-[18px] md:w-[27%]`}>
                 {t('incidents:recent.monitor')}
               </th>
-              <th scope="col" className={`${headCell} w-[20%]`}>
+              <th scope="col" className={`${headCell} w-[20%] max-md:hidden`}>
                 {t('incidents:recent.started')}
               </th>
-              <th scope="col" className={`${headCell} w-[17%]`}>
+              <th scope="col" className={`${headCell} w-[26%] md:w-[17%]`}>
                 {t('incidents:recent.duration')}
               </th>
-              <th scope="col" className={`${headCell} w-[19%]`}>
+              <th scope="col" className={`${headCell} w-[19%] max-md:hidden`}>
                 {t('incidents:recent.cause')}
               </th>
-              <th scope="col" className={`${headCell} w-[17%] rounded-r-[10px] border-r-2 pr-4 text-right`}>
+              <th scope="col" className={`${headCell} w-[36%] rounded-r-[10px] border-r-2 pr-4 text-right md:w-[17%]`}>
                 {t('incidents:recent.status')}
               </th>
             </tr>

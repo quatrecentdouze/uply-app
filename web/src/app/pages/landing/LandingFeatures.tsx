@@ -62,7 +62,7 @@ export function LandingFeatures() {
               <MonitorStatePill state={checkedMonitor.state} />
             </div>
           )}
-          <ChecksTable checks={landingSample.checks} className="min-w-[440px]" />
+          <ChecksTable checks={landingSample.checks} />
         </FeatureCard>
         <FeatureCard icon={Gauge} title={t('landing:features.status_pages.title')} text={t('landing:features.status_pages.text')}>
           <div className="grid gap-3 pb-3">

@@ -50,7 +50,7 @@ export function ResponseTimeCard({ overview, window, onWindowChange, retry = nul
             onClick={() => {
               onWindowChange(candidate);
             }}
-            className="h-[31px] min-w-[85px] rounded-[22px] px-[17px] text-base text-muted-foreground aria-selected:bg-bright aria-selected:text-ink"
+            className="h-10 min-w-[85px] rounded-[22px] md:h-[31px] px-[17px] text-base text-muted-foreground aria-selected:bg-bright aria-selected:text-ink"
           >
             {t(windowTabKeys[candidate])}
           </button>

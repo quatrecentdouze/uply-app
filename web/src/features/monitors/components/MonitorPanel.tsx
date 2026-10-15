@@ -62,7 +62,7 @@ export function MonitorPanel({ monitors, retry = null }: { monitors: readonly Mo
         id="panel-title"
         title={t('monitors:panel.title')}
         action={
-          <Link to="/monitors" aria-label={t('monitors:panel.add')} className="grid size-[35px] place-items-center rounded-[10px] border-2 border-chip-line bg-secondary">
+          <Link to="/monitors" aria-label={t('monitors:panel.add')} className="grid size-10 place-items-center md:size-[35px] rounded-[10px] border-2 border-chip-line bg-secondary">
             <Plus className="size-5" strokeWidth={1.3} aria-hidden="true" />
           </Link>
         }

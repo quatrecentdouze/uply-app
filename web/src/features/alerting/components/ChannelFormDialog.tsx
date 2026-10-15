@@ -85,7 +85,7 @@ function ChannelForm({ organizationId, channel, alerting, onOpenChange }: Omit<C
                   onClick={() => {
                     field.onChange(candidate);
                   }}
-                  className="h-9 rounded-[22px] px-[17px] text-base text-muted-foreground aria-checked:bg-bright aria-checked:text-ink"
+                  className="h-10 rounded-[22px] md:h-9 px-[17px] text-base text-muted-foreground aria-checked:bg-bright aria-checked:text-ink"
                 >
                   {t(channelTypeTextKeys[candidate])}
                 </button>

@@ -5,6 +5,7 @@ export interface HeadCell {
   label: string;
   className?: string;
   hidden?: boolean;
+  secondary?: boolean;
 }
 
 interface DataTableProps {
@@ -20,6 +21,8 @@ export const rowClass = 'h-[58px] text-base';
 
 export const cellClass = 'border-b-2 border-divider px-2.5 2xl:px-4';
 
+export const secondaryCell = 'max-md:hidden';
+
 export function DataTable({ label, head, children, className }: DataTableProps) {
   return (
     <div className="overflow-x-auto">
@@ -34,6 +37,7 @@ export function DataTable({ label, head, children, className }: DataTableProps) 
                   headCell,
                   index === 0 && 'rounded-l-[10px] border-l-2 pl-[18px]',
                   index === head.length - 1 && 'rounded-r-[10px] border-r-2 pr-4',
+                  cell.secondary === true && secondaryCell,
                   cell.className,
                 )}
               >

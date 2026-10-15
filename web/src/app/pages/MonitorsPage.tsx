@@ -75,7 +75,7 @@ export function MonitorsPage() {
               onClick={() => {
                 setState(candidate);
               }}
-              className="h-[31px] rounded-[22px] px-[17px] text-base text-muted-foreground aria-pressed:bg-bright aria-pressed:text-ink"
+              className="h-10 rounded-[22px] md:h-[31px] px-[17px] text-base text-muted-foreground aria-pressed:bg-bright aria-pressed:text-ink"
             >
               {t(stateFilterTextKeys[candidate])}
             </button>

@@ -13,7 +13,7 @@ import { formatDate } from '@/shared/time/format';
 import { Button } from '@/shared/ui/button';
 import { SelectField } from '@/shared/ui/choice-fields';
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog';
-import { cellClass, DataTable, rowClass } from '@/shared/ui/data-table';
+import { cellClass, DataTable, rowClass, secondaryCell } from '@/shared/ui/data-table';
 import { FormAlert } from '@/shared/ui/form-alert';
 import { FormField } from '@/shared/ui/form-field';
 import { UserPlus } from '@/shared/ui/icons';
@@ -106,7 +106,7 @@ function MemberRow({ member, members, actorRole, actorUserId, canManage, onRole,
           <NativeSelect
             aria-label={t('organizations:settings.members.role_of', { name: member.user.name })}
             value={member.role}
-            className="[&_select]:h-9 [&_select]:rounded-[10px] [&_select]:border-field-line [&_select]:bg-field"
+            className="[&_select]:h-10 md:[&_select]:h-9 [&_select]:rounded-[10px] [&_select]:border-field-line [&_select]:bg-field"
             onChange={(event) => {
               const role = assignableRoles(actorRole).find((candidate) => candidate === event.target.value);
               if (role !== undefined) {
@@ -124,7 +124,7 @@ function MemberRow({ member, members, actorRole, actorUserId, canManage, onRole,
           <Pill tone="neutral">{t(roleTextKeys[member.role])}</Pill>
         )}
       </td>
-      <td className={`${cellClass} whitespace-nowrap text-muted-foreground`}>{member.joined_at === null ? '' : formatDate(member.joined_at, { locale: i18n.language }, dateFormat)}</td>
+      <td className={`${cellClass} ${secondaryCell} whitespace-nowrap text-muted-foreground`}>{member.joined_at === null ? '' : formatDate(member.joined_at, { locale: i18n.language }, dateFormat)}</td>
       <td className={`${cellClass} pr-4 text-right`}>
         {self && isLastOwner(member, members) ? (
           <span className="text-sm text-faint">{t('organizations:settings.members.last_owner')}</span>
@@ -132,7 +132,7 @@ function MemberRow({ member, members, actorRole, actorUserId, canManage, onRole,
           <Button
             type="button"
             variant="outline"
-            className="h-9 rounded-[10px]"
+            className="h-10 rounded-[10px] md:h-9"
             onClick={() => {
               onLeave(member);
             }}
@@ -143,7 +143,7 @@ function MemberRow({ member, members, actorRole, actorUserId, canManage, onRole,
           <Button
             type="button"
             variant="destructive"
-            className="h-9 rounded-[10px]"
+            className="h-10 rounded-[10px] md:h-9"
             onClick={() => {
               onRemove(member);
             }}
@@ -164,8 +164,8 @@ function InvitationRow({ invitation, onRevoke }: { invitation: Invitation; onRev
       <td className={cellClass}>
         <Pill tone="pending">{t(roleTextKeys[invitation.role])}</Pill>
       </td>
-      <td className={`${cellClass} truncate text-muted-foreground`}>{invitation.invited_by?.name ?? ''}</td>
-      <td className={`${cellClass} whitespace-nowrap text-muted-foreground`}>
+      <td className={`${cellClass} ${secondaryCell} truncate text-muted-foreground`}>{invitation.invited_by?.name ?? ''}</td>
+      <td className={`${cellClass} ${secondaryCell} whitespace-nowrap text-muted-foreground`}>
         {invitation.expires_at === null ? '' : formatDate(invitation.expires_at, { locale: i18n.language }, dateFormat)}
       </td>
       <td className={`${cellClass} pr-4 text-right`}>
@@ -173,7 +173,7 @@ function InvitationRow({ invitation, onRevoke }: { invitation: Invitation; onRev
           <Button
             type="button"
             variant="outline"
-            className="h-9 rounded-[10px]"
+            className="h-10 rounded-[10px] md:h-9"
             onClick={() => {
               onRevoke(invitation);
             }}
@@ -244,12 +244,12 @@ export function MembersPage({ organizationId, actorRole, actorUserId, canManage,
         ) : (
           <DataTable
             label={t('organizations:settings.members.table')}
-            className="min-w-[640px] table-fixed"
+            className="table-fixed md:min-w-[640px]"
             head={[
-              { label: t('organizations:settings.members.member'), className: 'w-[42%]' },
-              { label: t('organizations:settings.members.role'), className: 'w-[20%]' },
-              { label: t('organizations:settings.members.joined'), className: 'w-[18%]' },
-              { label: t('organizations:settings.members.actions'), className: 'w-[20%]', hidden: true },
+              { label: t('organizations:settings.members.member'), className: 'w-[36%] md:w-[42%]' },
+              { label: t('organizations:settings.members.role'), className: 'w-[32%] md:w-[20%]' },
+              { label: t('organizations:settings.members.joined'), className: 'w-[18%]', secondary: true },
+              { label: t('organizations:settings.members.actions'), className: 'w-[32%] md:w-[20%]', hidden: true },
             ]}
           >
             {list.map((member) => (
@@ -283,13 +283,13 @@ export function MembersPage({ organizationId, actorRole, actorUserId, canManage,
           ) : (
             <DataTable
               label={t('organizations:settings.members.invitations_table')}
-              className="min-w-[640px] table-fixed"
+              className="table-fixed md:min-w-[640px]"
               head={[
-                { label: t('organizations:settings.members.email'), className: 'w-[34%]' },
-                { label: t('organizations:settings.members.role'), className: 'w-[16%]' },
-                { label: t('organizations:settings.members.invited_by'), className: 'w-[20%]' },
-                { label: t('organizations:settings.members.expires'), className: 'w-[16%]' },
-                { label: t('organizations:settings.members.actions'), className: 'w-[14%]', hidden: true },
+                { label: t('organizations:settings.members.email'), className: 'w-[50%] md:w-[34%]' },
+                { label: t('organizations:settings.members.role'), className: 'w-[26%] md:w-[16%]' },
+                { label: t('organizations:settings.members.invited_by'), className: 'w-[20%]', secondary: true },
+                { label: t('organizations:settings.members.expires'), className: 'w-[16%]', secondary: true },
+                { label: t('organizations:settings.members.actions'), className: 'w-[24%] md:w-[14%]', hidden: true },
               ]}
             >
               {invitations.map((invitation) => (

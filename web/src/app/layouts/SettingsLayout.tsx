@@ -11,7 +11,7 @@ export function SettingsLayout() {
           <Link
             key={section.to}
             to={section.to}
-            className="flex h-[35px] items-center rounded-[22px] px-[17px] text-base text-muted-foreground hover:text-foreground data-[status=active]:bg-bright data-[status=active]:text-ink"
+            className="flex h-10 items-center rounded-[22px] md:h-[35px] px-[17px] text-base text-muted-foreground hover:text-foreground data-[status=active]:bg-bright data-[status=active]:text-ink"
           >
             {t(section.label)}
           </Link>
