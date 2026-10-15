@@ -14,6 +14,7 @@ import { RootLayout } from '@/app/layouts/RootLayout';
 import { entryRedirect, isVerifiedFlag, landingRedirect, type RouteAccess, safeRedirect, sessionOf, targetHref } from '@/app/model/entryFlow';
 import { NotFoundPage, StandaloneNotFoundPage } from '@/app/pages/NotFoundPage';
 import { RouteErrorPage } from '@/app/pages/RouteErrorPage';
+import { RoutePendingPage } from '@/app/pages/RoutePendingPage';
 import { meQuery, useLogout, useMe } from '@/features/auth/api/session';
 import { resetLinkOf } from '@/features/auth/model/forms';
 import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage';
@@ -362,6 +363,7 @@ export function createAppRouter(context: RouterContext, history?: RouterHistory)
     context,
     defaultPreload: 'intent',
     defaultErrorComponent: RouteErrorPage,
+    defaultPendingComponent: RoutePendingPage,
     scrollRestoration: true,
     ...(history === undefined ? {} : { history }),
   });

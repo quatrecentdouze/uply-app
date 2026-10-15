@@ -79,6 +79,7 @@
     "profile": "Profile",
     "security": "Security"
   },
+  "loading": "Loading",
   "load_error": {
     "message": "This could not load. Check your connection, then retry.",
     "retry": "Retry"
