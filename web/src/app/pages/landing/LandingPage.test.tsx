@@ -18,10 +18,13 @@ const openApi = openApiSchema.parse(JSON.parse(readProjectFile('../api/openapi.j
 const monitoringConfig = readProjectFile('../api/config/monitoring.php');
 const statusPagesConfig = readProjectFile('../api/config/status_pages.php');
 
-function enumOf(schema: string, property?: string): string[] {
+function enumValuesOf(schema: string, property?: string): unknown[] {
   const entry = openApi.components.schemas[schema];
-  const values = (property === undefined ? entry?.enum : entry?.properties?.[property]?.enum) ?? [];
-  return values.filter((value): value is string => typeof value === 'string');
+  return (property === undefined ? entry?.enum : entry?.properties?.[property]?.enum) ?? [];
+}
+
+function enumOf(schema: string, property?: string): string[] {
+  return enumValuesOf(schema, property).filter((value): value is string => typeof value === 'string');
 }
 
 function phpNumber(source: string, key: string): number {
@@ -59,7 +62,7 @@ describe('landing texts against the API', () => {
   it('lists exactly the check intervals the API allows', () => {
     const allowed = phpNumbers(monitoringConfig, 'allowed_seconds');
 
-    expect(allowed.map(String)).toEqual(enumOf('StoreMonitorRequest', 'interval_seconds'));
+    expect(allowed).toEqual(enumValuesOf('StoreMonitorRequest', 'interval_seconds'));
     expect(new Set(numbersIn(faq.intervals.answer))).toEqual(new Set(intervalNumbers(allowed)));
     expect(allowed).toContain(secondsPerHour);
     expect(faq.intervals.answer).toContain('every hour');

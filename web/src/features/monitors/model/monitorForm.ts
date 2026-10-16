@@ -112,12 +112,21 @@ export function monitorFormValues(monitor: Monitor | null, monitoring: Monitorin
   };
 }
 
+type IntervalSeconds = NonNullable<CreateMonitorBody['interval_seconds']>;
+
+const intervalChoices: Record<IntervalSeconds, IntervalSeconds> = { 30: 30, 60: 60, 120: 120, 300: 300, 600: 600, 900: 900, 1800: 1800, 3600: 3600 };
+
+function intervalSeconds(value: string): IntervalSeconds | undefined {
+  return Object.values(intervalChoices).find((seconds) => seconds === Number(value));
+}
+
 export function createMonitorBody(values: MonitorFormValues): CreateMonitorBody {
+  const interval = intervalSeconds(values.interval_seconds);
   return {
     name: values.name.trim(),
     url: values.url.trim(),
     method: values.method,
-    interval_seconds: Number(values.interval_seconds),
+    ...(interval === undefined ? {} : { interval_seconds: interval }),
     timeout_seconds: Number(values.timeout_seconds),
     accepted_status_codes: statusRangesOf(values.accepted_status_codes),
     follow_redirects: values.follow_redirects,
@@ -134,7 +143,7 @@ export function updateMonitorBody(monitor: Monitor, values: MonitorFormValues): 
     ...(next.name === monitor.name ? {} : { name: next.name }),
     ...(next.url === monitor.url ? {} : { url: next.url }),
     ...(next.method === monitor.method ? {} : { method: next.method }),
-    ...(next.interval_seconds === monitor.interval_seconds ? {} : { interval_seconds: next.interval_seconds }),
+    ...(next.interval_seconds === undefined || next.interval_seconds === monitor.interval_seconds ? {} : { interval_seconds: next.interval_seconds }),
     ...(next.timeout_seconds === monitor.timeout_seconds ? {} : { timeout_seconds: next.timeout_seconds }),
     ...(sameList(next.accepted_status_codes ?? [], monitor.accepted_status_codes) ? {} : { accepted_status_codes: next.accepted_status_codes }),
     ...(next.follow_redirects === monitor.follow_redirects ? {} : { follow_redirects: next.follow_redirects }),

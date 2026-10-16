@@ -1,15 +1,15 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '@/shared/api/apiClientContext';
 import { type ApiClient, expectData, expectSuccess } from '@/shared/api/client';
-import type { ApiPaths } from '@/shared/api/paths';
+import type { paths } from '@/shared/api/schema';
 import { queryKeys } from '@/shared/api/queryKeys';
 import type { StatusPage } from '@/shared/api/resources';
 
 type JsonBody<Operation> = Operation extends { requestBody?: { content: { 'application/json': infer Body } } } ? Body : never;
 
-export type CreateStatusPageBody = JsonBody<ApiPaths['/v1/organizations/{organization}/status-pages']['post']>;
+export type CreateStatusPageBody = JsonBody<paths['/v1/organizations/{organization}/status-pages']['post']>;
 
-export type UpdateStatusPageBody = JsonBody<ApiPaths['/v1/organizations/{organization}/status-pages/{statusPage}']['patch']>;
+export type UpdateStatusPageBody = JsonBody<paths['/v1/organizations/{organization}/status-pages/{statusPage}']['patch']>;
 
 const listSize = 100;
 

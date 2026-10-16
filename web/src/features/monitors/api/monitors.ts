@@ -1,15 +1,15 @@
 import { infiniteQueryOptions, queryOptions, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '@/shared/api/apiClientContext';
 import { type ApiClient, expectData, expectSuccess } from '@/shared/api/client';
-import type { ApiPaths } from '@/shared/api/paths';
+import type { paths } from '@/shared/api/schema';
 import { type MonitorListFilters, queryKeys, type Window } from '@/shared/api/queryKeys';
 import type { CheckListResponse, Monitor, MonitorListResponse, MonitorResponse, MonitorStats, OverviewResponse } from '@/shared/api/resources';
 
-type JsonBody<Operation> = Operation extends { requestBody: { content: { 'application/json': infer Body } } } ? Body : never;
+type JsonBody<Operation> = Operation extends { requestBody?: { content: { 'application/json': infer Body } } } ? Body : never;
 
-export type CreateMonitorBody = JsonBody<ApiPaths['/v1/organizations/{organization}/monitors']['post']>;
+export type CreateMonitorBody = JsonBody<paths['/v1/organizations/{organization}/monitors']['post']>;
 
-export type UpdateMonitorBody = JsonBody<ApiPaths['/v1/organizations/{organization}/monitors/{monitor}']['patch']>;
+export type UpdateMonitorBody = JsonBody<paths['/v1/organizations/{organization}/monitors/{monitor}']['patch']>;
 
 export function monitorListQuery(client: ApiClient, organizationId: string, filters: MonitorListFilters) {
   return queryOptions({

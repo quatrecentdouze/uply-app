@@ -99,6 +99,13 @@ describe('monitor bodies', () => {
     });
   });
 
+  it('leaves out an interval the contract does not list', () => {
+    const values = { ...monitorFormValues(null, monitoring), name: 'API', url: 'https://api.example.test', interval_seconds: '45' };
+
+    expect(createMonitorBody(values)).not.toHaveProperty('interval_seconds');
+    expect(updateMonitorBody(monitorFixture(), values)).not.toHaveProperty('interval_seconds');
+  });
+
   it('patches only what changed', () => {
     const monitor = monitorFixture();
     const values = monitorFormValues(monitor, monitoring);

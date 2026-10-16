@@ -1,7 +1,7 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '@/shared/api/apiClientContext';
 import { type ApiClient, expectData, expectSuccess } from '@/shared/api/client';
-import type { ApiPaths } from '@/shared/api/paths';
+import type { paths } from '@/shared/api/schema';
 import { queryKeys } from '@/shared/api/queryKeys';
 import type { AlertChannel } from '@/shared/api/resources';
 
@@ -65,9 +65,9 @@ export function useLinkChannels(organizationId: string) {
 
 type JsonBody<Operation> = Operation extends { requestBody?: { content: { 'application/json': infer Body } } } ? Body : never;
 
-export type CreateChannelBody = JsonBody<ApiPaths['/v1/organizations/{organization}/alert-channels']['post']>;
+export type CreateChannelBody = JsonBody<paths['/v1/organizations/{organization}/alert-channels']['post']>;
 
-export type UpdateChannelBody = JsonBody<ApiPaths['/v1/organizations/{organization}/alert-channels/{channel}']['patch']>;
+export type UpdateChannelBody = JsonBody<paths['/v1/organizations/{organization}/alert-channels/{channel}']['patch']>;
 
 function useChannelsChanged(organizationId: string) {
   const queryClient = useQueryClient();
