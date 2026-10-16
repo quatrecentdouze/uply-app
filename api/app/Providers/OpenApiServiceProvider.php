@@ -27,7 +27,10 @@ use Illuminate\Http\Response;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
+use Laravel\Fortify\Http\Controllers\RecoveryCodeController;
 use Laravel\Fortify\Http\Controllers\RegisteredUserController;
+use Laravel\Fortify\Http\Controllers\TwoFactorQrCodeController;
+use Laravel\Fortify\Http\Controllers\TwoFactorSecretKeyController;
 
 final class OpenApiServiceProvider extends ServiceProvider
 {
@@ -68,8 +71,12 @@ final class OpenApiServiceProvider extends ServiceProvider
                 $transformers->append([
                     MetaResponse::class,
                     new JsonBodyParameters(self::PASSWORD_DELETES),
-                    new JsonAnswer(self::CHANNEL_AUTHORIZATION, Response::HTTP_OK, ['auth' => new StringType]),
-                    new JsonAnswer(AuthenticatedSessionController::class.'@store', Response::HTTP_OK, ['two_factor' => new BooleanType]),
+                    JsonAnswer::object(self::CHANNEL_AUTHORIZATION, Response::HTTP_OK, ['auth' => new StringType]),
+                    JsonAnswer::object(AuthenticatedSessionController::class.'@store', Response::HTTP_OK, ['two_factor' => new BooleanType]),
+                    JsonAnswer::object(TwoFactorQrCodeController::class.'@show', Response::HTTP_OK, ['svg' => new StringType, 'url' => new StringType]),
+                    JsonAnswer::object(TwoFactorSecretKeyController::class.'@show', Response::HTTP_OK, ['secretKey' => new StringType]),
+                    JsonAnswer::listOf(RecoveryCodeController::class.'@index', Response::HTTP_OK, new StringType),
+                    JsonAnswer::withoutBody(RecoveryCodeController::class.'@store', Response::HTTP_OK),
                 ]);
             });
     }

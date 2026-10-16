@@ -44,7 +44,7 @@ final readonly class MetaResponse implements OperationTransformer
         ksort($data->properties);
         $data->setRequired(array_keys($data->properties));
 
-        (new JsonAnswer(self::ACTION, Response::HTTP_OK, ['data' => $data]))($operation, $routeInfo);
+        JsonAnswer::object(self::ACTION, Response::HTTP_OK, ['data' => $data])($operation, $routeInfo);
     }
 
     private function described(MetaSection $section): Type

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Monitoring\Settings\MonitoringSettings;
 use App\Organizations\Settings\OrganizationsSettings;
+use Tests\Support\TwoFactorUser;
 
 function decodedJsonFile(string $path): mixed
 {
@@ -170,6 +171,22 @@ function schemaMismatches(mixed $value, mixed $schema, string $path): array
         ),
     );
 }
+
+it('documents the two factor setup answers as fortify serves them', function (): void {
+    $this->actingAs(TwoFactorUser::create()->user)->withSession(['auth.password_confirmed_at' => time()]);
+
+    foreach (['/v1/auth/user/two-factor-qr-code', '/v1/auth/user/two-factor-secret-key', '/v1/auth/user/two-factor-recovery-codes'] as $path) {
+        $served = $this->getJson("/api{$path}")->assertOk()->json();
+        $documented = data_get(documentedOperation($path, 'get'), 'responses.200.content.application/json.schema');
+
+        expect(schemaMismatches($served, $documented, $path))->toBe([])
+            ->and(data_get($documented, 'type'))->not->toBeNull();
+    }
+    expect(data_get(documentedOperation('/v1/auth/user/two-factor-qr-code', 'get'), 'responses.200.content.application/json.schema.required'))->toBe(['svg', 'url'])
+        ->and(data_get(documentedOperation('/v1/auth/user/two-factor-secret-key', 'get'), 'responses.200.content.application/json.schema.properties.secretKey.type'))->toBe('string')
+        ->and(data_get(documentedOperation('/v1/auth/user/two-factor-recovery-codes', 'get'), 'responses.200.content.application/json.schema.items.type'))->toBe('string')
+        ->and(documentedOperation('/v1/auth/user/two-factor-recovery-codes', 'post')['responses']['200'] ?? null)->toBe(['description' => '']);
+});
 
 it('documents every section of meta as the api serves it', function (): void {
     $served = $this->getJson('/api/v1/meta')->assertOk()->json();

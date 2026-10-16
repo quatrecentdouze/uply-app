@@ -2720,7 +2720,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown | string[];
+                    "application/json": string[];
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -2739,9 +2739,7 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>;
-                };
+                content?: never;
             };
             401: components["responses"]["AuthenticationException"];
         };
@@ -3033,7 +3031,7 @@ export interface operations {
                     "application/json": {
                         svg: string;
                         url: string;
-                    } | string[];
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -3054,7 +3052,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        secretKey: unknown;
+                        secretKey: string;
                     };
                 };
             };
