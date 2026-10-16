@@ -18,6 +18,7 @@ test('the keyboard signs in, opens the palette with Ctrl K and closes a dialog w
   await page.keyboard.press('Enter');
 
   await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Dashboard' })).toBeVisible();
   await page.getByRole('main').focus();
 
   await page.keyboard.press('Control+k');
@@ -27,6 +28,7 @@ test('the keyboard signs in, opens the palette with Ctrl K and closes a dialog w
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/monitors$/);
   await expect(palette).toBeHidden();
+  await expect(page.getByRole('heading', { level: 1, name: 'Monitors' })).toBeVisible();
 
   await page.getByRole('main').focus();
   await page.keyboard.press('Shift+?');
