@@ -45,7 +45,9 @@ Made by `npm run screenshots` in `web` from the local demo data. The demo target
 | 3b | Product REST API and status pages backend (API) | done |
 | 4a | Web project, API client, real time, entry screens, app shell and dashboard (Web) | done |
 | 4b | Management screens: monitors, incidents, alert channels, status pages, settings (Web) | done |
-| 5 | Public status pages and polish (Web) | next |
+| 5 | Public status pages, landing page, mobile, end to end tests and polish (Web) | done |
+| 6 | Check depth: keyword, request headers and body, thresholds per monitor, TLS expiry alert (API, then Web) | next |
+| 7 | Alert depth: maintenance windows, reminders while an incident is open, flapping (API, then Web) | planned |
 
 ## Check engine
 
@@ -134,6 +136,10 @@ Serve any page on that port, run the scheduler, a worker and Reverb, then change
 - The dashboard shows the uptime over 24 hours, 7 days or 30 days, the monitors by state, the response time, the recent incidents and the monitors that need attention first. One Echo subscription per organization keeps it live: each Reverb event writes or refreshes the TanStack Query cache, and no screen subscribes by itself.
 - The management screens cover monitors (list with state filter and search, a form in a dialog, pause, a detail with the uptime over 24 hours, 7 days and 30 days, the response time, the timing breakdown, the recent checks by cursor, the incidents and the linked alert channels), incidents with their timeline, alert channels per type with a test send, the status page editor with the order and display names of its monitors, and the settings of the organization, its members and invitations, the profile, the password, two factor authentication and the account deletion.
 - A write action shows only when the role of the user allows it, from the abilities `GET /api/v1/meta` gives each role. Every delete asks for a confirmation, the organization and the account ask for the password.
+- A public status page lives at `/status/{slug}` without a session: the overall state, one card per monitor with its 90 day uptime and one bar per day (the last 30 on a phone), and the incidents of the last 14 days, read again every 30 seconds while the tab is visible.
+- Visitors land on a page at `/` whose previews are real components of the app fed by a static sample. A signed in user goes straight to `/dashboard`.
+- Every route but the entry screens loads on demand, so the landing, the sign in screens and the public page never load the charts or the app shell. Every list, detail and card has a loading, an empty and an error state with Retry, and the top bar says when live updates are paused.
+- Every screen works at 375 px with touch targets of 40 px, a skip link and a visible focus ring. A test checks the WCAG AA contrast of the theme tokens, another one that every control has an accessible name.
 - Every text lives in `web/src/locales/en`. A test checks that each key used in the code exists and each key of the files is used. A seams test keeps the feature folders apart and each third party library inside its own module.
 
 ## Run the web app locally
