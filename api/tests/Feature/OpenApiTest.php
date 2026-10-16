@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Monitoring\Settings\MonitoringSettings;
+use App\Organizations\Models\User;
 use App\Organizations\Settings\OrganizationsSettings;
 use Tests\Support\TwoFactorUser;
 
@@ -186,6 +187,16 @@ it('documents the two factor setup answers as fortify serves them', function ():
         ->and(data_get(documentedOperation('/v1/auth/user/two-factor-secret-key', 'get'), 'responses.200.content.application/json.schema.properties.secretKey.type'))->toBe('string')
         ->and(data_get(documentedOperation('/v1/auth/user/two-factor-recovery-codes', 'get'), 'responses.200.content.application/json.schema.items.type'))->toBe('string')
         ->and(documentedOperation('/v1/auth/user/two-factor-recovery-codes', 'post')['responses']['200'] ?? null)->toBe(['description' => '']);
+});
+
+it('documents the password confirmation as the 201 without body that fortify sends', function (): void {
+    $this->actingAs(User::factory()->create())
+        ->postJson('/api/v1/auth/user/confirm-password', ['password' => 'password'])
+        ->assertCreated();
+    $responses = (array) data_get(documentedOperation('/v1/auth/user/confirm-password', 'post'), 'responses');
+
+    expect($responses)->not->toHaveKey(200)
+        ->and($responses[201] ?? null)->toBe(['description' => '']);
 });
 
 it('documents every section of meta as the api serves it', function (): void {

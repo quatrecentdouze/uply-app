@@ -787,15 +787,8 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
+                    "201": {
+                        "description": ""
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"

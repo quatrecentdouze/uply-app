@@ -1465,13 +1465,11 @@ export interface operations {
             };
         };
         responses: {
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>;
-                };
+                content?: never;
             };
             401: components["responses"]["AuthenticationException"];
         };

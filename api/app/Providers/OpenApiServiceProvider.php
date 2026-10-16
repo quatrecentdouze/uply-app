@@ -26,6 +26,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
+use Laravel\Fortify\Http\Controllers\ConfirmablePasswordController;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
 use Laravel\Fortify\Http\Controllers\RecoveryCodeController;
 use Laravel\Fortify\Http\Controllers\RegisteredUserController;
@@ -77,6 +78,7 @@ final class OpenApiServiceProvider extends ServiceProvider
                     JsonAnswer::object(TwoFactorSecretKeyController::class.'@show', Response::HTTP_OK, ['secretKey' => new StringType]),
                     JsonAnswer::listOf(RecoveryCodeController::class.'@index', Response::HTTP_OK, new StringType),
                     JsonAnswer::withoutBody(RecoveryCodeController::class.'@store', Response::HTTP_OK),
+                    JsonAnswer::withoutBody(ConfirmablePasswordController::class.'@store', Response::HTTP_CREATED),
                 ]);
             });
     }
