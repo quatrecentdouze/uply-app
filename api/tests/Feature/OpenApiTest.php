@@ -199,6 +199,19 @@ it('documents the password confirmation as the 201 without body that fortify sen
         ->and($responses[201] ?? null)->toBe(['description' => '']);
 });
 
+it('documents the sign up as the 201 without body that fortify sends', function (): void {
+    $this->postJson('/api/v1/auth/register', [
+        'name' => 'Ada',
+        'email' => 'ada@uply.test',
+        'password' => 'a long enough password',
+        'password_confirmation' => 'a long enough password',
+    ])->assertCreated()->assertContent('""');
+    $responses = (array) data_get(documentedOperation('/v1/auth/register', 'post'), 'responses');
+
+    expect($responses)->not->toHaveKey(200)
+        ->and($responses[201] ?? null)->toBe(['description' => '']);
+});
+
 it('documents every section of meta as the api serves it', function (): void {
     $served = $this->getJson('/api/v1/meta')->assertOk()->json();
     $documented = data_get(documentedOperation('/v1/meta', 'get'), 'responses.200.content.application/json.schema');

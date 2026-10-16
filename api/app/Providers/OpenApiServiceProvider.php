@@ -79,6 +79,7 @@ final class OpenApiServiceProvider extends ServiceProvider
                     JsonAnswer::listOf(RecoveryCodeController::class.'@index', Response::HTTP_OK, new StringType),
                     JsonAnswer::withoutBody(RecoveryCodeController::class.'@store', Response::HTTP_OK),
                     JsonAnswer::withoutBody(ConfirmablePasswordController::class.'@store', Response::HTTP_CREATED),
+                    JsonAnswer::withoutBody(RegisteredUserController::class.'@store', Response::HTTP_CREATED),
                 ]);
             });
     }

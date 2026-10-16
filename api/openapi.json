@@ -3796,15 +3796,8 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
+                    "201": {
+                        "description": ""
                     }
                 }
             }
