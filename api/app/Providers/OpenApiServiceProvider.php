@@ -9,6 +9,7 @@ use App\Organizations\Actions\ResetUserPassword;
 use App\Organizations\Http\Controllers\MeController;
 use App\Organizations\Http\Controllers\OrganizationController;
 use App\Shared\OpenApi\ArrayFunctionReturnTypes;
+use App\Shared\OpenApi\IntegerInValues;
 use App\Shared\OpenApi\JsonAnswer;
 use App\Shared\OpenApi\JsonBodyParameters;
 use App\Shared\OpenApi\MetaResponse;
@@ -59,6 +60,7 @@ final class OpenApiServiceProvider extends ServiceProvider
         Scramble::registerExtension(ArrayFunctionReturnTypes::class);
         Scramble::configure()
             ->resolveOperationMethodsUsing($methods->of(...))
+            ->withRuleTransformers(IntegerInValues::class)
             ->withParametersExtractors(
                 fn (ParametersExtractors $extractors): ParametersExtractors => $extractors->prepend(RequestRulesExtractor::class),
             )

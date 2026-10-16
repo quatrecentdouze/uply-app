@@ -977,7 +977,7 @@ export interface components {
             url: string;
             method?: components["schemas"]["HttpMethod"];
             /** @enum {integer} */
-            interval_seconds?: "30" | "60" | "120" | "300" | "600" | "900" | "1800" | "3600";
+            interval_seconds?: 30 | 60 | 120 | 300 | 600 | 900 | 1800 | 3600;
             timeout_seconds?: number;
             accepted_status_codes?: string[];
             follow_redirects?: boolean;
@@ -1033,7 +1033,7 @@ export interface components {
             url?: string;
             method?: components["schemas"]["HttpMethod"];
             /** @enum {integer} */
-            interval_seconds?: "30" | "60" | "120" | "300" | "600" | "900" | "1800" | "3600";
+            interval_seconds?: 30 | 60 | 120 | 300 | 600 | 900 | 1800 | 3600;
             timeout_seconds?: number;
             accepted_status_codes?: string[];
             follow_redirects?: boolean;

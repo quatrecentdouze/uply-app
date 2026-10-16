@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Monitoring\Settings\MonitoringSettings;
 use App\Organizations\Settings\OrganizationsSettings;
 
 function decodedJsonFile(string $path): mixed
@@ -104,6 +105,16 @@ it('documents the password of a delete in the json body, never in the url', func
 })->with([
     '/v1/me',
     '/v1/organizations/{organization}',
+]);
+
+it('documents the allowed intervals of a monitor as integers', function (string $schema): void {
+    $interval = data_get(decodedJsonFile(base_path('openapi.json')), ['components', 'schemas', $schema, 'properties', 'interval_seconds']);
+
+    expect(data_get($interval, 'type'))->toBe('integer')
+        ->and(data_get($interval, 'enum'))->toBe(app(MonitoringSettings::class)->intervals->allowedSeconds);
+})->with([
+    'StoreMonitorRequest',
+    'UpdateMonitorRequest',
 ]);
 
 it('documents the two factor flag of the login answer', function (): void {
