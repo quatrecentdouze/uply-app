@@ -1825,14 +1825,18 @@ export interface operations {
     };
     "me.destroy": {
         parameters: {
-            query: {
-                password: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": {
+                    password: string;
+                };
+            };
+        };
         responses: {
             /** @description No content */
             204: {
@@ -2562,9 +2566,7 @@ export interface operations {
     };
     "organizations.destroy": {
         parameters: {
-            query: {
-                password: string;
-            };
+            query?: never;
             header?: never;
             path: {
                 /** @description The organization ID */
@@ -2572,7 +2574,13 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": {
+                    password: string;
+                };
+            };
+        };
         responses: {
             /** @description No content */
             204: {

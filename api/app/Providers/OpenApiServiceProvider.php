@@ -6,8 +6,11 @@ namespace App\Providers;
 
 use App\Organizations\Actions\CreateUser;
 use App\Organizations\Actions\ResetUserPassword;
+use App\Organizations\Http\Controllers\MeController;
+use App\Organizations\Http\Controllers\OrganizationController;
 use App\Shared\OpenApi\ArrayFunctionReturnTypes;
 use App\Shared\OpenApi\JsonAnswer;
+use App\Shared\OpenApi\JsonBodyParameters;
 use App\Shared\OpenApi\MetaResponse;
 use App\Shared\OpenApi\OperationMethods;
 use App\Shared\OpenApi\RequestRules;
@@ -34,6 +37,11 @@ final class OpenApiServiceProvider extends ServiceProvider
         'channel_name' => ['required', 'string'],
     ];
 
+    private const array PASSWORD_DELETES = [
+        MeController::class.'@destroy',
+        OrganizationController::class.'@destroy',
+    ];
+
     public function boot(): void
     {
         if (! class_exists(Scramble::class)) {
@@ -57,6 +65,7 @@ final class OpenApiServiceProvider extends ServiceProvider
             ->withOperationTransformers(function (OperationTransformers $transformers): void {
                 $transformers->append([
                     MetaResponse::class,
+                    new JsonBodyParameters(self::PASSWORD_DELETES),
                     new JsonAnswer(self::CHANNEL_AUTHORIZATION, Response::HTTP_OK, ['auth' => new StringType]),
                     new JsonAnswer(AuthenticatedSessionController::class.'@store', Response::HTTP_OK, ['two_factor' => new BooleanType]),
                 ]);

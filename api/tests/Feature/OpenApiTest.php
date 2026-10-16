@@ -93,6 +93,19 @@ it('documents the channel authorization as the post that echo sends', function (
         ->and(data_get($answer, 'properties.auth.type'))->toBe('string');
 });
 
+it('documents the password of a delete in the json body, never in the url', function (string $path): void {
+    $parameters = data_get(documentedOperation($path, 'delete'), 'parameters');
+    $body = documentedJsonBody($path, 'delete');
+
+    expect(is_array($parameters) ? array_column($parameters, 'in') : [])->not->toContain('query')
+        ->and(data_get(documentedOperation($path, 'delete'), 'requestBody.required'))->toBeTrue()
+        ->and($body['required'] ?? null)->toBe(['password'])
+        ->and(data_get($body, 'properties.password.type'))->toBe('string');
+})->with([
+    '/v1/me',
+    '/v1/organizations/{organization}',
+]);
+
 it('documents the two factor flag of the login answer', function (): void {
     $answer = data_get(documentedOperation('/v1/auth/login', 'post'), 'responses.200.content.application/json.schema');
 
