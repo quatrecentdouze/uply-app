@@ -155,6 +155,26 @@ npm run build
 
 `lint` runs ESLint with typescript-eslint, `typecheck` runs `tsc` without output, `test` runs Vitest with Testing Library on jsdom, `build` runs the Vite build.
 
+## End to end tests
+
+Playwright drives Chromium against the running app on `http://localhost:5173`. Start the API, Reverb, a queue worker, the scheduler, Mailpit and the dev server first, then in `web`:
+
+```bash
+npx playwright install chromium
+npm run e2e
+```
+
+- The `desktop` project runs at 1440 x 900: sign up with the verification link read from Mailpit, the demo dashboard, a monitor from creation to deletion, a status page published and read without a session, the viewer without any write action, and keyboard use.
+- The `mobile` project runs at 375 x 812 with touch and checks that no screen scrolls sideways.
+- One worker and no retry, the database is shared. A test that writes signs up its own `e2e-...@uply.test` account, deletes it at the end and removes the mails it read through the Mailpit API (`MAILPIT_URL`, `http://127.0.0.1:8025` by default), so the demo data never changes.
+- A failed test keeps its trace in `web/test-results`.
+
+The README screenshots come from the `readme` project, run against the demo data:
+
+```bash
+npm run screenshots
+```
+
 ## OpenAPI
 
 `api/openapi.json` describes every route, Fortify's included. Scramble writes it from the routes, form requests and resources:
