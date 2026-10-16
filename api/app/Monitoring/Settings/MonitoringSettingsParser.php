@@ -84,13 +84,23 @@ final class MonitoringSettingsParser
 
     private function confirmation(SettingsReader $reader): ConfirmationSettings
     {
-        return new ConfirmationSettings(
+        $minThreshold = $reader->integer('confirmation.min_threshold', 1);
+        $confirmation = new ConfirmationSettings(
             thresholds: new ConfirmationThresholds(
                 failuresToConfirmDown: $reader->integer('confirmation.failures_to_confirm_down', 1),
                 successesToConfirmUp: $reader->integer('confirmation.successes_to_confirm_up', 1),
             ),
+            minThreshold: $minThreshold,
+            maxThreshold: $reader->integer('confirmation.max_threshold', $minThreshold),
             recheckDelaySeconds: $reader->integer('confirmation.recheck_delay_seconds', 1),
         );
+        foreach (['failures_to_confirm_down' => $confirmation->thresholds->failuresToConfirmDown, 'successes_to_confirm_up' => $confirmation->thresholds->successesToConfirmUp] as $key => $threshold) {
+            if (! $confirmation->allowsThreshold($threshold)) {
+                throw $reader->invalid("confirmation.{$key}", 'must be between confirmation.min_threshold and confirmation.max_threshold');
+            }
+        }
+
+        return $confirmation;
     }
 
     private function dispatch(SettingsReader $reader): DispatchSettings

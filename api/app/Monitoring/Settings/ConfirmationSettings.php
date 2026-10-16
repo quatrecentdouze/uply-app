@@ -10,6 +10,13 @@ final readonly class ConfirmationSettings
 {
     public function __construct(
         public ConfirmationThresholds $thresholds,
+        public int $minThreshold,
+        public int $maxThreshold,
         public int $recheckDelaySeconds,
     ) {}
+
+    public function allowsThreshold(int $threshold): bool
+    {
+        return $threshold >= $this->minThreshold && $threshold <= $this->maxThreshold;
+    }
 }

@@ -27,6 +27,8 @@ it('parses the shipped monitoring file', function (): void {
         ->and($settings->monitorDefaults->acceptedStatusCodes->toTexts())->toBe(['200-299'])
         ->and($settings->confirmation->thresholds->failuresToConfirmDown)->toBe(2)
         ->and($settings->confirmation->thresholds->successesToConfirmUp)->toBe(2)
+        ->and($settings->confirmation->minThreshold)->toBe(1)
+        ->and($settings->confirmation->maxThreshold)->toBe(10)
         ->and($settings->confirmation->recheckDelaySeconds)->toBe(20)
         ->and($settings->dispatch->tick)->toBe(DispatchTick::EveryTenSeconds)
         ->and($settings->dispatch->batchSize)->toBe(500)
@@ -70,6 +72,10 @@ it('rejects an invalid setting with its file and key', function (string $key, mi
     'failures zero' => ['confirmation.failures_to_confirm_down', 0],
     'successes zero' => ['confirmation.successes_to_confirm_up', 0],
     'recheck zero' => ['confirmation.recheck_delay_seconds', 0],
+    'threshold floor zero' => ['confirmation.min_threshold', 0],
+    'threshold ceiling below floor' => ['confirmation.max_threshold', 0],
+    'failures above the ceiling' => ['confirmation.failures_to_confirm_down', 11],
+    'successes above the ceiling' => ['confirmation.successes_to_confirm_up', 11],
     'tick not a laravel frequency' => ['dispatch.tick_seconds', 7],
     'batch zero' => ['dispatch.batch_size', 0],
     'raw retention zero' => ['retention.raw_results_days', 0],

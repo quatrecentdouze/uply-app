@@ -23,6 +23,8 @@ return [
     'confirmation' => [
         'failures_to_confirm_down' => 2,
         'successes_to_confirm_up' => 2,
+        'min_threshold' => 1,
+        'max_threshold' => 10,
         'recheck_delay_seconds' => 20,
     ],
     'dispatch' => [
