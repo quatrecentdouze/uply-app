@@ -4,6 +4,24 @@ Uply is a monitoring web app. Developers and companies watch their websites and 
 
 It is a portfolio project built like a real multi tenant product.
 
+## Screenshots
+
+Made by `npm run screenshots` in `web` from the local demo data. The demo target runs on a loopback address, shown as `demo.example.com`.
+
+![Dashboard: uptime over 24 hours, monitor states, response time and the monitors that need attention](.github/readme/dashboard.png)
+
+![Monitor detail: state, pause, uptime over 24 hours, 7 days and 30 days, response time, timing breakdown, incidents](.github/readme/monitor.png)
+
+![Incidents with their duration and cause](.github/readme/incidents.png)
+
+![Status page editor with the order and display names of its monitors](.github/readme/status-page-editor.png)
+
+![Public status page with 90 daily uptime bars per monitor and the recent incidents](.github/readme/status-page.png)
+
+![Landing page for visitors](.github/readme/landing.png)
+
+![Dashboard on a 375 px wide phone](.github/readme/dashboard-mobile.png)
+
 ## Stack
 
 - API: Laravel 13, PHP 8.5, PostgreSQL 18, Laravel Reverb
