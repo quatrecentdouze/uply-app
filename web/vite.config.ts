@@ -14,6 +14,9 @@ export default defineConfig({
     },
   },
   server: {
+    watch: {
+      ignored: ['**/test-results/**', '**/playwright-report/**'],
+    },
     proxy: {
       '/api': proxiedToApi,
       '/sanctum': proxiedToApi,
