@@ -5002,6 +5002,12 @@
                     "follow_redirects": {
                         "type": "boolean"
                     },
+                    "failure_threshold": {
+                        "type": "integer"
+                    },
+                    "recovery_threshold": {
+                        "type": "integer"
+                    },
                     "is_paused": {
                         "type": "boolean"
                     },
@@ -5059,6 +5065,8 @@
                     "timeout_seconds",
                     "accepted_status_codes",
                     "follow_redirects",
+                    "failure_threshold",
+                    "recovery_threshold",
                     "is_paused",
                     "state",
                     "state_changed_at",
@@ -5669,6 +5677,16 @@
                     },
                     "follow_redirects": {
                         "type": "boolean"
+                    },
+                    "failure_threshold": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 10
+                    },
+                    "recovery_threshold": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 10
                     }
                 },
                 "required": [
@@ -5920,6 +5938,16 @@
                     },
                     "follow_redirects": {
                         "type": "boolean"
+                    },
+                    "failure_threshold": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 10
+                    },
+                    "recovery_threshold": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 10
                     },
                     "is_paused": {
                         "type": "boolean"

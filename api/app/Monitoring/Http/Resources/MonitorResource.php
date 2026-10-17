@@ -31,6 +31,8 @@ final class MonitorResource extends JsonResource
             'timeout_seconds' => $this->monitor->timeout_seconds,
             'accepted_status_codes' => $this->acceptedStatusCodes(),
             'follow_redirects' => $this->monitor->follow_redirects,
+            'failure_threshold' => $this->monitor->failure_threshold,
+            'recovery_threshold' => $this->monitor->recovery_threshold,
             'is_paused' => $this->monitor->is_paused,
             'state' => $this->monitor->state->value,
             'state_changed_at' => IsoTime::format($this->monitor->state_changed_at),

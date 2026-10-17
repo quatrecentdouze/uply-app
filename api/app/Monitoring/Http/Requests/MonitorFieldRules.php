@@ -22,6 +22,8 @@ final readonly class MonitorFieldRules
     {
         $presence = $partial ? 'sometimes' : 'required';
         $limits = $this->settings->limits;
+        $confirmation = $this->settings->confirmation;
+        $threshold = ['sometimes', 'integer', 'min:'.$confirmation->minThreshold, 'max:'.$confirmation->maxThreshold];
 
         return [
             'name' => [$presence, 'string', 'min:'.self::NAME_MIN_LENGTH, 'max:'.$limits->nameMaxLength],
@@ -32,6 +34,8 @@ final readonly class MonitorFieldRules
             'accepted_status_codes' => ['sometimes', 'array', 'list', 'min:1', 'max:'.$limits->maxAcceptedStatusRanges],
             'accepted_status_codes.*' => ['string', new ValidStatusCodeRange],
             'follow_redirects' => ['sometimes', 'boolean'],
+            'failure_threshold' => $threshold,
+            'recovery_threshold' => $threshold,
         ];
     }
 }

@@ -7,6 +7,7 @@ namespace App\Monitoring\Http\Requests;
 use App\Monitoring\Enums\HttpMethod;
 use App\Monitoring\Settings\MonitoringSettings;
 use App\Monitoring\Values\AcceptedStatusCodes;
+use App\Monitoring\Values\ConfirmationThresholds;
 use App\Monitoring\Values\MonitorDraft;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -29,7 +30,10 @@ final class StoreMonitorRequest extends FormRequest
             timeoutSeconds: $this->has('timeout_seconds') ? $this->integer('timeout_seconds') : $settings->probe->defaultTimeoutSeconds,
             acceptedStatusCodes: $this->has('accepted_status_codes') ? AcceptedStatusCodes::parse($this->array('accepted_status_codes')) : $defaults->acceptedStatusCodes,
             followRedirects: $this->has('follow_redirects') ? $this->boolean('follow_redirects') : MonitorFieldRules::DEFAULT_FOLLOW_REDIRECTS,
-            thresholds: $settings->confirmation->thresholds,
+            thresholds: new ConfirmationThresholds(
+                $this->has('failure_threshold') ? $this->integer('failure_threshold') : $settings->confirmation->thresholds->failuresToConfirmDown,
+                $this->has('recovery_threshold') ? $this->integer('recovery_threshold') : $settings->confirmation->thresholds->successesToConfirmUp,
+            ),
         );
     }
 }

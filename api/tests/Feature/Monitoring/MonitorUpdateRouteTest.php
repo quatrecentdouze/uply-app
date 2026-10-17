@@ -146,4 +146,23 @@ it('validates the changed fields only', function (array $payload, string $field)
     'blocked url' => [['url' => 'http://169.254.169.254/'], 'url'],
     'interval off the list' => [['interval_seconds' => 7], 'interval_seconds'],
     'pause as text' => [['is_paused' => 'soon'], 'is_paused'],
+    'failure threshold zero' => [['failure_threshold' => 0], 'failure_threshold'],
+    'recovery threshold eleven' => [['recovery_threshold' => 11], 'recovery_threshold'],
 ]);
+
+it('keeps the state, the counters and the schedule when a threshold changes', function (): void {
+    Event::fake([MonitorChangedEvent::class]);
+
+    $this->actingAs(Members::seat($this->organization, Role::Member))
+        ->patchJson(updateMonitorUrl($this->monitor), ['failure_threshold' => 5, 'recovery_threshold' => 1])
+        ->assertOk()
+        ->assertJsonPath('data.failure_threshold', 5)
+        ->assertJsonPath('data.recovery_threshold', 1)
+        ->assertJsonPath('data.state', 'down');
+
+    $monitor = changed($this->monitor);
+    expect($monitor->consecutive_failures)->toBe(1)
+        ->and($monitor->streak_started_at?->toIso8601ZuluString())->toBe('2027-03-10T11:57:00Z')
+        ->and($monitor->nextCheckAt()->toIso8601ZuluString())->toBe('2027-03-10T12:04:00Z');
+    Event::assertDispatchedOnce(MonitorChangedEvent::class);
+});

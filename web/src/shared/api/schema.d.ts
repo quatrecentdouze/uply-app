@@ -824,6 +824,8 @@ export interface components {
             timeout_seconds: number;
             accepted_status_codes: string[];
             follow_redirects: boolean;
+            failure_threshold: number;
+            recovery_threshold: number;
             is_paused: boolean;
             /** @enum {string} */
             state: "pending" | "up" | "down";
@@ -981,6 +983,8 @@ export interface components {
             timeout_seconds?: number;
             accepted_status_codes?: string[];
             follow_redirects?: boolean;
+            failure_threshold?: number;
+            recovery_threshold?: number;
         };
         /** StoreStatusPageRequest */
         StoreStatusPageRequest: {
@@ -1037,6 +1041,8 @@ export interface components {
             timeout_seconds?: number;
             accepted_status_codes?: string[];
             follow_redirects?: boolean;
+            failure_threshold?: number;
+            recovery_threshold?: number;
             is_paused?: boolean;
         };
         /** UpdatePasswordRequest */

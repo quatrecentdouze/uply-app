@@ -34,6 +34,8 @@ it('creates a pending monitor with the defaults for the roles that manage monito
         ->assertJsonPath('data.timeout_seconds', 10)
         ->assertJsonPath('data.accepted_status_codes', ['200-299'])
         ->assertJsonPath('data.follow_redirects', true)
+        ->assertJsonPath('data.failure_threshold', 2)
+        ->assertJsonPath('data.recovery_threshold', 2)
         ->assertJsonPath('data.is_paused', false)
         ->assertJsonPath('data.state', 'pending')
         ->assertJsonPath('data.last_checked_at', null)
@@ -58,13 +60,17 @@ it('takes every field of the form', function (): void {
             'timeout_seconds' => 30,
             'accepted_status_codes' => ['200-299', '304'],
             'follow_redirects' => false,
+            'failure_threshold' => 1,
+            'recovery_threshold' => 10,
         ])
         ->assertCreated()
         ->assertJsonPath('data.method', 'head')
         ->assertJsonPath('data.interval_seconds', 300)
         ->assertJsonPath('data.timeout_seconds', 30)
         ->assertJsonPath('data.accepted_status_codes', ['200-299', '304'])
-        ->assertJsonPath('data.follow_redirects', false);
+        ->assertJsonPath('data.follow_redirects', false)
+        ->assertJsonPath('data.failure_threshold', 1)
+        ->assertJsonPath('data.recovery_threshold', 10);
 });
 
 it('refuses a viewer and hides the organization from a non member', function (): void {
@@ -99,6 +105,10 @@ it('validates the form', function (array $payload, string $field): void {
     'accepted code out of range' => [['accepted_status_codes' => ['200-700']], 'accepted_status_codes.0'],
     'too many accepted ranges' => [['accepted_status_codes' => array_fill(0, 21, '200')], 'accepted_status_codes'],
     'redirects as text' => [['follow_redirects' => 'often'], 'follow_redirects'],
+    'failure threshold zero' => [['failure_threshold' => 0], 'failure_threshold'],
+    'failure threshold eleven' => [['failure_threshold' => 11], 'failure_threshold'],
+    'recovery threshold as text' => [['recovery_threshold' => 'two'], 'recovery_threshold'],
+    'recovery threshold eleven' => [['recovery_threshold' => 11], 'recovery_threshold'],
 ]);
 
 it('explains a blocked url with its own text', function (): void {
