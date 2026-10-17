@@ -31,7 +31,12 @@ export interface MonitorFormValues {
 export const methodTextKeys: Record<HttpMethod, TextKey<'monitors'>> = {
   get: 'monitors:methods.get',
   head: 'monitors:methods.head',
+  post: 'monitors:methods.post',
+  put: 'monitors:methods.put',
+  patch: 'monitors:methods.patch',
 };
+
+const httpMethods = ['get', 'head', 'post', 'put', 'patch'] as const satisfies readonly HttpMethod[];
 
 export function knownMethods(methods: readonly string[]): HttpMethod[] {
   return methods.flatMap((method) => (method === 'get' || method === 'head' ? [method] : []));
@@ -71,7 +76,7 @@ export function monitorFormSchema(texts: MonitorFormTexts, monitoring: Monitorin
   return z.object({
     name: z.string().trim().min(1, texts.required).max(lengths.monitor_name.max, texts.maxLength(lengths.monitor_name.max)),
     url: z.string().trim().min(1, texts.required).max(lengths.url.max, texts.maxLength(lengths.url.max)).refine((value) => value === '' || isWebUrl(value), texts.url),
-    method: z.enum(['get', 'head']),
+    method: z.enum(httpMethods),
     interval_seconds: z.string().refine((value) => intervals.allowed_seconds.includes(Number(value)), texts.interval),
     timeout_seconds: z
       .string()

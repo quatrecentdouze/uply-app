@@ -90,7 +90,10 @@
   },
   "methods": {
     "get": "GET",
-    "head": "HEAD"
+    "head": "HEAD",
+    "post": "POST",
+    "put": "PUT",
+    "patch": "PATCH"
   },
   "list": {
     "title": "All monitors",

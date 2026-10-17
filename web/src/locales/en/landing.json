@@ -83,7 +83,7 @@
     "items": {
       "checks": {
         "question": "What does Uply check?",
-        "answer": "HTTP and HTTPS addresses, with a GET or a HEAD request. A check passes when the status code is one you accept, 200 to 299 by default, and the answer arrives before the timeout: 10 seconds by default, 30 seconds at most."
+        "answer": "HTTP and HTTPS addresses, with a GET, HEAD, POST, PUT or PATCH request. A check passes when the status code is one you accept, 200 to 299 by default, and the answer arrives before the timeout: 10 seconds by default, 30 seconds at most."
       },
       "intervals": {
         "question": "How often is a service checked?",
