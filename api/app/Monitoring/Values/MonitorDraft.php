@@ -18,6 +18,7 @@ final readonly class MonitorDraft
         public AcceptedStatusCodes $acceptedStatusCodes,
         public bool $followRedirects,
         public ConfirmationThresholds $thresholds,
+        public MonitorRequest $request,
     ) {
         if (trim($name) === '' || trim($url) === '') {
             throw new InvalidArgumentException('a monitor needs a name and a url');

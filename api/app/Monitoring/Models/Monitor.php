@@ -10,10 +10,12 @@ use App\Monitoring\Values\AcceptedStatusCodes;
 use App\Monitoring\Values\CheckDefinition;
 use App\Monitoring\Values\ConfirmationThresholds;
 use App\Monitoring\Values\MonitorDraft;
+use App\Monitoring\Values\MonitorRequest;
 use App\Monitoring\Values\MonitorStateSnapshot;
 use App\Monitoring\Values\ProbeRequest;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,9 +32,11 @@ use LogicException;
     'follow_redirects',
     'failure_threshold',
     'recovery_threshold',
+    'request',
     'is_paused',
     'next_check_at',
 ])]
+#[Hidden(['request'])]
 final class Monitor extends Model
 {
     use HasFactory;
@@ -53,6 +57,13 @@ final class Monitor extends Model
     public function confirmationThresholds(): ConfirmationThresholds
     {
         return new ConfirmationThresholds($this->failure_threshold, $this->recovery_threshold);
+    }
+
+    public function checkRequest(): MonitorRequest
+    {
+        $stored = $this->getAttribute('request');
+
+        return MonitorRequest::fromStored(is_array($stored) ? $stored : null);
     }
 
     public function stateSnapshot(): MonitorStateSnapshot
@@ -77,6 +88,7 @@ final class Monitor extends Model
             $this->acceptedStatusCodes(),
             $this->follow_redirects,
             $this->confirmationThresholds(),
+            $this->checkRequest(),
         );
     }
 
@@ -115,6 +127,7 @@ final class Monitor extends Model
         $this->follow_redirects = $draft->followRedirects;
         $this->failure_threshold = $draft->thresholds->failuresToConfirmDown;
         $this->recovery_threshold = $draft->thresholds->successesToConfirmUp;
+        $this->setAttribute('request', $draft->request->toStored());
     }
 
     public function applyCheck(MonitorStateSnapshot $snapshot, CarbonImmutable $checkedAt, ?int $responseMs, CarbonImmutable $nextCheckAt): void
@@ -135,6 +148,7 @@ final class Monitor extends Model
             'method' => HttpMethod::class,
             'state' => MonitorState::class,
             'accepted_status_codes' => 'array',
+            'request' => 'encrypted:array',
             'follow_redirects' => 'boolean',
             'is_paused' => 'boolean',
             'streak_started_at' => 'immutable_datetime',

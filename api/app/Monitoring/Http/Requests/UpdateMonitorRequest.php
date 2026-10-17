@@ -35,6 +35,7 @@ final class UpdateMonitorRequest extends FormRequest
                 $this->has('failure_threshold') ? $this->integer('failure_threshold') : $current->thresholds->failuresToConfirmDown,
                 $this->has('recovery_threshold') ? $this->integer('recovery_threshold') : $current->thresholds->successesToConfirmUp,
             ),
+            request: $current->request,
         );
     }
 

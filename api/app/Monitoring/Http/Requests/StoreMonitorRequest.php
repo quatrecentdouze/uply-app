@@ -9,6 +9,7 @@ use App\Monitoring\Settings\MonitoringSettings;
 use App\Monitoring\Values\AcceptedStatusCodes;
 use App\Monitoring\Values\ConfirmationThresholds;
 use App\Monitoring\Values\MonitorDraft;
+use App\Monitoring\Values\MonitorRequest;
 use Illuminate\Foundation\Http\FormRequest;
 
 final class StoreMonitorRequest extends FormRequest
@@ -34,6 +35,7 @@ final class StoreMonitorRequest extends FormRequest
                 $this->has('failure_threshold') ? $this->integer('failure_threshold') : $settings->confirmation->thresholds->failuresToConfirmDown,
                 $this->has('recovery_threshold') ? $this->integer('recovery_threshold') : $settings->confirmation->thresholds->successesToConfirmUp,
             ),
+            request: MonitorRequest::none(),
         );
     }
 }
