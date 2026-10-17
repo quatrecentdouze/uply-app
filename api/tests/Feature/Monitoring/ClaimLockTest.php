@@ -32,6 +32,8 @@ it('skips a monitor row locked by another dispatcher', function (): void {
             'interval_seconds' => 60,
             'timeout_seconds' => 10,
             'accepted_status_codes' => '["200-299"]',
+            'failure_threshold' => 2,
+            'recovery_threshold' => 2,
             'next_check_at' => '2027-03-10 11:59:00+00',
         ]);
         $locker->beginTransaction();

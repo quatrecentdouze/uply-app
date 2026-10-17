@@ -63,6 +63,8 @@ final class DemoSeeder extends Seeder
                 'timeout_seconds' => $monitoring->probe->defaultTimeoutSeconds,
                 'accepted_status_codes' => $monitoring->monitorDefaults->acceptedStatusCodes->toTexts(),
                 'follow_redirects' => true,
+                'failure_threshold' => $monitoring->confirmation->thresholds->failuresToConfirmDown,
+                'recovery_threshold' => $monitoring->confirmation->thresholds->successesToConfirmUp,
                 'is_paused' => false,
                 'next_check_at' => now(),
             ],

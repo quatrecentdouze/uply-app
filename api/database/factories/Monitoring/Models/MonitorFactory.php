@@ -26,6 +26,8 @@ final class MonitorFactory extends Factory
             'timeout_seconds' => $settings->probe->defaultTimeoutSeconds,
             'accepted_status_codes' => $settings->monitorDefaults->acceptedStatusCodes->toTexts(),
             'follow_redirects' => true,
+            'failure_threshold' => $settings->confirmation->thresholds->failuresToConfirmDown,
+            'recovery_threshold' => $settings->confirmation->thresholds->successesToConfirmUp,
             'is_paused' => false,
             'next_check_at' => now(),
         ];

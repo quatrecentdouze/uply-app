@@ -8,6 +8,7 @@ use App\Monitoring\Enums\HttpMethod;
 use App\Monitoring\Enums\MonitorState;
 use App\Monitoring\Values\AcceptedStatusCodes;
 use App\Monitoring\Values\CheckDefinition;
+use App\Monitoring\Values\ConfirmationThresholds;
 use App\Monitoring\Values\MonitorDraft;
 use App\Monitoring\Values\MonitorStateSnapshot;
 use App\Monitoring\Values\ProbeRequest;
@@ -27,6 +28,8 @@ use LogicException;
     'timeout_seconds',
     'accepted_status_codes',
     'follow_redirects',
+    'failure_threshold',
+    'recovery_threshold',
     'is_paused',
     'next_check_at',
 ])]
@@ -45,6 +48,11 @@ final class Monitor extends Model
         $texts = $this->getAttribute('accepted_status_codes');
 
         return AcceptedStatusCodes::parse(is_array($texts) ? $texts : []);
+    }
+
+    public function confirmationThresholds(): ConfirmationThresholds
+    {
+        return new ConfirmationThresholds($this->failure_threshold, $this->recovery_threshold);
     }
 
     public function stateSnapshot(): MonitorStateSnapshot
@@ -68,6 +76,7 @@ final class Monitor extends Model
             $this->timeout_seconds,
             $this->acceptedStatusCodes(),
             $this->follow_redirects,
+            $this->confirmationThresholds(),
         );
     }
 
@@ -104,6 +113,8 @@ final class Monitor extends Model
         $this->timeout_seconds = $draft->timeoutSeconds;
         $this->setAttribute('accepted_status_codes', $draft->acceptedStatusCodes->toTexts());
         $this->follow_redirects = $draft->followRedirects;
+        $this->failure_threshold = $draft->thresholds->failuresToConfirmDown;
+        $this->recovery_threshold = $draft->thresholds->successesToConfirmUp;
     }
 
     public function applyCheck(MonitorStateSnapshot $snapshot, CarbonImmutable $checkedAt, ?int $responseMs, CarbonImmutable $nextCheckAt): void

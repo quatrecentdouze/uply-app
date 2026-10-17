@@ -30,6 +30,7 @@ final class UpdateMonitorRequest extends FormRequest
             timeoutSeconds: $this->has('timeout_seconds') ? $this->integer('timeout_seconds') : $current->timeoutSeconds,
             acceptedStatusCodes: $this->has('accepted_status_codes') ? AcceptedStatusCodes::parse($this->array('accepted_status_codes')) : $current->acceptedStatusCodes,
             followRedirects: $this->has('follow_redirects') ? $this->boolean('follow_redirects') : $current->followRedirects,
+            thresholds: $current->thresholds,
         );
     }
 

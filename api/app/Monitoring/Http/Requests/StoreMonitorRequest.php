@@ -29,6 +29,7 @@ final class StoreMonitorRequest extends FormRequest
             timeoutSeconds: $this->has('timeout_seconds') ? $this->integer('timeout_seconds') : $settings->probe->defaultTimeoutSeconds,
             acceptedStatusCodes: $this->has('accepted_status_codes') ? AcceptedStatusCodes::parse($this->array('accepted_status_codes')) : $defaults->acceptedStatusCodes,
             followRedirects: $this->has('follow_redirects') ? $this->boolean('follow_redirects') : MonitorFieldRules::DEFAULT_FOLLOW_REDIRECTS,
+            thresholds: $settings->confirmation->thresholds,
         );
     }
 }
