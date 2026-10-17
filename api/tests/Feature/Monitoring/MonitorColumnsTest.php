@@ -29,3 +29,12 @@ it('refuses a threshold under one in the database', function (string $column): v
     'failure_threshold',
     'recovery_threshold',
 ]);
+
+it('stores the five methods and refuses any other one in the database', function (): void {
+    foreach (['get', 'head', 'post', 'put', 'patch'] as $method) {
+        expect(Monitor::factory()->create(['method' => $method])->fresh()?->method->value)->toBe($method);
+    }
+    $monitor = Monitor::factory()->create();
+
+    expect(fn () => Monitor::query()->whereKey($monitor->id)->update(['method' => 'delete']))->toThrow(QueryException::class);
+});

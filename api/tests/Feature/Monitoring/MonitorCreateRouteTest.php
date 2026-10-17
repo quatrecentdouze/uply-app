@@ -73,6 +73,13 @@ it('takes every field of the form', function (): void {
         ->assertJsonPath('data.recovery_threshold', 10);
 });
 
+it('takes the methods that send a body', function (string $method): void {
+    $this->actingAs(Members::seat($this->organization, Role::Member))
+        ->postJson(createMonitorUrl($this->organization), ['name' => 'Hook', 'url' => 'https://hooks.example.com/ping', 'method' => $method])
+        ->assertCreated()
+        ->assertJsonPath('data.method', $method);
+})->with(['post', 'put', 'patch']);
+
 it('refuses a viewer and hides the organization from a non member', function (): void {
     $payload = ['name' => 'API', 'url' => 'https://api.example.com/health'];
 
@@ -96,7 +103,7 @@ it('validates the form', function (array $payload, string $field): void {
     'url with credentials' => [['url' => 'https://user:secret@example.com/'], 'url'],
     'metadata address' => [['url' => 'http://169.254.169.254/latest'], 'url'],
     'private address' => [['url' => 'http://10.0.0.8/'], 'url'],
-    'post method' => [['method' => 'post'], 'method'],
+    'delete method' => [['method' => 'delete'], 'method'],
     'interval off the list' => [['interval_seconds' => 45], 'interval_seconds'],
     'timeout too long' => [['timeout_seconds' => 31], 'timeout_seconds'],
     'timeout zero' => [['timeout_seconds' => 0], 'timeout_seconds'],

@@ -727,7 +727,7 @@ export interface components {
          * HttpMethod
          * @enum {string}
          */
-        HttpMethod: "get" | "head";
+        HttpMethod: "get" | "head" | "post" | "put" | "patch";
         /** IncidentResource */
         IncidentResource: {
             id: string;
@@ -819,7 +819,7 @@ export interface components {
             name: string;
             url: string;
             /** @enum {string} */
-            method: "get" | "head";
+            method: "get" | "head" | "post" | "put" | "patch";
             interval_seconds: number;
             timeout_seconds: number;
             accepted_status_codes: string[];
@@ -2078,7 +2078,7 @@ export interface operations {
                                 };
                                 methods: string[];
                                 /** @enum {string} */
-                                default_method: "get" | "head";
+                                default_method: "get" | "head" | "post" | "put" | "patch";
                                 default_accepted_status_codes: string[];
                                 windows: string[];
                                 limits: {

@@ -2146,7 +2146,10 @@
                                                             "type": "string",
                                                             "enum": [
                                                                 "get",
-                                                                "head"
+                                                                "head",
+                                                                "post",
+                                                                "put",
+                                                                "patch"
                                                             ]
                                                         },
                                                         "default_accepted_status_codes": {
@@ -4610,7 +4613,10 @@
                 "type": "string",
                 "enum": [
                     "get",
-                    "head"
+                    "head",
+                    "post",
+                    "put",
+                    "patch"
                 ],
                 "title": "HttpMethod"
             },
@@ -4984,7 +4990,10 @@
                         "type": "string",
                         "enum": [
                             "get",
-                            "head"
+                            "head",
+                            "post",
+                            "put",
+                            "patch"
                         ]
                     },
                     "interval_seconds": {

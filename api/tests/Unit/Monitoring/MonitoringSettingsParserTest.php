@@ -72,7 +72,7 @@ it('rejects an invalid setting with its file and key', function (string $key, mi
     'body cap zero' => ['probe.body_read_cap_bytes', 0],
     'user agent blank' => ['probe.user_agent', ''],
     'private targets as text' => ['probe.allow_private_targets', 'yes'],
-    'unknown method' => ['monitor_defaults.method', 'post'],
+    'unknown method' => ['monitor_defaults.method', 'delete'],
     'codes not a range' => ['monitor_defaults.accepted_status_codes', ['abc']],
     'codes out of http' => ['monitor_defaults.accepted_status_codes', ['700-799']],
     'codes empty' => ['monitor_defaults.accepted_status_codes', []],
