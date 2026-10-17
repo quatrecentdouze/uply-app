@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Monitoring\Enums\MonitorState;
 use App\Monitoring\Enums\StateTransition;
 use App\Monitoring\Rules\CheckOutcomeRules;
 use App\Monitoring\Rules\CheckScheduleRules;
@@ -81,4 +82,55 @@ it('confirms a failure twenty seconds after the first one, then a recovery the s
         ['12:03:40', 200, 'down', StateTransition::None->value],
         ['12:04:00', 200, 'up', StateTransition::Recovered->value],
     ])->and($snapshot->streakStartedAt?->toTimeString())->toBe('12:03:40');
+});
+
+function thresholdTimeline(ConfirmationThresholds $thresholds, array $statuses): array
+{
+    $accepted = AcceptedStatusCodes::parse(['200-299']);
+    $snapshot = new MonitorStateSnapshot(MonitorState::Up, 0, 1, utc('2026-10-28 11:00:00'), utc('2026-10-28 11:00:00'));
+    $scheduled = utc('2026-10-28 12:00:00');
+    $timeline = [];
+
+    foreach ($statuses as $status) {
+        $checkedAt = $scheduled;
+        $result = ProbeResult::responded($status, new ProbeTimings(totalMs: 50));
+        $advance = MonitorStateRules::advance($snapshot, CheckOutcomeRules::evaluate($accepted, $result), $thresholds, $checkedAt);
+        $scheduled = CheckScheduleRules::nextCheckAt($scheduled, $checkedAt, 60, 20, $advance->awaitsConfirmation);
+        $snapshot = $advance->snapshot;
+        $timeline[] = [$checkedAt->toTimeString(), $snapshot->state->value, $advance->transition->value];
+    }
+
+    return $timeline;
+}
+
+it('confirms at once and never rechecks with thresholds of one', function (): void {
+    expect(thresholdTimeline(new ConfirmationThresholds(1, 1), [500, 500, 200, 200]))->toBe([
+        ['12:00:00', 'down', StateTransition::WentDown->value],
+        ['12:01:00', 'down', StateTransition::None->value],
+        ['12:02:00', 'up', StateTransition::Recovered->value],
+        ['12:03:00', 'up', StateTransition::None->value],
+    ]);
+});
+
+it('rechecks until the tenth failure with a threshold of ten', function (): void {
+    $timeline = thresholdTimeline(new ConfirmationThresholds(10, 2), array_fill(0, 11, 500));
+    $waiting = array_map(
+        fn (int $index): array => [utc('2026-10-28 12:00:00')->addSeconds(20 * $index)->toTimeString(), 'up', StateTransition::None->value],
+        range(0, 8),
+    );
+
+    expect($timeline)->toBe([
+        ...$waiting,
+        ['12:03:00', 'down', StateTransition::WentDown->value],
+        ['12:04:00', 'down', StateTransition::None->value],
+    ]);
+});
+
+it('reads the failure and the recovery thresholds apart', function (): void {
+    expect(thresholdTimeline(new ConfirmationThresholds(3, 1), [500, 500, 500, 200]))->toBe([
+        ['12:00:00', 'up', StateTransition::None->value],
+        ['12:00:20', 'up', StateTransition::None->value],
+        ['12:00:40', 'down', StateTransition::WentDown->value],
+        ['12:01:40', 'up', StateTransition::Recovered->value],
+    ]);
 });

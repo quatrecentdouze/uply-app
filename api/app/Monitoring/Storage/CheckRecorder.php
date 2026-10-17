@@ -35,7 +35,7 @@ final readonly class CheckRecorder
                 return false;
             }
             $confirmation = $this->settings->confirmation;
-            $advance = MonitorStateRules::advance($monitor->stateSnapshot(), $check->verdict, $confirmation->thresholds, $check->checkedAt);
+            $advance = MonitorStateRules::advance($monitor->stateSnapshot(), $check->verdict, $monitor->confirmationThresholds(), $check->checkedAt);
             $nextCheckAt = CheckScheduleRules::nextCheckAt($check->scheduledAt, $check->checkedAt, $monitor->interval_seconds, $confirmation->recheckDelaySeconds, $advance->awaitsConfirmation);
 
             $this->insertResult($check);
