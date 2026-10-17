@@ -38,7 +38,14 @@ it('parses the shipped monitoring file', function (): void {
         ->and($settings->limits->maxMonitorsPerOrganization)->toBe(100)
         ->and($settings->limits->nameMaxLength)->toBe(100)
         ->and($settings->limits->urlMaxLength)->toBe(2048)
-        ->and($settings->limits->maxAcceptedStatusRanges)->toBe(20);
+        ->and($settings->limits->maxAcceptedStatusRanges)->toBe(20)
+        ->and($settings->request->maxHeaders)->toBe(20)
+        ->and($settings->request->headerNameMaxLength)->toBe(100)
+        ->and($settings->request->headerValueMaxLength)->toBe(1000)
+        ->and($settings->request->bodyMaxLength)->toBe(10000)
+        ->and($settings->request->refusedHeaderNames)->toBe(['host', 'content-length', 'transfer-encoding', 'connection', 'keep-alive', 'upgrade', 'te', 'trailer', 'expect', 'proxy-authorization', 'proxy-connection'])
+        ->and($settings->request->refusesHeader('Proxy-Authorization'))->toBeTrue()
+        ->and($settings->request->refusesHeader('Authorization'))->toBeFalse();
 });
 
 it('rejects an invalid setting with its file and key', function (string $key, mixed $value): void {
@@ -73,6 +80,12 @@ it('rejects an invalid setting with its file and key', function (string $key, mi
     'successes zero' => ['confirmation.successes_to_confirm_up', 0],
     'recheck zero' => ['confirmation.recheck_delay_seconds', 0],
     'threshold floor zero' => ['confirmation.min_threshold', 0],
+    'headers negative' => ['request.max_headers', -1],
+    'header value length zero' => ['request.header_value_max_length', 0],
+    'body length zero' => ['request.body_max_length', 0],
+    'refused names empty' => ['request.refused_header_names', []],
+    'refused name in capitals' => ['request.refused_header_names', ['Host']],
+    'refused name with a space' => ['request.refused_header_names', ['x forwarded']],
     'threshold ceiling below floor' => ['confirmation.max_threshold', 0],
     'failures above the ceiling' => ['confirmation.failures_to_confirm_down', 11],
     'successes above the ceiling' => ['confirmation.successes_to_confirm_up', 11],

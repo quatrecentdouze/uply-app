@@ -12,6 +12,8 @@ use InvalidArgumentException;
 
 final class MonitoringSettingsParser
 {
+    private const string LOWERCASE_HEADER_NAME = "/^[a-z0-9!#$%&'*+.^_`|~-]+$/";
+
     public function parse(string $source, array $values): MonitoringSettings
     {
         $reader = new SettingsReader($source, $values);
@@ -29,6 +31,25 @@ final class MonitoringSettingsParser
                 urlMaxLength: $reader->integer('limits.url_max_length', 1),
                 maxAcceptedStatusRanges: $reader->integer('limits.max_accepted_status_ranges', 1),
             ),
+            request: $this->request($reader),
+        );
+    }
+
+    private function request(SettingsReader $reader): RequestSettings
+    {
+        $refused = $reader->textList('request.refused_header_names');
+        foreach ($refused as $name) {
+            if (! is_string($name) || preg_match(self::LOWERCASE_HEADER_NAME, $name) !== 1) {
+                throw $reader->invalid('request.refused_header_names', 'must only hold lowercase header names');
+            }
+        }
+
+        return new RequestSettings(
+            maxHeaders: $reader->integer('request.max_headers', 0),
+            headerNameMaxLength: $reader->integer('request.header_name_max_length', 1),
+            headerValueMaxLength: $reader->integer('request.header_value_max_length', 1),
+            bodyMaxLength: $reader->integer('request.body_max_length', 1),
+            refusedHeaderNames: $refused,
         );
     }
 

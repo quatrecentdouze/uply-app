@@ -14,5 +14,6 @@ final readonly class MonitoringSettings
         public DispatchSettings $dispatch,
         public RetentionSettings $retention,
         public MonitorLimits $limits,
+        public RequestSettings $request,
     ) {}
 }
