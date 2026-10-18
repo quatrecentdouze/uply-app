@@ -88,6 +88,8 @@ function monitorsOf(data: SampleData): Monitor[] {
     follow_redirects: true,
     failure_threshold: 2,
     recovery_threshold: 2,
+    request_header_names: [],
+    has_request_body: false,
     state_changed_at: null,
     last_checked_at: data.now,
     created_at: null,

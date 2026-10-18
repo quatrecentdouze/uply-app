@@ -15,6 +15,8 @@ export function monitorFixture(overrides: Partial<Monitor> = {}): Monitor {
     follow_redirects: true,
     failure_threshold: 2,
     recovery_threshold: 2,
+    request_header_names: [],
+    has_request_body: false,
     is_paused: false,
     state: 'up',
     state_changed_at: '2026-10-29T08:00:00Z',
