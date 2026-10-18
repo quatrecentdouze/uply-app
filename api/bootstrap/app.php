@@ -25,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
         $middleware->throttleApi();
         $middleware->redirectGuestsTo('/login');
+        $middleware->trimStrings(except: ['request_body']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->dontReport(DomainError::class);

@@ -826,6 +826,8 @@ export interface components {
             follow_redirects: boolean;
             failure_threshold: number;
             recovery_threshold: number;
+            request_header_names: string[];
+            has_request_body: boolean;
             is_paused: boolean;
             /** @enum {string} */
             state: "pending" | "up" | "down";
@@ -985,6 +987,11 @@ export interface components {
             follow_redirects?: boolean;
             failure_threshold?: number;
             recovery_threshold?: number;
+            request_headers?: {
+                name: string;
+                value: string;
+            }[];
+            request_body?: string | null;
         };
         /** StoreStatusPageRequest */
         StoreStatusPageRequest: {
@@ -1043,6 +1050,11 @@ export interface components {
             follow_redirects?: boolean;
             failure_threshold?: number;
             recovery_threshold?: number;
+            request_headers?: {
+                name: string;
+                value: string;
+            }[];
+            request_body?: string | null;
             is_paused?: boolean;
         };
         /** UpdatePasswordRequest */

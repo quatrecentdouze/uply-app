@@ -6,10 +6,13 @@ namespace App\Monitoring\Http\Requests;
 
 use App\Monitoring\Enums\HttpMethod;
 use App\Monitoring\Settings\MonitoringSettings;
+use App\Monitoring\Storage\MonitorQuery;
 use App\Monitoring\Values\AcceptedStatusCodes;
 use App\Monitoring\Values\ConfirmationThresholds;
 use App\Monitoring\Values\MonitorDraft;
+use App\Monitoring\Values\MonitorRequest;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 final class UpdateMonitorRequest extends FormRequest
 {
@@ -18,6 +21,18 @@ final class UpdateMonitorRequest extends FormRequest
         return [
             ...(new MonitorFieldRules($settings))->rules(partial: true),
             'is_paused' => ['sometimes', 'boolean'],
+        ];
+    }
+
+    public function after(MonitorQuery $monitors): array
+    {
+        return [
+            function (Validator $validator) use ($monitors): void {
+                if ($validator->errors()->isEmpty()) {
+                    $current = $monitors->get($this->routeId('organization'), $this->routeId('monitor'));
+                    DraftConflictCheck::report($validator, $this->draftOver($current->draft()), MonitorFieldRules::sentFields($this));
+                }
+            },
         ];
     }
 
@@ -35,12 +50,26 @@ final class UpdateMonitorRequest extends FormRequest
                 $this->has('failure_threshold') ? $this->integer('failure_threshold') : $current->thresholds->failuresToConfirmDown,
                 $this->has('recovery_threshold') ? $this->integer('recovery_threshold') : $current->thresholds->successesToConfirmUp,
             ),
-            request: $current->request,
+            request: $this->requestOver($current->request),
         );
     }
 
     public function paused(): ?bool
     {
         return $this->has('is_paused') ? $this->boolean('is_paused') : null;
+    }
+
+    private function requestOver(MonitorRequest $current): MonitorRequest
+    {
+        $request = $this->has('request_headers') ? $current->withHeaders(MonitorFieldRules::headersFrom($this->input('request_headers'))) : $current;
+
+        return $this->has('request_body') ? $request->withBody(MonitorFieldRules::bodyFrom($this->input('request_body'))) : $request;
+    }
+
+    private function routeId(string $name): string
+    {
+        $value = $this->route($name);
+
+        return is_string($value) ? $value : '';
     }
 }

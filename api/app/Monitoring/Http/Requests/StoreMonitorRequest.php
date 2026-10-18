@@ -11,6 +11,7 @@ use App\Monitoring\Values\ConfirmationThresholds;
 use App\Monitoring\Values\MonitorDraft;
 use App\Monitoring\Values\MonitorRequest;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 final class StoreMonitorRequest extends FormRequest
 {
@@ -19,9 +20,21 @@ final class StoreMonitorRequest extends FormRequest
         return (new MonitorFieldRules($settings))->rules(partial: false);
     }
 
+    public function after(MonitoringSettings $settings): array
+    {
+        return [
+            function (Validator $validator) use ($settings): void {
+                if ($validator->errors()->isEmpty()) {
+                    DraftConflictCheck::report($validator, $this->draft($settings), MonitorFieldRules::sentFields($this));
+                }
+            },
+        ];
+    }
+
     public function draft(MonitoringSettings $settings): MonitorDraft
     {
         $defaults = $settings->monitorDefaults;
+        $thresholds = $settings->confirmation->thresholds;
 
         return new MonitorDraft(
             name: $this->string('name')->toString(),
@@ -32,10 +45,13 @@ final class StoreMonitorRequest extends FormRequest
             acceptedStatusCodes: $this->has('accepted_status_codes') ? AcceptedStatusCodes::parse($this->array('accepted_status_codes')) : $defaults->acceptedStatusCodes,
             followRedirects: $this->has('follow_redirects') ? $this->boolean('follow_redirects') : MonitorFieldRules::DEFAULT_FOLLOW_REDIRECTS,
             thresholds: new ConfirmationThresholds(
-                $this->has('failure_threshold') ? $this->integer('failure_threshold') : $settings->confirmation->thresholds->failuresToConfirmDown,
-                $this->has('recovery_threshold') ? $this->integer('recovery_threshold') : $settings->confirmation->thresholds->successesToConfirmUp,
+                $this->has('failure_threshold') ? $this->integer('failure_threshold') : $thresholds->failuresToConfirmDown,
+                $this->has('recovery_threshold') ? $this->integer('recovery_threshold') : $thresholds->successesToConfirmUp,
             ),
-            request: MonitorRequest::none(),
+            request: new MonitorRequest(
+                MonitorFieldRules::headersFrom($this->input('request_headers')),
+                MonitorFieldRules::bodyFrom($this->input('request_body')),
+            ),
         );
     }
 }

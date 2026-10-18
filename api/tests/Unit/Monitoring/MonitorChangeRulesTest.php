@@ -6,6 +6,8 @@ use App\Monitoring\Enums\HttpMethod;
 use App\Monitoring\Rules\MonitorChangeRules;
 use App\Monitoring\Values\AcceptedStatusCodes;
 use App\Monitoring\Values\CheckDefinition;
+use App\Monitoring\Values\MonitorRequest;
+use App\Monitoring\Values\RequestHeader;
 use Carbon\CarbonImmutable;
 
 function definition(array $changes = []): CheckDefinition
@@ -17,6 +19,7 @@ function definition(array $changes = []): CheckDefinition
         'followRedirects' => true,
         'interval' => 300,
         'paused' => false,
+        'request' => new MonitorRequest([new RequestHeader('Authorization', 'Bearer a')], null),
     ], ...$changes];
 
     return new CheckDefinition(
@@ -26,6 +29,7 @@ function definition(array $changes = []): CheckDefinition
         $values['followRedirects'],
         $values['interval'],
         $values['paused'],
+        $values['request'],
     );
 }
 
@@ -44,6 +48,10 @@ it('checks at once and clears the streak when what is judged changes', function 
     'method' => [['method' => HttpMethod::Head]],
     'accepted codes' => [['codes' => ['200-299', '304']]],
     'redirects' => [['followRedirects' => false]],
+    'post method' => [['method' => HttpMethod::Post]],
+    'header value' => [['request' => new MonitorRequest([new RequestHeader('Authorization', 'Bearer b')], null)]],
+    'header removed' => [['request' => MonitorRequest::none()]],
+    'body' => [['request' => new MonitorRequest([new RequestHeader('Authorization', 'Bearer a')], '{}')]],
 ]);
 
 it('keeps the streak and the schedule for a rename or a timeout change', function (): void {

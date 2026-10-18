@@ -101,6 +101,7 @@ final class Monitor extends Model
             $this->follow_redirects,
             $this->interval_seconds,
             $this->is_paused,
+            $this->checkRequest(),
         );
     }
 

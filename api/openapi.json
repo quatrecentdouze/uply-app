@@ -5017,6 +5017,15 @@
                     "recovery_threshold": {
                         "type": "integer"
                     },
+                    "request_header_names": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "has_request_body": {
+                        "type": "boolean"
+                    },
                     "is_paused": {
                         "type": "boolean"
                     },
@@ -5076,6 +5085,8 @@
                     "follow_redirects",
                     "failure_threshold",
                     "recovery_threshold",
+                    "request_header_names",
+                    "has_request_body",
                     "is_paused",
                     "state",
                     "state_changed_at",
@@ -5696,6 +5707,38 @@
                         "type": "integer",
                         "minimum": 1,
                         "maximum": 10
+                    },
+                    "request_headers": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "pattern": "^[!#$%&'*+.^_`|~0-9A-Za-z-]+$",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                },
+                                "value": {
+                                    "type": "string",
+                                    "pattern": "^[^\\x00-\\x1F\\x7F]*$",
+                                    "maxLength": 1000
+                                }
+                            },
+                            "required": [
+                                "name",
+                                "value"
+                            ]
+                        },
+                        "maxItems": 20,
+                        "uniqueItems": true
+                    },
+                    "request_body": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 10000
                     }
                 },
                 "required": [
@@ -5957,6 +6000,38 @@
                         "type": "integer",
                         "minimum": 1,
                         "maximum": 10
+                    },
+                    "request_headers": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "pattern": "^[!#$%&'*+.^_`|~0-9A-Za-z-]+$",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                },
+                                "value": {
+                                    "type": "string",
+                                    "pattern": "^[^\\x00-\\x1F\\x7F]*$",
+                                    "maxLength": 1000
+                                }
+                            },
+                            "required": [
+                                "name",
+                                "value"
+                            ]
+                        },
+                        "maxItems": 20,
+                        "uniqueItems": true
+                    },
+                    "request_body": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 10000
                     },
                     "is_paused": {
                         "type": "boolean"

@@ -13,5 +13,9 @@ return [
             'blocked_address' => 'The URL points to an address Uply never checks.',
         ],
         'status_code_range' => 'Each accepted status code must look like 200-299 or 204, between 100 and 599.',
+        'refused_header' => 'Uply sets this header itself, a monitor cannot send it.',
+        'conflict' => [
+            'request_body' => 'Only a POST, PUT or PATCH request sends a body.',
+        ],
     ],
 ];

@@ -33,6 +33,8 @@ final class MonitorResource extends JsonResource
             'follow_redirects' => $this->monitor->follow_redirects,
             'failure_threshold' => $this->monitor->failure_threshold,
             'recovery_threshold' => $this->monitor->recovery_threshold,
+            'request_header_names' => $this->monitor->checkRequest()->headerNames(),
+            'has_request_body' => $this->monitor->checkRequest()->hasBody(),
             'is_paused' => $this->monitor->is_paused,
             'state' => $this->monitor->state->value,
             'state_changed_at' => IsoTime::format($this->monitor->state_changed_at),

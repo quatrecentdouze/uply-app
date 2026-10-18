@@ -15,6 +15,7 @@ final readonly class CheckDefinition
         public bool $followRedirects,
         public int $intervalSeconds,
         public bool $isPaused,
+        public MonitorRequest $request,
     ) {}
 
     public function judgesLike(self $other): bool
@@ -22,6 +23,7 @@ final readonly class CheckDefinition
         return $this->url === $other->url
             && $this->method === $other->method
             && $this->acceptedStatusCodes->toTexts() === $other->acceptedStatusCodes->toTexts()
-            && $this->followRedirects === $other->followRedirects;
+            && $this->followRedirects === $other->followRedirects
+            && $this->request->sameAs($other->request);
     }
 }
