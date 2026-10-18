@@ -11,5 +11,6 @@ final readonly class MonitorLimits
         public int $nameMaxLength,
         public int $urlMaxLength,
         public int $maxAcceptedStatusRanges,
+        public int $keywordMaxLength,
     ) {}
 }

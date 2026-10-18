@@ -19,6 +19,7 @@ return [
     'monitor_defaults' => [
         'method' => 'get',
         'accepted_status_codes' => ['200-299'],
+        'keyword_match' => 'present',
     ],
     'confirmation' => [
         'failures_to_confirm_down' => 2,
@@ -55,6 +56,7 @@ return [
         'name_max_length' => 100,
         'url_max_length' => 2048,
         'max_accepted_status_ranges' => 20,
+        'keyword_max_length' => 200,
     ],
     'retention' => [
         'raw_results_days' => 30,

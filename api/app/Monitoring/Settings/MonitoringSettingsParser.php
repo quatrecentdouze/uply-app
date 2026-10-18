@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Monitoring\Settings;
 
 use App\Monitoring\Enums\HttpMethod;
+use App\Monitoring\Enums\KeywordMatch;
 use App\Monitoring\Values\AcceptedStatusCodes;
 use App\Monitoring\Values\ConfirmationThresholds;
 use App\Shared\Settings\SettingsReader;
@@ -30,6 +31,7 @@ final class MonitoringSettingsParser
                 nameMaxLength: $reader->integer('limits.name_max_length', 1),
                 urlMaxLength: $reader->integer('limits.url_max_length', 1),
                 maxAcceptedStatusRanges: $reader->integer('limits.max_accepted_status_ranges', 1),
+                keywordMaxLength: $reader->integer('limits.keyword_max_length', 1),
             ),
             request: $this->request($reader),
         );
@@ -100,7 +102,13 @@ final class MonitoringSettingsParser
             throw $reader->invalid('monitor_defaults.accepted_status_codes', $exception->getMessage());
         }
 
-        return new MonitorDefaults($method, $codes);
+        $keywordMatch = KeywordMatch::tryFrom($reader->text('monitor_defaults.keyword_match'));
+        if ($keywordMatch === null) {
+            $names = implode(', ', array_map(static fn (KeywordMatch $case): string => $case->value, KeywordMatch::cases()));
+            throw $reader->invalid('monitor_defaults.keyword_match', "must be one of {$names}");
+        }
+
+        return new MonitorDefaults($method, $codes, $keywordMatch);
     }
 
     private function confirmation(SettingsReader $reader): ConfirmationSettings

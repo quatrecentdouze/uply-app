@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Monitoring\Enums\HttpMethod;
+use App\Monitoring\Enums\KeywordMatch;
 use App\Monitoring\Settings\DispatchTick;
 use App\Monitoring\Settings\MonitoringSettingsParser;
 use App\Shared\Settings\InvalidSettingException;
@@ -25,6 +26,8 @@ it('parses the shipped monitoring file', function (): void {
         ->and($settings->probe->allowPrivateTargets)->toBeFalse()
         ->and($settings->monitorDefaults->method)->toBe(HttpMethod::Get)
         ->and($settings->monitorDefaults->acceptedStatusCodes->toTexts())->toBe(['200-299'])
+        ->and($settings->monitorDefaults->keywordMatch)->toBe(KeywordMatch::Present)
+        ->and($settings->limits->keywordMaxLength)->toBe(200)
         ->and($settings->confirmation->thresholds->failuresToConfirmDown)->toBe(2)
         ->and($settings->confirmation->thresholds->successesToConfirmUp)->toBe(2)
         ->and($settings->confirmation->minThreshold)->toBe(1)
@@ -73,6 +76,8 @@ it('rejects an invalid setting with its file and key', function (string $key, mi
     'user agent blank' => ['probe.user_agent', ''],
     'private targets as text' => ['probe.allow_private_targets', 'yes'],
     'unknown method' => ['monitor_defaults.method', 'delete'],
+    'unknown keyword match' => ['monitor_defaults.keyword_match', 'maybe'],
+    'keyword length zero' => ['limits.keyword_max_length', 0],
     'codes not a range' => ['monitor_defaults.accepted_status_codes', ['abc']],
     'codes out of http' => ['monitor_defaults.accepted_status_codes', ['700-799']],
     'codes empty' => ['monitor_defaults.accepted_status_codes', []],
