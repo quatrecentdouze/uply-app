@@ -10,11 +10,14 @@ use App\Monitoring\Probe\SystemHostResolver;
 use App\Monitoring\Probe\TargetGuard;
 use App\Monitoring\Settings\MonitoringSettings;
 use App\Monitoring\Settings\ProbeSettings;
+use App\Monitoring\Values\MonitorRequest;
 use App\Monitoring\Values\PinnedTarget;
 use App\Monitoring\Values\ProbeRequest;
 use App\Monitoring\Values\ProbeResult;
+use App\Monitoring\Values\RequestHeader;
 use Illuminate\Http\Client\Factory;
 use Tests\Support\ProbeTargetServer;
+use Tests\Support\StaticHostResolver;
 
 beforeAll(fn () => ProbeTargetServer::boot());
 
@@ -35,12 +38,35 @@ function probeSettings(bool $allowPrivateTargets): ProbeSettings
     );
 }
 
-function probeTarget(string $path, int $timeoutSeconds = 5, bool $followRedirects = true, HttpMethod $method = HttpMethod::Get, ?TargetGuard $guard = null): ProbeResult
+function probeTarget(string $path, int $timeoutSeconds = 5, bool $followRedirects = true, HttpMethod $method = HttpMethod::Get, ?TargetGuard $guard = null, ?MonitorRequest $request = null): ProbeResult
 {
     $settings = probeSettings(true);
     $probe = new HttpProbe(new Factory, $guard ?? new DnsTargetGuard(new SystemHostResolver, $settings), $settings);
 
-    return $probe->run(new ProbeRequest(ProbeTargetServer::boot()->url($path), $method, $timeoutSeconds, $followRedirects));
+    return $probe->run(new ProbeRequest(ProbeTargetServer::boot()->url($path), $method, $timeoutSeconds, $followRedirects, $request ?? MonitorRequest::none()));
+}
+
+function recordedBy(string $path, HttpMethod $method, MonitorRequest $request): array
+{
+    $id = strtolower((string) str()->ulid());
+    $guard = new DnsTargetGuard(new StaticHostResolver(['localhost' => ['127.0.0.1']]), probeSettings(true));
+    $result = probeTarget(str_replace('{id}', $id, $path), method: $method, guard: $guard, request: $request);
+    $file = ProbeTargetServer::recordFile($id);
+    $record = is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
+    if (is_file($file)) {
+        unlink($file);
+    }
+
+    return ['status' => $result->httpStatus, ...(is_array($record) ? $record : [])];
+}
+
+function signedRequest(): MonitorRequest
+{
+    return new MonitorRequest([
+        new RequestHeader('Authorization', 'Bearer probe-secret'),
+        new RequestHeader('Content-Type', 'application/json'),
+        new RequestHeader('User-Agent', 'Custom/2.0'),
+    ], '{"probe":"probe-body"}');
 }
 
 function guardOpenOnlyFor(string $firstUrl): TargetGuard
@@ -113,7 +139,7 @@ it('refuses the first hop before connecting when private targets are forbidden',
     $settings = probeSettings(false);
     $probe = new HttpProbe(new Factory, new DnsTargetGuard(new SystemHostResolver, $settings), $settings);
 
-    $result = $probe->run(new ProbeRequest(ProbeTargetServer::boot()->url('/status/200'), HttpMethod::Get, 5, true));
+    $result = $probe->run(new ProbeRequest(ProbeTargetServer::boot()->url('/status/200'), HttpMethod::Get, 5, true, MonitorRequest::none()));
 
     expect($result->failureKind)->toBe(FailureKind::BlockedTarget)
         ->and($result->httpStatus)->toBeNull();
@@ -130,7 +156,7 @@ it('reports a refused connection', function (): void {
     $settings = probeSettings(true);
     $probe = new HttpProbe(new Factory, new DnsTargetGuard(new SystemHostResolver, $settings), $settings);
 
-    $result = $probe->run(new ProbeRequest('http://127.0.0.1:'.ProbeTargetServer::freePort().'/', HttpMethod::Get, 5, true));
+    $result = $probe->run(new ProbeRequest('http://127.0.0.1:'.ProbeTargetServer::freePort().'/', HttpMethod::Get, 5, true, MonitorRequest::none()));
 
     expect($result->failureKind)->toBe(FailureKind::Connect);
 });
@@ -143,4 +169,62 @@ it('resolves localhost through the system resolver', function (): void {
     $addresses = (new SystemHostResolver)->resolve('localhost')->addresses;
 
     expect(array_intersect($addresses, ['127.0.0.1', '::1']))->not->toBeEmpty();
+});
+
+it('sends the method, the headers and the body of the monitor', function (HttpMethod $method): void {
+    $record = recordedBy('/record/{id}', $method, signedRequest());
+
+    expect($record['status'])->toBe(200)
+        ->and($record['method'])->toBe($method->verb())
+        ->and($record['headers']['authorization'] ?? null)->toBe('Bearer probe-secret')
+        ->and($record['headers']['content-type'] ?? null)->toBe('application/json')
+        ->and($record['headers']['user-agent'] ?? null)->toBe('Custom/2.0')
+        ->and($record['body'])->toBe('{"probe":"probe-body"}');
+})->with([HttpMethod::Post, HttpMethod::Put, HttpMethod::Patch]);
+
+it('sends no body and no content type of its own with get', function (): void {
+    $record = recordedBy('/record/{id}', HttpMethod::Get, MonitorRequest::none());
+
+    expect($record['method'])->toBe('GET')
+        ->and($record['headers'])->not->toHaveKey('content-type')
+        ->and($record['headers']['user-agent'] ?? null)->toBe('Uply/1.0')
+        ->and($record['body'])->toBe('');
+});
+
+it('follows 301, 302 and 303 with a get without body', function (int $status): void {
+    $record = recordedBy("/hop/{$status}/{id}", HttpMethod::Post, signedRequest());
+
+    expect($record['method'])->toBe('GET')
+        ->and($record['body'])->toBe('')
+        ->and($record['headers']['authorization'] ?? null)->toBe('Bearer probe-secret');
+})->with([301, 302, 303]);
+
+it('follows 307 and 308 with the method and the body', function (int $status): void {
+    $record = recordedBy("/hop/{$status}/{id}", HttpMethod::Put, signedRequest());
+
+    expect($record['method'])->toBe('PUT')
+        ->and($record['body'])->toBe('{"probe":"probe-body"}')
+        ->and($record['headers']['authorization'] ?? null)->toBe('Bearer probe-secret');
+})->with([307, 308]);
+
+it('drops the headers and the body of the monitor on a hop to another origin', function (): void {
+    $record = recordedBy('/hop-away/307/{id}', HttpMethod::Post, signedRequest());
+
+    expect($record['status'])->toBe(200)
+        ->and($record['method'])->toBe('POST')
+        ->and($record['body'])->toBe('')
+        ->and($record['headers'])->not->toHaveKey('authorization')
+        ->and($record['headers']['user-agent'] ?? null)->toBe('Uply/1.0');
+});
+
+it('keeps the secrets of the monitor out of a diagnostic', function (): void {
+    $settings = probeSettings(false);
+    $probe = new HttpProbe(new Factory, new DnsTargetGuard(new SystemHostResolver, $settings), $settings);
+    $request = new MonitorRequest([new RequestHeader('X-Token', 'probe-path-secret')], null);
+
+    $result = $probe->run(new ProbeRequest('relative/probe-path-secret', HttpMethod::Get, 5, true, $request));
+
+    expect($result->failureKind)->toBe(FailureKind::BlockedTarget)
+        ->and($result->errorMessage)->not->toContain('probe-path-secret')
+        ->and($result->errorMessage)->toContain('[secret]');
 });

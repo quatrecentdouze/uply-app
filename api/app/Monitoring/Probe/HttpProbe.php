@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace App\Monitoring\Probe;
 
 use App\Monitoring\Enums\FailureKind;
+use App\Monitoring\Rules\DiagnosticRules;
+use App\Monitoring\Rules\ProbeHopRules;
 use App\Monitoring\Settings\ProbeSettings;
+use App\Monitoring\Values\MonitorRequest;
 use App\Monitoring\Values\PinnedTarget;
+use App\Monitoring\Values\ProbeHop;
 use App\Monitoring\Values\ProbeRequest;
 use App\Monitoring\Values\ProbeResult;
 use App\Monitoring\Values\ProbeTimings;
 use App\Monitoring\Values\TargetRefusedException;
+use App\Monitoring\Values\TargetUrl;
 use GuzzleHttp\Psr7\UriResolver;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\TransferStats;
@@ -46,69 +51,87 @@ final readonly class HttpProbe implements Probe
         $deadline = $startedAt + $request->timeoutSeconds * self::NANOSECONDS_PER_SECOND;
         $url = $request->url;
         $redirects = 0;
+        $hop = ProbeHop::first($request->method, $request->request);
+        $previousTarget = null;
+        $redirectStatus = 0;
+        $secrets = $request->request->secrets();
 
         while (true) {
             try {
                 $pinned = $this->guard->pin($url);
             } catch (TargetRefusedException $refusal) {
-                return ProbeResult::failed($refusal->failureKind, $refusal->getMessage(), new ProbeTimings(dnsMs: $refusal->dnsMs, totalMs: $this->elapsedMs($startedAt)));
+                return $this->failed($secrets, $refusal->failureKind, $refusal->getMessage(), new ProbeTimings(dnsMs: $refusal->dnsMs, totalMs: $this->elapsedMs($startedAt)));
+            }
+            if ($previousTarget instanceof TargetUrl) {
+                $hop = ProbeHopRules::follow($hop, $redirectStatus, $previousTarget, $pinned->target);
             }
             $remainingSeconds = ($deadline - hrtime(true)) / self::NANOSECONDS_PER_SECOND;
             if ($remainingSeconds <= 0) {
-                return ProbeResult::failed(FailureKind::Timeout, "no time left before {$url}", new ProbeTimings(dnsMs: $pinned->dnsMs, totalMs: $this->elapsedMs($startedAt)));
+                return $this->failed($secrets, FailureKind::Timeout, "no time left before {$url}", new ProbeTimings(dnsMs: $pinned->dnsMs, totalMs: $this->elapsedMs($startedAt)));
             }
 
-            $hop = new TransferRecorder;
+            $transfer = new TransferRecorder;
             try {
-                $response = $this->pendingRequest($pinned, $remainingSeconds, $hop)->send($request->method->verb(), $url);
+                $response = $this->pendingRequest($pinned, $remainingSeconds, $transfer, $hop, $request->request)->send($hop->method->verb(), $url);
             } catch (RequestException $exception) {
                 $response = $exception->response;
             } catch (ConnectionException $exception) {
-                $kind = $hop->bodyCapExceeded ? FailureKind::BodyTooLarge : $this->failureKind($hop->errorCode);
+                $kind = $transfer->bodyCapExceeded ? FailureKind::BodyTooLarge : $this->failureKind($transfer->errorCode);
 
-                return ProbeResult::failed($kind, $exception->getMessage(), $this->timings($hop, $pinned, $startedAt), $hop->httpStatus);
+                return $this->failed($secrets, $kind, $exception->getMessage(), $this->timings($transfer, $pinned, $startedAt), $transfer->httpStatus);
             } catch (Throwable $exception) {
-                return ProbeResult::failed(FailureKind::Unknown, $exception->getMessage(), $this->timings($hop, $pinned, $startedAt), $hop->httpStatus);
+                return $this->failed($secrets, FailureKind::Unknown, $exception->getMessage(), $this->timings($transfer, $pinned, $startedAt), $transfer->httpStatus);
             }
 
-            $timings = $this->timings($hop, $pinned, $startedAt);
-            if ($hop->bodyCapExceeded) {
-                return ProbeResult::failed(FailureKind::BodyTooLarge, "body larger than {$this->settings->bodyReadCapBytes} bytes", $timings, $response->status());
+            $timings = $this->timings($transfer, $pinned, $startedAt);
+            if ($transfer->bodyCapExceeded) {
+                return $this->failed($secrets, FailureKind::BodyTooLarge, "body larger than {$this->settings->bodyReadCapBytes} bytes", $timings, $response->status());
             }
             $location = $response->header('Location');
             if (! $request->followRedirects || ! $response->redirect() || $location === '') {
                 return ProbeResult::responded($response->status(), $timings);
             }
             if ($redirects >= $this->settings->maxRedirects) {
-                return ProbeResult::failed(FailureKind::TooManyRedirects, "more than {$this->settings->maxRedirects} redirects", $timings, $response->status());
+                return $this->failed($secrets, FailureKind::TooManyRedirects, "more than {$this->settings->maxRedirects} redirects", $timings, $response->status());
             }
             try {
                 $url = (string) UriResolver::resolve(Utils::uriFor($url), Utils::uriFor($location));
             } catch (Throwable $exception) {
-                return ProbeResult::failed(FailureKind::Unknown, $exception->getMessage(), $timings, $response->status());
+                return $this->failed($secrets, FailureKind::Unknown, $exception->getMessage(), $timings, $response->status());
             }
+            $previousTarget = $pinned->target;
+            $redirectStatus = $response->status();
             $redirects++;
         }
     }
 
-    private function pendingRequest(PinnedTarget $pinned, float $remainingSeconds, TransferRecorder $hop): PendingRequest
+    private function failed(array $secrets, FailureKind $kind, string $message, ProbeTimings $timings, ?int $httpStatus = null): ProbeResult
+    {
+        return ProbeResult::failed($kind, DiagnosticRules::withoutSecrets($message, $secrets), $timings, $httpStatus);
+    }
+
+    private function pendingRequest(PinnedTarget $pinned, float $remainingSeconds, TransferRecorder $transfer, ProbeHop $hop, MonitorRequest $request): PendingRequest
     {
         $cap = $this->settings->bodyReadCapBytes;
-
-        return $this->http->withOptions([
+        $options = [
             'allow_redirects' => false,
             'http_errors' => false,
             'timeout' => $remainingSeconds,
             'connect_timeout' => min($this->settings->connectTimeoutSeconds, $remainingSeconds),
-            'headers' => ['User-Agent' => $this->settings->userAgent],
+            'headers' => ProbeHopRules::headers($hop, $request, $this->settings->userAgent),
             'protocols' => self::ALLOWED_PROTOCOLS,
             'proxy' => self::NO_PROXY,
             'curl' => [CURLOPT_CONNECT_TO => [$this->connectTo($pinned)]],
-            'on_stats' => static function (TransferStats $stats) use ($hop): void {
-                $hop->record($stats->getHandlerStats(), $stats->getHandlerErrorData(), $stats->getResponse()?->getStatusCode());
+            'on_stats' => static function (TransferStats $stats) use ($transfer): void {
+                $transfer->record($stats->getHandlerStats(), $stats->getHandlerErrorData(), $stats->getResponse()?->getStatusCode());
             },
-            'progress' => static fn (int $expectedBytes, int $receivedBytes): bool => $hop->exceedsBodyCap($receivedBytes, $cap),
-        ]);
+            'progress' => static fn (int $expectedBytes, int $receivedBytes): bool => $transfer->exceedsBodyCap($receivedBytes, $cap),
+        ];
+        if ($hop->sendsBody && $request->body !== null) {
+            $options['body'] = $request->body;
+        }
+
+        return $this->http->withOptions($options);
     }
 
     private function connectTo(PinnedTarget $pinned): string
@@ -131,9 +154,9 @@ final readonly class HttpProbe implements Probe
         };
     }
 
-    private function timings(TransferRecorder $hop, PinnedTarget $pinned, int $startedAt): ProbeTimings
+    private function timings(TransferRecorder $transfer, PinnedTarget $pinned, int $startedAt): ProbeTimings
     {
-        $stats = $hop->handlerStats;
+        $stats = $transfer->handlerStats;
         $lookup = $this->microseconds($stats, 'namelookup_time');
         $connect = $this->microseconds($stats, 'connect_time');
         $handshake = $this->microseconds($stats, 'appconnect_time');

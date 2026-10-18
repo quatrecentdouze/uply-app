@@ -44,7 +44,7 @@ final class Monitor extends Model
 
     public function probeRequest(): ProbeRequest
     {
-        return new ProbeRequest($this->url, $this->method, $this->timeout_seconds, $this->follow_redirects);
+        return new ProbeRequest($this->url, $this->method, $this->timeout_seconds, $this->follow_redirects, $this->checkRequest());
     }
 
     public function acceptedStatusCodes(): AcceptedStatusCodes

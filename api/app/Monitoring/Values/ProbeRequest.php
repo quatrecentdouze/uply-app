@@ -14,6 +14,7 @@ final readonly class ProbeRequest
         public HttpMethod $method,
         public int $timeoutSeconds,
         public bool $followRedirects,
+        public MonitorRequest $request,
     ) {
         if ($timeoutSeconds < 1) {
             throw new InvalidArgumentException('a probe needs a timeout of at least one second');

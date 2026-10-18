@@ -60,6 +60,11 @@ final class ProbeTargetServer
         return (int) substr($name, (int) strrpos($name, ':') + 1);
     }
 
+    public static function recordFile(string $id): string
+    {
+        return sys_get_temp_dir().DIRECTORY_SEPARATOR."uply-probe-{$id}.json";
+    }
+
     public function url(string $path): string
     {
         return "http://127.0.0.1:{$this->port}{$path}";

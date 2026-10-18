@@ -10,6 +10,24 @@ if (preg_match('#^/status/(\d{3})$#', $path, $matches) === 1) {
     exit('status '.$matches[1]);
 }
 
+if (preg_match('#^/record/([a-z0-9]+)$#', $path, $matches) === 1) {
+    $headers = array_change_key_case(getallheaders(), CASE_LOWER);
+    $record = ['method' => $_SERVER['REQUEST_METHOD'] ?? '', 'headers' => $headers, 'body' => (string) file_get_contents('php://input')];
+    file_put_contents(sys_get_temp_dir().DIRECTORY_SEPARATOR."uply-probe-{$matches[1]}.json", json_encode($record));
+    exit('recorded');
+}
+
+if (preg_match('#^/hop/(30[1-8])/([a-z0-9]+)$#', $path, $matches) === 1) {
+    header("Location: /record/{$matches[2]}", true, (int) $matches[1]);
+    exit;
+}
+
+if (preg_match('#^/hop-away/(30[1-8])/([a-z0-9]+)$#', $path, $matches) === 1) {
+    $port = (int) ($_SERVER['SERVER_PORT'] ?? 80);
+    header("Location: http://localhost:{$port}/record/{$matches[2]}", true, (int) $matches[1]);
+    exit;
+}
+
 switch ($path) {
     case '/slow':
         sleep(2);
