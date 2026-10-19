@@ -13,6 +13,8 @@ export function monitorFixture(overrides: Partial<Monitor> = {}): Monitor {
     timeout_seconds: 10,
     accepted_status_codes: ['200-299'],
     follow_redirects: true,
+    keyword: null,
+    keyword_match: 'present',
     failure_threshold: 2,
     recovery_threshold: 2,
     request_header_names: [],
