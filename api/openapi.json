@@ -4549,6 +4549,8 @@
                             "blocked_target",
                             "body_too_large",
                             "unknown",
+                            "keyword_missing",
+                            "keyword_found",
                             null
                         ]
                     },

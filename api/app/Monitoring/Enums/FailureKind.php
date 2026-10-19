@@ -15,4 +15,6 @@ enum FailureKind: string
     case BlockedTarget = 'blocked_target';
     case BodyTooLarge = 'body_too_large';
     case Unknown = 'unknown';
+    case KeywordMissing = 'keyword_missing';
+    case KeywordFound = 'keyword_found';
 }

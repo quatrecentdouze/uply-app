@@ -714,7 +714,7 @@ export interface components {
             /** @enum {string} */
             outcome: "up" | "down";
             /** @enum {string|null} */
-            failure_kind: "timeout" | "dns" | "connect" | "tls" | "http_status" | "too_many_redirects" | "blocked_target" | "body_too_large" | "unknown" | null;
+            failure_kind: "timeout" | "dns" | "connect" | "tls" | "http_status" | "too_many_redirects" | "blocked_target" | "body_too_large" | "unknown" | "keyword_missing" | "keyword_found" | null;
             http_status: number | null;
             response_ms: number | null;
             dns_ms: number | null;
