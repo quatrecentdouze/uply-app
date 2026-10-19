@@ -47,6 +47,9 @@ return [
             'proxy-connection',
         ],
     ],
+    'certificate' => [
+        'expiry_alert_days' => [14, 7, 1],
+    ],
     'dispatch' => [
         'tick_seconds' => 10,
         'batch_size' => 500,

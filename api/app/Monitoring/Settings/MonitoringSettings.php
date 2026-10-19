@@ -15,5 +15,6 @@ final readonly class MonitoringSettings
         public RetentionSettings $retention,
         public MonitorLimits $limits,
         public RequestSettings $request,
+        public CertificateSettings $certificate,
     ) {}
 }

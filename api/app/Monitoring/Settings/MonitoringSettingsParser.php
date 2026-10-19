@@ -34,7 +34,22 @@ final class MonitoringSettingsParser
                 keywordMaxLength: $reader->integer('limits.keyword_max_length', 1),
             ),
             request: $this->request($reader),
+            certificate: $this->certificate($reader),
         );
+    }
+
+    private function certificate(SettingsReader $reader): CertificateSettings
+    {
+        $days = $reader->integerList('certificate.expiry_alert_days', 1);
+        $previous = PHP_INT_MAX;
+        foreach ($days as $day) {
+            if ($day >= $previous) {
+                throw $reader->invalid('certificate.expiry_alert_days', 'must be descending without duplicates');
+            }
+            $previous = $day;
+        }
+
+        return new CertificateSettings($days);
     }
 
     private function request(SettingsReader $reader): RequestSettings
