@@ -38,12 +38,12 @@ function probeSettings(bool $allowPrivateTargets): ProbeSettings
     );
 }
 
-function probeTarget(string $path, int $timeoutSeconds = 5, bool $followRedirects = true, HttpMethod $method = HttpMethod::Get, ?TargetGuard $guard = null, ?MonitorRequest $request = null): ProbeResult
+function probeTarget(string $path, int $timeoutSeconds = 5, bool $followRedirects = true, HttpMethod $method = HttpMethod::Get, ?TargetGuard $guard = null, ?MonitorRequest $request = null, bool $readsBody = false): ProbeResult
 {
     $settings = probeSettings(true);
     $probe = new HttpProbe(new Factory, $guard ?? new DnsTargetGuard(new SystemHostResolver, $settings), $settings);
 
-    return $probe->run(new ProbeRequest(ProbeTargetServer::boot()->url($path), $method, $timeoutSeconds, $followRedirects, $request ?? MonitorRequest::none()));
+    return $probe->run(new ProbeRequest(ProbeTargetServer::boot()->url($path), $method, $timeoutSeconds, $followRedirects, $request ?? MonitorRequest::none(), $readsBody));
 }
 
 function recordedBy(string $path, HttpMethod $method, MonitorRequest $request): array
@@ -227,4 +227,29 @@ it('keeps the secrets of the monitor out of a diagnostic', function (): void {
     expect($result->failureKind)->toBe(FailureKind::BlockedTarget)
         ->and($result->errorMessage)->not->toContain('probe-path-secret')
         ->and($result->errorMessage)->toContain('[secret]');
+});
+
+it('gives the decoded body back only when it is asked for', function (): void {
+    $read = probeTarget('/gzip-keyword', readsBody: true);
+
+    expect($read->httpStatus)->toBe(200)
+        ->and($read->body)->toContain('uply-keyword-ok')
+        ->and(probeTarget('/gzip-keyword')->body)->toBeNull()
+        ->and(probeTarget('/keyword-page', readsBody: true)->body)->toBe('Status: all systems go, uply-keyword-ok');
+});
+
+it('stops a compressed body that grows past the cap once decoded', function (): void {
+    $read = probeTarget('/gzip-big', readsBody: true);
+
+    expect($read->failureKind)->toBe(FailureKind::BodyTooLarge)
+        ->and($read->body)->toBeNull()
+        ->and(probeTarget('/gzip-big')->failureKind)->toBeNull();
+});
+
+it('reads a body of exactly the cap', function (): void {
+    $read = probeTarget('/cap-exact', readsBody: true);
+
+    expect($read->failureKind)->toBeNull()
+        ->and(strlen((string) $read->body))->toBe(probeSettings(true)->bodyReadCapBytes)
+        ->and(str_ends_with((string) $read->body, 'uply-tail'))->toBeTrue();
 });

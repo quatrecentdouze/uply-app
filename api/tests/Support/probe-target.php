@@ -44,6 +44,16 @@ switch ($path) {
     case '/redirect-metadata':
         header('Location: http://169.254.169.254/latest/meta-data/', true, 302);
         exit;
+    case '/keyword-page':
+        exit('Status: all systems go, uply-keyword-ok');
+    case '/gzip-keyword':
+        header('Content-Encoding: gzip');
+        exit(gzencode('<html><body>uply-keyword-ok</body></html>'));
+    case '/gzip-big':
+        header('Content-Encoding: gzip');
+        exit(gzencode(str_repeat('u', $twoMebibytes)));
+    case '/cap-exact':
+        exit(str_repeat('u', $twoMebibytes / 2 - strlen('uply-tail')).'uply-tail');
     case '/big':
         exit(str_repeat('u', $twoMebibytes));
     case '/big-declared':

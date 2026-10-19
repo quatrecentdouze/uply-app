@@ -8,7 +8,6 @@ use App\Monitoring\Enums\FailureKind;
 use App\Monitoring\Rules\DiagnosticRules;
 use App\Monitoring\Rules\ProbeHopRules;
 use App\Monitoring\Settings\ProbeSettings;
-use App\Monitoring\Values\MonitorRequest;
 use App\Monitoring\Values\PinnedTarget;
 use App\Monitoring\Values\ProbeHop;
 use App\Monitoring\Values\ProbeRequest;
@@ -16,6 +15,7 @@ use App\Monitoring\Values\ProbeResult;
 use App\Monitoring\Values\ProbeTimings;
 use App\Monitoring\Values\TargetRefusedException;
 use App\Monitoring\Values\TargetUrl;
+use GuzzleHttp\Psr7\FnStream;
 use GuzzleHttp\Psr7\UriResolver;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\TransferStats;
@@ -23,6 +23,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
+use Psr\Http\Message\StreamInterface;
 use Throwable;
 
 final readonly class HttpProbe implements Probe
@@ -38,6 +39,8 @@ final readonly class HttpProbe implements Probe
     private const array ALLOWED_PROTOCOLS = ['http', 'https'];
 
     private const array NO_PROXY = ['no' => ['*']];
+
+    private const string BODY_BUFFER = 'php://temp';
 
     public function __construct(
         private Factory $http,
@@ -72,7 +75,7 @@ final readonly class HttpProbe implements Probe
 
             $transfer = new TransferRecorder;
             try {
-                $response = $this->pendingRequest($pinned, $remainingSeconds, $transfer, $hop, $request->request)->send($hop->method->verb(), $url);
+                $response = $this->pendingRequest($pinned, $remainingSeconds, $transfer, $hop, $request)->send($hop->method->verb(), $url);
             } catch (RequestException $exception) {
                 $response = $exception->response;
             } catch (ConnectionException $exception) {
@@ -80,7 +83,9 @@ final readonly class HttpProbe implements Probe
 
                 return $this->failed($secrets, $kind, $exception->getMessage(), $this->timings($transfer, $pinned, $startedAt), $transfer->httpStatus);
             } catch (Throwable $exception) {
-                return $this->failed($secrets, FailureKind::Unknown, $exception->getMessage(), $this->timings($transfer, $pinned, $startedAt), $transfer->httpStatus);
+                $kind = $transfer->bodyCapExceeded ? FailureKind::BodyTooLarge : FailureKind::Unknown;
+
+                return $this->failed($secrets, $kind, $exception->getMessage(), $this->timings($transfer, $pinned, $startedAt), $transfer->httpStatus);
             }
 
             $timings = $this->timings($transfer, $pinned, $startedAt);
@@ -89,7 +94,7 @@ final readonly class HttpProbe implements Probe
             }
             $location = $response->header('Location');
             if (! $request->followRedirects || ! $response->redirect() || $location === '') {
-                return ProbeResult::responded($response->status(), $timings);
+                return ProbeResult::responded($response->status(), $timings, $request->readsBody ? $response->body() : null);
             }
             if ($redirects >= $this->settings->maxRedirects) {
                 return $this->failed($secrets, FailureKind::TooManyRedirects, "more than {$this->settings->maxRedirects} redirects", $timings, $response->status());
@@ -110,9 +115,10 @@ final readonly class HttpProbe implements Probe
         return ProbeResult::failed($kind, DiagnosticRules::withoutSecrets($message, $secrets), $timings, $httpStatus);
     }
 
-    private function pendingRequest(PinnedTarget $pinned, float $remainingSeconds, TransferRecorder $transfer, ProbeHop $hop, MonitorRequest $request): PendingRequest
+    private function pendingRequest(PinnedTarget $pinned, float $remainingSeconds, TransferRecorder $transfer, ProbeHop $hop, ProbeRequest $probeRequest): PendingRequest
     {
         $cap = $this->settings->bodyReadCapBytes;
+        $request = $probeRequest->request;
         $options = [
             'allow_redirects' => false,
             'http_errors' => false,
@@ -126,12 +132,32 @@ final readonly class HttpProbe implements Probe
                 $transfer->record($stats->getHandlerStats(), $stats->getHandlerErrorData(), $stats->getResponse()?->getStatusCode());
             },
             'progress' => static fn (int $expectedBytes, int $receivedBytes): bool => $transfer->exceedsBodyCap($receivedBytes, $cap),
+            'sink' => $this->sink($transfer, $probeRequest->readsBody),
         ];
         if ($hop->sendsBody && $request->body !== null) {
             $options['body'] = $request->body;
         }
 
         return $this->http->withOptions($options);
+    }
+
+    private function sink(TransferRecorder $transfer, bool $keepsBody): StreamInterface
+    {
+        $cap = $this->settings->bodyReadCapBytes;
+        $buffer = Utils::streamFor(Utils::tryFopen(self::BODY_BUFFER, 'r+'));
+
+        return FnStream::decorate($buffer, [
+            'write' => static function (string $data) use ($buffer, $transfer, $cap, $keepsBody): int {
+                if (! $keepsBody) {
+                    return strlen($data);
+                }
+                if ($transfer->exceedsBodyCap(($buffer->getSize() ?? 0) + strlen($data), $cap)) {
+                    return 0;
+                }
+
+                return $buffer->write($data);
+            },
+        ]);
     }
 
     private function connectTo(PinnedTarget $pinned): string
