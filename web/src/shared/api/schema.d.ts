@@ -769,6 +769,11 @@ export interface components {
             email: string;
             role: components["schemas"]["Role"];
         };
+        /**
+         * KeywordMatch
+         * @enum {string}
+         */
+        KeywordMatch: "present" | "absent";
         /** LinkChannelsRequest */
         LinkChannelsRequest: {
             channel_ids: string[];
@@ -824,6 +829,9 @@ export interface components {
             timeout_seconds: number;
             accepted_status_codes: string[];
             follow_redirects: boolean;
+            keyword: string | null;
+            /** @enum {string} */
+            keyword_match: "present" | "absent";
             failure_threshold: number;
             recovery_threshold: number;
             request_header_names: string[];
@@ -985,6 +993,8 @@ export interface components {
             timeout_seconds?: number;
             accepted_status_codes?: string[];
             follow_redirects?: boolean;
+            keyword?: string | null;
+            keyword_match?: components["schemas"]["KeywordMatch"];
             failure_threshold?: number;
             recovery_threshold?: number;
             request_headers?: {
@@ -1048,6 +1058,8 @@ export interface components {
             timeout_seconds?: number;
             accepted_status_codes?: string[];
             follow_redirects?: boolean;
+            keyword?: string | null;
+            keyword_match?: components["schemas"]["KeywordMatch"];
             failure_threshold?: number;
             recovery_threshold?: number;
             request_headers?: {

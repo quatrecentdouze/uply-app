@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Monitoring\Http\Requests;
 
 use App\Monitoring\Enums\HttpMethod;
+use App\Monitoring\Enums\KeywordMatch;
 use App\Monitoring\Settings\MonitoringSettings;
 use App\Monitoring\Values\RequestHeader;
 use Illuminate\Http\Request;
@@ -18,9 +19,11 @@ final readonly class MonitorFieldRules
 
     public const int HEADER_NAME_MIN_LENGTH = 1;
 
+    public const int KEYWORD_MIN_LENGTH = 1;
+
     public const bool DEFAULT_FOLLOW_REDIRECTS = true;
 
-    private const array CONFLICTING_FIELDS = ['request_body'];
+    private const array CONFLICTING_FIELDS = ['request_body', 'keyword'];
 
     public function __construct(private MonitoringSettings $settings) {}
 
@@ -41,6 +44,8 @@ final readonly class MonitorFieldRules
             'accepted_status_codes' => ['sometimes', 'array', 'list', 'min:1', 'max:'.$limits->maxAcceptedStatusRanges],
             'accepted_status_codes.*' => ['string', new ValidStatusCodeRange],
             'follow_redirects' => ['sometimes', 'boolean'],
+            'keyword' => ['sometimes', 'nullable', 'string', 'min:'.self::KEYWORD_MIN_LENGTH, 'max:'.$limits->keywordMaxLength],
+            'keyword_match' => ['sometimes', 'string', Rule::enum(KeywordMatch::class)],
             'failure_threshold' => $threshold,
             'recovery_threshold' => $threshold,
             'request_headers' => ['sometimes', 'array', 'list', 'max:'.$request->maxHeaders],
@@ -76,6 +81,11 @@ final readonly class MonitorFieldRules
     public static function bodyFrom(mixed $value): ?string
     {
         return is_string($value) ? $value : null;
+    }
+
+    public static function keywordFrom(mixed $value): ?string
+    {
+        return is_string($value) && $value !== '' ? $value : null;
     }
 
     public static function sentFields(Request $request): array

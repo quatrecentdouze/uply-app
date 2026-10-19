@@ -16,6 +16,7 @@ return [
         'refused_header' => 'Uply sets this header itself, a monitor cannot send it.',
         'conflict' => [
             'request_body' => 'Only a POST, PUT or PATCH request sends a body.',
+            'keyword' => 'A HEAD request gets no body to look for a keyword in.',
         ],
     ],
 ];

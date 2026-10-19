@@ -31,6 +31,8 @@ final class MonitorResource extends JsonResource
             'timeout_seconds' => $this->monitor->timeout_seconds,
             'accepted_status_codes' => $this->acceptedStatusCodes(),
             'follow_redirects' => $this->monitor->follow_redirects,
+            'keyword' => $this->monitor->keyword,
+            'keyword_match' => $this->monitor->keyword_match->value,
             'failure_threshold' => $this->monitor->failure_threshold,
             'recovery_threshold' => $this->monitor->recovery_threshold,
             'request_header_names' => $this->monitor->checkRequest()->headerNames(),

@@ -7,6 +7,7 @@ namespace App\Monitoring\Enums;
 enum DraftConflict: string
 {
     case BodyWithoutBodyMethod = 'request_body';
+    case KeywordWithoutBody = 'keyword';
 
     public function field(): string
     {

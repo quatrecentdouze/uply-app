@@ -15,6 +15,9 @@ final class MonitorDraftRules
         if ($draft->request->hasBody() && ! $draft->method->sendsBody()) {
             $conflicts[] = DraftConflict::BodyWithoutBodyMethod;
         }
+        if ($draft->keyword !== null && ! $draft->method->receivesBody()) {
+            $conflicts[] = DraftConflict::KeywordWithoutBody;
+        }
 
         return $conflicts;
     }

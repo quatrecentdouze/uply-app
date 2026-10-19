@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Monitoring\Http\Requests;
 
 use App\Monitoring\Enums\HttpMethod;
+use App\Monitoring\Enums\KeywordMatch;
 use App\Monitoring\Settings\MonitoringSettings;
 use App\Monitoring\Storage\MonitorQuery;
 use App\Monitoring\Values\AcceptedStatusCodes;
@@ -46,8 +47,8 @@ final class UpdateMonitorRequest extends FormRequest
             timeoutSeconds: $this->has('timeout_seconds') ? $this->integer('timeout_seconds') : $current->timeoutSeconds,
             acceptedStatusCodes: $this->has('accepted_status_codes') ? AcceptedStatusCodes::parse($this->array('accepted_status_codes')) : $current->acceptedStatusCodes,
             followRedirects: $this->has('follow_redirects') ? $this->boolean('follow_redirects') : $current->followRedirects,
-            keyword: $current->keyword,
-            keywordMatch: $current->keywordMatch,
+            keyword: $this->has('keyword') ? MonitorFieldRules::keywordFrom($this->input('keyword')) : $current->keyword,
+            keywordMatch: $this->has('keyword_match') ? KeywordMatch::from($this->string('keyword_match')->toString()) : $current->keywordMatch,
             thresholds: new ConfirmationThresholds(
                 $this->has('failure_threshold') ? $this->integer('failure_threshold') : $current->thresholds->failuresToConfirmDown,
                 $this->has('recovery_threshold') ? $this->integer('recovery_threshold') : $current->thresholds->successesToConfirmUp,

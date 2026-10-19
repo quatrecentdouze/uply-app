@@ -4794,6 +4794,14 @@
                 ],
                 "title": "InviteRequest"
             },
+            "KeywordMatch": {
+                "type": "string",
+                "enum": [
+                    "present",
+                    "absent"
+                ],
+                "title": "KeywordMatch"
+            },
             "LinkChannelsRequest": {
                 "type": "object",
                 "properties": {
@@ -5013,6 +5021,19 @@
                     "follow_redirects": {
                         "type": "boolean"
                     },
+                    "keyword": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "keyword_match": {
+                        "type": "string",
+                        "enum": [
+                            "present",
+                            "absent"
+                        ]
+                    },
                     "failure_threshold": {
                         "type": "integer"
                     },
@@ -5085,6 +5106,8 @@
                     "timeout_seconds",
                     "accepted_status_codes",
                     "follow_redirects",
+                    "keyword",
+                    "keyword_match",
                     "failure_threshold",
                     "recovery_threshold",
                     "request_header_names",
@@ -5700,6 +5723,17 @@
                     "follow_redirects": {
                         "type": "boolean"
                     },
+                    "keyword": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 200
+                    },
+                    "keyword_match": {
+                        "$ref": "#/components/schemas/KeywordMatch"
+                    },
                     "failure_threshold": {
                         "type": "integer",
                         "minimum": 1,
@@ -5992,6 +6026,17 @@
                     },
                     "follow_redirects": {
                         "type": "boolean"
+                    },
+                    "keyword": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 200
+                    },
+                    "keyword_match": {
+                        "$ref": "#/components/schemas/KeywordMatch"
                     },
                     "failure_threshold": {
                         "type": "integer",
