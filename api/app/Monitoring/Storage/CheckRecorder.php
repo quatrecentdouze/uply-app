@@ -62,7 +62,7 @@ final readonly class CheckRecorder
             'connect_ms' => $timings->connectMs,
             'tls_ms' => $timings->tlsMs,
             'ttfb_ms' => $timings->ttfbMs,
-            'error_message' => $check->result->errorMessage,
+            'error_message' => $check->errorMessage(),
         ]);
     }
 
@@ -114,7 +114,7 @@ final readonly class CheckRecorder
                 confirmedAt: $check->checkedAt,
                 failureKind: $check->verdict->failureKind ?? FailureKind::Unknown,
                 httpStatus: $check->result->httpStatus,
-                errorMessage: $check->result->errorMessage,
+                errorMessage: $check->errorMessage(),
             ));
         }
         if ($advance->transition === StateTransition::Recovered) {

@@ -15,4 +15,9 @@ final readonly class CompletedCheck
         public ProbeResult $result,
         public CheckVerdict $verdict,
     ) {}
+
+    public function errorMessage(): ?string
+    {
+        return $this->verdict->diagnostic ?? $this->result->errorMessage;
+    }
 }
