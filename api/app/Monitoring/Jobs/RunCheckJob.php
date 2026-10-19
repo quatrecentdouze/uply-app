@@ -30,8 +30,8 @@ final class RunCheckJob implements ShouldQueue
         }
         $checkedAt = $context->clock->now()->startOfSecond();
         $result = $context->probe->run($monitor->probeRequest());
-        $verdict = CheckOutcomeRules::evaluate($monitor->acceptedStatusCodes(), $result);
+        $verdict = CheckOutcomeRules::evaluate($monitor->acceptedStatusCodes(), $result, $monitor->keyword());
 
-        $context->recorder->record(new CompletedCheck($this->monitorId, $this->scheduledAt, $checkedAt, $result, $verdict));
+        $context->recorder->record(new CompletedCheck($this->monitorId, $this->scheduledAt, $checkedAt, $result->withoutBody(), $verdict));
     }
 }

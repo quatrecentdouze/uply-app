@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Monitoring\Enums\DraftConflict;
 use App\Monitoring\Enums\HttpMethod;
+use App\Monitoring\Enums\KeywordMatch;
 use App\Monitoring\Rules\MonitorDraftRules;
 use App\Monitoring\Values\AcceptedStatusCodes;
 use App\Monitoring\Values\ConfirmationThresholds;
@@ -20,6 +21,8 @@ function draftWith(HttpMethod $method, ?string $body): MonitorDraft
         10,
         AcceptedStatusCodes::parse(['200-299']),
         true,
+        null,
+        KeywordMatch::Present,
         new ConfirmationThresholds(2, 2),
         new MonitorRequest([], $body),
     );

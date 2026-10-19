@@ -34,6 +34,7 @@ it('skips a monitor row locked by another dispatcher', function (): void {
             'accepted_status_codes' => '["200-299"]',
             'failure_threshold' => 2,
             'recovery_threshold' => 2,
+            'keyword_match' => 'present',
             'next_check_at' => '2027-03-10 11:59:00+00',
         ]);
         $locker->beginTransaction();

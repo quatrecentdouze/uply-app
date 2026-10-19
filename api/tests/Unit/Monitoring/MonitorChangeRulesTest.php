@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Monitoring\Enums\HttpMethod;
+use App\Monitoring\Enums\KeywordMatch;
 use App\Monitoring\Rules\MonitorChangeRules;
 use App\Monitoring\Values\AcceptedStatusCodes;
 use App\Monitoring\Values\CheckDefinition;
@@ -20,6 +21,8 @@ function definition(array $changes = []): CheckDefinition
         'interval' => 300,
         'paused' => false,
         'request' => new MonitorRequest([new RequestHeader('Authorization', 'Bearer a')], null),
+        'keyword' => 'All systems go',
+        'keywordMatch' => KeywordMatch::Present,
     ], ...$changes];
 
     return new CheckDefinition(
@@ -30,6 +33,8 @@ function definition(array $changes = []): CheckDefinition
         $values['interval'],
         $values['paused'],
         $values['request'],
+        $values['keyword'],
+        $values['keywordMatch'],
     );
 }
 
@@ -52,6 +57,9 @@ it('checks at once and clears the streak when what is judged changes', function 
     'header value' => [['request' => new MonitorRequest([new RequestHeader('Authorization', 'Bearer b')], null)]],
     'header removed' => [['request' => MonitorRequest::none()]],
     'body' => [['request' => new MonitorRequest([new RequestHeader('Authorization', 'Bearer a')], '{}')]],
+    'keyword' => [['keyword' => 'Operational']],
+    'keyword removed' => [['keyword' => null]],
+    'keyword match' => [['keywordMatch' => KeywordMatch::Absent]],
 ]);
 
 it('keeps the streak and the schedule for a rename or a timeout change', function (): void {

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Monitoring\Models;
 
 use App\Monitoring\Enums\HttpMethod;
+use App\Monitoring\Enums\KeywordMatch;
 use App\Monitoring\Enums\MonitorState;
 use App\Monitoring\Values\AcceptedStatusCodes;
 use App\Monitoring\Values\CheckDefinition;
 use App\Monitoring\Values\ConfirmationThresholds;
+use App\Monitoring\Values\Keyword;
 use App\Monitoring\Values\MonitorDraft;
 use App\Monitoring\Values\MonitorRequest;
 use App\Monitoring\Values\MonitorStateSnapshot;
@@ -30,6 +32,8 @@ use LogicException;
     'timeout_seconds',
     'accepted_status_codes',
     'follow_redirects',
+    'keyword',
+    'keyword_match',
     'failure_threshold',
     'recovery_threshold',
     'request',
@@ -44,7 +48,19 @@ final class Monitor extends Model
 
     public function probeRequest(): ProbeRequest
     {
-        return new ProbeRequest($this->url, $this->method, $this->timeout_seconds, $this->follow_redirects, $this->checkRequest());
+        return new ProbeRequest(
+            $this->url,
+            $this->method,
+            $this->timeout_seconds,
+            $this->follow_redirects,
+            $this->checkRequest(),
+            $this->keyword() !== null && $this->method->receivesBody(),
+        );
+    }
+
+    public function keyword(): ?Keyword
+    {
+        return $this->keyword === null || $this->keyword === '' ? null : new Keyword($this->keyword, $this->keyword_match);
     }
 
     public function acceptedStatusCodes(): AcceptedStatusCodes
@@ -87,6 +103,8 @@ final class Monitor extends Model
             $this->timeout_seconds,
             $this->acceptedStatusCodes(),
             $this->follow_redirects,
+            $this->keyword,
+            $this->keyword_match,
             $this->confirmationThresholds(),
             $this->checkRequest(),
         );
@@ -102,6 +120,8 @@ final class Monitor extends Model
             $this->interval_seconds,
             $this->is_paused,
             $this->checkRequest(),
+            $this->keyword,
+            $this->keyword_match,
         );
     }
 
@@ -126,6 +146,8 @@ final class Monitor extends Model
         $this->timeout_seconds = $draft->timeoutSeconds;
         $this->setAttribute('accepted_status_codes', $draft->acceptedStatusCodes->toTexts());
         $this->follow_redirects = $draft->followRedirects;
+        $this->keyword = $draft->keyword;
+        $this->keyword_match = $draft->keywordMatch;
         $this->failure_threshold = $draft->thresholds->failuresToConfirmDown;
         $this->recovery_threshold = $draft->thresholds->successesToConfirmUp;
         $this->setAttribute('request', $draft->request->toStored());
@@ -147,6 +169,7 @@ final class Monitor extends Model
     {
         return [
             'method' => HttpMethod::class,
+            'keyword_match' => KeywordMatch::class,
             'state' => MonitorState::class,
             'accepted_status_codes' => 'array',
             'request' => 'encrypted:array',
