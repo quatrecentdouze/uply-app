@@ -32,6 +32,8 @@ return [
         'blocked_target' => 'Blocked target',
         'body_too_large' => 'Response too large',
         'unknown' => 'Unknown error',
+        'keyword_missing' => 'Keyword not found',
+        'keyword_found' => 'Unwanted keyword found',
     ],
     'duration' => [
         'days' => ':count d',

@@ -15,6 +15,7 @@ use App\Alerting\Values\EmailRecipients;
 use App\Alerting\Values\WebhookUrl;
 use App\Monitoring\Contracts\MonitorStatus;
 use App\Monitoring\Contracts\MonitorView;
+use App\Monitoring\Enums\FailureKind;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -58,6 +59,19 @@ it('builds the down, up and test texts from the language file', function (): voi
         ->and($test->color)->toBe('#f36e29')
         ->and($builder->down(hostileMonitor(), '01', CarbonImmutable::now(), 'timeout', null)->fields[0]->text)->toBe('Timeout')
         ->and($builder->down(hostileMonitor(), '01', CarbonImmutable::now(), 'never_heard_of', null)->fields[0]->text)->toBe('Unknown error');
+});
+
+it('names every failure kind with a text of its own', function (FailureKind $kind): void {
+    $cause = app(AlertMessageBuilder::class)->down(hostileMonitor(), '01', CarbonImmutable::now(), $kind->value, 503)->fields[0]->text;
+
+    expect($cause === 'Unknown error')->toBe($kind === FailureKind::Unknown);
+})->with(FailureKind::cases());
+
+it('names the keyword failures', function (): void {
+    $builder = app(AlertMessageBuilder::class);
+
+    expect($builder->down(hostileMonitor(), '01', CarbonImmutable::now(), 'keyword_missing', 200)->fields[0]->text)->toBe('Keyword not found')
+        ->and($builder->down(hostileMonitor(), '01', CarbonImmutable::now(), 'keyword_found', 200)->fields[0]->text)->toBe('Unwanted keyword found');
 });
 
 it('posts one discord embed that pings nobody', function (): void {
