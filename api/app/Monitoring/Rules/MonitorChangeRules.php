@@ -14,8 +14,9 @@ final class MonitorChangeRules
     {
         $clearsStreak = ! $before->judgesLike($after);
         $resumed = $before->isPaused && ! $after->isPaused;
+        $forgetsCertificate = $before->url !== $after->url;
         if ($clearsStreak || $resumed) {
-            return new MonitorChangePlan($clearsStreak, $now);
+            return new MonitorChangePlan($clearsStreak, $now, $forgetsCertificate);
         }
         if ($before->intervalSeconds !== $after->intervalSeconds) {
             return new MonitorChangePlan(false, $nextCheckAt->min($now->addSeconds($after->intervalSeconds)));

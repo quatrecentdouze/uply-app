@@ -7,13 +7,16 @@ namespace App\Monitoring\Storage;
 use App\Monitoring\Enums\CheckOutcome;
 use App\Monitoring\Enums\FailureKind;
 use App\Monitoring\Enums\StateTransition;
+use App\Monitoring\Events\CertificateExpiringEvent;
 use App\Monitoring\Events\CheckCompletedEvent;
 use App\Monitoring\Events\MonitorRecoveredEvent;
 use App\Monitoring\Events\MonitorWentDownEvent;
 use App\Monitoring\Models\Monitor;
+use App\Monitoring\Rules\CertificateExpiryRules;
 use App\Monitoring\Rules\CheckScheduleRules;
 use App\Monitoring\Rules\MonitorStateRules;
 use App\Monitoring\Settings\MonitoringSettings;
+use App\Monitoring\Values\CertificateWatch;
 use App\Monitoring\Values\CompletedCheck;
 use App\Monitoring\Values\StateAdvance;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -38,14 +41,44 @@ final readonly class CheckRecorder
             $advance = MonitorStateRules::advance($monitor->stateSnapshot(), $check->verdict, $monitor->confirmationThresholds(), $check->checkedAt);
             $nextCheckAt = CheckScheduleRules::nextCheckAt($check->scheduledAt, $check->checkedAt, $monitor->interval_seconds, $confirmation->recheckDelaySeconds, $advance->awaitsConfirmation);
 
+            $certificate = $this->watchCertificate($monitor, $check);
+
             $this->insertResult($check);
             $this->addToHourlyStats($check);
             $monitor->applyCheck($advance->snapshot, $check->checkedAt, $check->result->responseMs(), $nextCheckAt);
+            if ($certificate !== null) {
+                $monitor->watchCertificate($certificate);
+            }
             $monitor->save();
             $this->announce($monitor, $check, $advance);
+            $this->announceCertificate($monitor, $check, $certificate);
 
             return true;
         });
+    }
+
+    private function watchCertificate(Monitor $monitor, CompletedCheck $check): ?CertificateWatch
+    {
+        $seenExpiry = $check->result->tlsExpiresAt;
+        if ($seenExpiry === null) {
+            return null;
+        }
+
+        return CertificateExpiryRules::watch($monitor->tls_expires_at, $monitor->tls_alerted_days, $seenExpiry, $check->checkedAt, $this->settings->certificate->expiryAlertDays);
+    }
+
+    private function announceCertificate(Monitor $monitor, CompletedCheck $check, ?CertificateWatch $certificate): void
+    {
+        if ($certificate?->alertDays === null) {
+            return;
+        }
+        $this->events->dispatch(new CertificateExpiringEvent(
+            monitorId: $monitor->id,
+            organizationId: $monitor->organization_id,
+            expiresAt: $certificate->expiresAt,
+            days: $certificate->alertDays,
+            detectedAt: $check->checkedAt,
+        ));
     }
 
     private function insertResult(CompletedCheck $check): void

@@ -25,6 +25,9 @@ final readonly class UpdateMonitor
             if ($plan->clearsStreak) {
                 $locked->clearStreak();
             }
+            if ($plan->forgetsCertificate) {
+                $locked->forgetCertificate();
+            }
             $locked->next_check_at = $plan->nextCheckAt;
             if (! $locked->isDirty()) {
                 return $locked;

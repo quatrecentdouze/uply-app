@@ -11,5 +11,6 @@ final readonly class MonitorChangePlan
     public function __construct(
         public bool $clearsStreak,
         public CarbonImmutable $nextCheckAt,
+        public bool $forgetsCertificate = false,
     ) {}
 }

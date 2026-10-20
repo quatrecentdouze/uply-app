@@ -8,6 +8,7 @@ use App\Monitoring\Enums\HttpMethod;
 use App\Monitoring\Enums\KeywordMatch;
 use App\Monitoring\Enums\MonitorState;
 use App\Monitoring\Values\AcceptedStatusCodes;
+use App\Monitoring\Values\CertificateWatch;
 use App\Monitoring\Values\CheckDefinition;
 use App\Monitoring\Values\ConfirmationThresholds;
 use App\Monitoring\Values\Keyword;
@@ -130,6 +131,18 @@ final class Monitor extends Model
         return $this->next_check_at ?? throw new LogicException("monitor {$this->id} has no next check time");
     }
 
+    public function watchCertificate(CertificateWatch $watch): void
+    {
+        $this->tls_expires_at = $watch->expiresAt;
+        $this->tls_alerted_days = $watch->alertedDays;
+    }
+
+    public function forgetCertificate(): void
+    {
+        $this->tls_expires_at = null;
+        $this->tls_alerted_days = null;
+    }
+
     public function clearStreak(): void
     {
         $this->consecutive_failures = 0;
@@ -179,6 +192,7 @@ final class Monitor extends Model
             'state_changed_at' => 'immutable_datetime',
             'last_checked_at' => 'immutable_datetime',
             'next_check_at' => 'immutable_datetime',
+            'tls_expires_at' => 'immutable_datetime',
             'created_at' => 'immutable_datetime',
             'updated_at' => 'immutable_datetime',
         ];
