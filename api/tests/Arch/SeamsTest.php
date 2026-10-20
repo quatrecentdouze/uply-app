@@ -7,7 +7,7 @@ $seams = [
     'Organizations' => [],
     'Monitoring' => ['Organizations\Contracts'],
     'Incidents' => ['Organizations\Contracts', 'Monitoring\Events', 'Monitoring\Contracts', 'Alerting\Events'],
-    'Alerting' => ['Organizations\Contracts', 'Monitoring\Contracts', 'Incidents\Events'],
+    'Alerting' => ['Organizations\Contracts', 'Monitoring\Contracts', 'Monitoring\Events', 'Incidents\Events'],
     'StatusPages' => ['Organizations\Contracts', 'Monitoring\Contracts', 'Incidents\Contracts'],
     'Realtime' => ['Organizations\Contracts', 'Monitoring\Events', 'Incidents\Events'],
 ];

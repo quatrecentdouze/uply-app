@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Alerting\Console\SendTestAlertCommand;
 use App\Alerting\Http\AlertingMetaSection;
 use App\Alerting\Jobs\SendAlertJob;
+use App\Alerting\Listeners\QueueCertificateAlerts;
 use App\Alerting\Listeners\QueueDownAlerts;
 use App\Alerting\Listeners\QueueUpAlerts;
 use App\Alerting\Models\AlertChannel;
@@ -15,6 +16,7 @@ use App\Alerting\Settings\AlertingSettings;
 use App\Alerting\Settings\AlertingSettingsParser;
 use App\Incidents\Events\IncidentOpenedEvent;
 use App\Incidents\Events\IncidentResolvedEvent;
+use App\Monitoring\Events\CertificateExpiringEvent;
 use App\Shared\Meta\MetaSection;
 use App\Shared\Settings\InvalidSettingException;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -46,6 +48,7 @@ final class AlertingServiceProvider extends ServiceProvider
 
         Event::listen(IncidentOpenedEvent::class, QueueDownAlerts::class);
         Event::listen(IncidentResolvedEvent::class, QueueUpAlerts::class);
+        Event::listen(CertificateExpiringEvent::class, QueueCertificateAlerts::class);
 
         RateLimiter::for(SendAlertJob::WEBHOOK_LIMITER, fn (SendAlertJob $job): Limit => Limit::perSecond(
             $this->app->make(AlertingSettings::class)->delivery->messagesPerSecondPerWebhook,

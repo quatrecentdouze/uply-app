@@ -14,6 +14,7 @@ use App\Alerting\Models\AlertDelivery;
 use App\Alerting\Values\DeliveryDecision;
 use App\Alerting\Values\QueuedDelivery;
 use App\Shared\Clock;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Query\Builder;
@@ -28,28 +29,21 @@ final readonly class DeliveryStore
 
     public function createForIncident(string $incidentId, string $monitorId, DeliveryKind $kind): array
     {
-        return $this->database->transaction(function () use ($incidentId, $monitorId, $kind): array {
-            $channels = AlertChannel::query()
-                ->where('is_enabled', true)
-                ->whereIn('id', fn (Builder $links): Builder => $links->select('alert_channel_id')->from('alert_channel_monitor')->where('monitor_id', $monitorId))
-                ->orderBy('id')
-                ->get(['id', 'type']);
+        return $this->createForLinkedChannels($monitorId, $kind, ['incident_id' => $incidentId]);
+    }
 
-            $queued = [];
-            foreach ($channels as $channel) {
-                $deliveryId = $this->insert($channel->id, $incidentId, $kind);
-                if ($deliveryId !== null) {
-                    $queued[] = new QueuedDelivery($deliveryId, $channel->id, $channel->type->usesWebhook());
-                }
-            }
-
-            return $queued;
-        });
+    public function createForCertificate(string $monitorId, CarbonImmutable $expiresAt, int $days): array
+    {
+        return $this->createForLinkedChannels($monitorId, DeliveryKind::CertificateExpiring, [
+            'monitor_id' => $monitorId,
+            'certificate_expires_at' => $expiresAt,
+            'certificate_days' => $days,
+        ]);
     }
 
     public function createTest(AlertChannel $channel): QueuedDelivery
     {
-        $deliveryId = $this->insert($channel->id, null, DeliveryKind::Test);
+        $deliveryId = $this->insert($channel->id, DeliveryKind::Test, []);
 
         return new QueuedDelivery((string) $deliveryId, $channel->id, $channel->type->usesWebhook());
     }
@@ -104,14 +98,35 @@ final readonly class DeliveryStore
         });
     }
 
-    private function insert(string $channelId, ?string $incidentId, DeliveryKind $kind): ?string
+    private function createForLinkedChannels(string $monitorId, DeliveryKind $kind, array $subject): array
+    {
+        return $this->database->transaction(function () use ($monitorId, $kind, $subject): array {
+            $channels = AlertChannel::query()
+                ->where('is_enabled', true)
+                ->whereIn('id', fn (Builder $links): Builder => $links->select('alert_channel_id')->from('alert_channel_monitor')->where('monitor_id', $monitorId))
+                ->orderBy('id')
+                ->get(['id', 'type']);
+
+            $queued = [];
+            foreach ($channels as $channel) {
+                $deliveryId = $this->insert($channel->id, $kind, $subject);
+                if ($deliveryId !== null) {
+                    $queued[] = new QueuedDelivery($deliveryId, $channel->id, $channel->type->usesWebhook());
+                }
+            }
+
+            return $queued;
+        });
+    }
+
+    private function insert(string $channelId, DeliveryKind $kind, array $subject): ?string
     {
         $now = $this->clock->now();
         $deliveryId = (new AlertDelivery)->newUniqueId();
         $inserted = AlertDelivery::query()->insertOrIgnore([
+            ...$subject,
             'id' => $deliveryId,
             'alert_channel_id' => $channelId,
-            'incident_id' => $incidentId,
             'kind' => $kind->value,
             'status' => DeliveryStatus::Pending->value,
             'attempts' => 0,
