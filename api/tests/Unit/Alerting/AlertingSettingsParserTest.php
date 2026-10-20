@@ -31,6 +31,8 @@ it('parses the shipped alerting file', function (): void {
         ->and($settings->presentation->colorFor(DeliveryKind::Down))->toBe('#f23b39')
         ->and($settings->presentation->colorFor(DeliveryKind::Up))->toBe('#34b591')
         ->and($settings->presentation->colorFor(DeliveryKind::Test))->toBe('#f36e29')
+        ->and($settings->presentation->colorFor(DeliveryKind::CertificateExpiring))->toBe('#f36e29')
+        ->and($settings->presentation->monitorLink('01monitor'))->toBe('http://localhost:5173/monitors/01monitor')
         ->and($settings->presentation->discordUsername)->toBe('Uply')
         ->and($settings->presentation->discordTitleMaxLength)->toBe(256)
         ->and($settings->presentation->discordFieldValueMaxLength)->toBe(1024)
@@ -71,6 +73,7 @@ it('rejects an invalid alerting setting with its file and key', function (string
     'down color' => ['presentation.colors.down', 'red'],
     'up color' => ['presentation.colors.up', '#34b59'],
     'test color' => ['presentation.colors.test', 42],
+    'certificate color' => ['presentation.colors.certificate_expiring', 'orange'],
     'discord username blank' => ['presentation.discord_username', ' '],
     'discord title zero' => ['presentation.discord_title_max_length', 0],
     'discord description zero' => ['presentation.discord_description_max_length', 0],

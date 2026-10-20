@@ -10,6 +10,9 @@ return [
         'title' => ':name is back up',
         'downtime' => 'Down for :duration',
     ],
+    'certificate' => [
+        'title' => '{1} :name: TLS certificate expires in :days day|[2,*] :name: TLS certificate expires in :days days',
+    ],
     'test' => [
         'title' => 'Test alert from Uply',
         'summary' => 'This test was sent to the channel :channel. Real alerts arrive here when a monitor goes down or comes back up.',
@@ -19,8 +22,10 @@ return [
         'cause' => 'Cause',
         'started' => 'Started',
         'back_up' => 'Back up',
+        'expires' => 'Expires',
     ],
     'link' => 'Open the incident',
+    'monitor_link' => 'Open the monitor',
     'time_utc' => ':time UTC',
     'cause' => [
         'http_status' => 'HTTP :status',

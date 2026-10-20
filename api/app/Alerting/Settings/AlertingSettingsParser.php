@@ -90,6 +90,7 @@ final class AlertingSettingsParser
             downColor: $this->color($reader, 'presentation.colors.down'),
             upColor: $this->color($reader, 'presentation.colors.up'),
             testColor: $this->color($reader, 'presentation.colors.test'),
+            certificateExpiringColor: $this->color($reader, 'presentation.colors.certificate_expiring'),
             discordUsername: $reader->text('presentation.discord_username'),
             discordTitleMaxLength: $titleMax,
             discordDescriptionMaxLength: $reader->integer('presentation.discord_description_max_length', 1),

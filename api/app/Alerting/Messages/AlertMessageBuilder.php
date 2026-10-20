@@ -58,6 +58,22 @@ final readonly class AlertMessageBuilder
         );
     }
 
+    public function certificateExpiring(MonitorView $monitor, CarbonImmutable $expiresAt, int $days, CarbonImmutable $detectedAt): AlertMessage
+    {
+        $title = $this->translator->choice('alerting.certificate.title', $days, ['name' => $monitor->name, 'days' => $days]);
+
+        return new AlertMessage(
+            DeliveryKind::CertificateExpiring,
+            $title,
+            $monitor->url,
+            $this->settings->presentation->monitorLink($monitor->id),
+            $this->text('alerting.monitor_link'),
+            $this->settings->presentation->colorFor(DeliveryKind::CertificateExpiring),
+            $detectedAt,
+            $this->timeField('alerting.labels.expires', $expiresAt),
+        );
+    }
+
     public function test(string $channelName, CarbonImmutable $sentAt): AlertMessage
     {
         return new AlertMessage(

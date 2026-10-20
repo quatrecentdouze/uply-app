@@ -67,6 +67,23 @@ it('names every failure kind with a text of its own', function (FailureKind $kin
     expect($cause === 'Unknown error')->toBe($kind === FailureKind::Unknown);
 })->with(FailureKind::cases());
 
+it('builds the certificate text with one day or several days', function (int $days, string $title): void {
+    $message = app(AlertMessageBuilder::class)->certificateExpiring(hostileMonitor(), CarbonImmutable::parse('2027-03-31 12:00:00', 'UTC'), $days, CarbonImmutable::parse('2027-03-17 12:00:00', 'UTC'));
+
+    expect($message->title)->toBe($title)
+        ->and($message->summary)->toBe('https://billing.example.com/health?a=1&b=2')
+        ->and($message->link)->toBe('http://localhost:5173/monitors/01monitor')
+        ->and($message->linkLabel)->toBe('Open the monitor')
+        ->and($message->color)->toBe('#f36e29')
+        ->and($message->fields[0]->label)->toBe('Expires')
+        ->and($message->fields[0]->text)->toBe('2027-03-31 12:00:00 UTC')
+        ->and($message->fields[0]->time?->toIso8601ZuluString())->toBe('2027-03-31T12:00:00Z');
+})->with([
+    'one day' => [1, '@everyone <b>Billing</b> & co: TLS certificate expires in 1 day'],
+    'seven days' => [7, '@everyone <b>Billing</b> & co: TLS certificate expires in 7 days'],
+    'fourteen days' => [14, '@everyone <b>Billing</b> & co: TLS certificate expires in 14 days'],
+]);
+
 it('names the keyword failures', function (): void {
     $builder = app(AlertMessageBuilder::class);
 

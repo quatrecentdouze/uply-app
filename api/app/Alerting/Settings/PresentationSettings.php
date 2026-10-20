@@ -13,6 +13,7 @@ final readonly class PresentationSettings
         public string $downColor,
         public string $upColor,
         public string $testColor,
+        public string $certificateExpiringColor,
         public string $discordUsername,
         public int $discordTitleMaxLength,
         public int $discordDescriptionMaxLength,
@@ -25,7 +26,13 @@ final readonly class PresentationSettings
             DeliveryKind::Down => $this->downColor,
             DeliveryKind::Up => $this->upColor,
             DeliveryKind::Test => $this->testColor,
+            DeliveryKind::CertificateExpiring => $this->certificateExpiringColor,
         };
+    }
+
+    public function monitorLink(string $monitorId): string
+    {
+        return rtrim($this->frontendUrl, '/')."/monitors/{$monitorId}";
     }
 
     public function incidentLink(string $incidentId): string
