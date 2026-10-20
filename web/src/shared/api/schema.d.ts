@@ -842,6 +842,7 @@ export interface components {
             state_changed_at: string | null;
             last_checked_at: string | null;
             last_response_ms: number | null;
+            tls_expires_at: string | null;
             uptime_24h: number | null;
             created_at: string | null;
             updated_at: string | null;

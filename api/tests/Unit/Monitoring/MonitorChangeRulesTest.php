@@ -95,3 +95,12 @@ it('keeps a next check that is already closer than the new interval', function (
 
     expect($plan->nextCheckAt->equalTo($this->nextCheckAt))->toBeTrue();
 });
+
+it('forgets the certificate only when the url changes', function (array $changes, bool $forgets): void {
+    expect(MonitorChangeRules::plan(definition(), definition($changes), $this->nextCheckAt, $this->now)->forgetsCertificate)->toBe($forgets);
+})->with([
+    'url' => [['url' => 'https://api.example.com/ready'], true],
+    'method' => [['method' => HttpMethod::Head], false],
+    'keyword' => [['keyword' => 'Operational'], false],
+    'nothing' => [[], false],
+]);

@@ -24,7 +24,7 @@ it('lists the monitors of the organization to every role', function (Role $role)
     $api = Monitor::factory()->state(['organization_id' => $this->organization->id])->create(['name' => 'API', 'url' => 'https://api.example.com/health']);
     Monitor::factory()->state(['organization_id' => $this->organization->id])->create(['name' => 'Billing']);
     Monitor::factory()->create(['name' => 'Elsewhere']);
-    $api->forceFill(['state' => MonitorState::Up, 'last_checked_at' => $this->clock->now()->subSeconds(30), 'last_response_ms' => 87])->save();
+    $api->forceFill(['state' => MonitorState::Up, 'last_checked_at' => $this->clock->now()->subSeconds(30), 'last_response_ms' => 87, 'tls_expires_at' => '2027-06-01 08:00:00+00'])->save();
 
     $this->actingAs(Members::seat($this->organization, $role))->getJson(monitorsUrl($this->organization))
         ->assertOk()
@@ -41,6 +41,8 @@ it('lists the monitors of the organization to every role', function (Role $role)
         ->assertJsonPath('data.0.state', 'up')
         ->assertJsonPath('data.0.last_checked_at', '2027-03-10T11:59:30Z')
         ->assertJsonPath('data.0.last_response_ms', 87)
+        ->assertJsonPath('data.0.tls_expires_at', '2027-06-01T08:00:00Z')
+        ->assertJsonPath('data.1.tls_expires_at', null)
         ->assertJsonPath('data.0.uptime_24h', null)
         ->assertJsonPath('data.1.name', 'Billing')
         ->assertJsonPath('meta.total', 2);

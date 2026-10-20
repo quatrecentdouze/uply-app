@@ -5078,6 +5078,12 @@
                             "null"
                         ]
                     },
+                    "tls_expires_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
                     "uptime_24h": {
                         "type": [
                             "number",
@@ -5117,6 +5123,7 @@
                     "state_changed_at",
                     "last_checked_at",
                     "last_response_ms",
+                    "tls_expires_at",
                     "uptime_24h",
                     "created_at",
                     "updated_at"
