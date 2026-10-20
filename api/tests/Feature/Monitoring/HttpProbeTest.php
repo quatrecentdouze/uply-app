@@ -93,6 +93,7 @@ it('reports a 200 with its timings', function (): void {
         ->and($result->timings->connectMs)->toBeInt()
         ->and($result->timings->ttfbMs)->toBeInt()
         ->and($result->timings->tlsMs)->toBeNull()
+        ->and($result->tlsExpiresAt)->toBeNull()
         ->and($result->timings->totalMs)->toBeInt();
 });
 

@@ -50,6 +50,13 @@ final readonly class HttpProbe implements Probe
 
     public function run(ProbeRequest $request): ProbeResult
     {
+        $certificate = new CertificateRecorder;
+
+        return $this->probe($request, $certificate)->withTlsExpiresAt($certificate->expiresAt);
+    }
+
+    private function probe(ProbeRequest $request, CertificateRecorder $certificate): ProbeResult
+    {
         $startedAt = hrtime(true);
         $deadline = $startedAt + $request->timeoutSeconds * self::NANOSECONDS_PER_SECOND;
         $url = $request->url;
@@ -75,14 +82,18 @@ final readonly class HttpProbe implements Probe
 
             $transfer = new TransferRecorder;
             try {
-                $response = $this->pendingRequest($pinned, $remainingSeconds, $transfer, $hop, $request)->send($hop->method->verb(), $url);
+                $response = $this->pendingRequest($pinned, $remainingSeconds, $transfer, $hop, $request, $certificate->wants($pinned->target))->send($hop->method->verb(), $url);
+                $certificate->record($pinned->target, $transfer->handlerStats);
             } catch (RequestException $exception) {
+                $certificate->record($pinned->target, $transfer->handlerStats);
                 $response = $exception->response;
             } catch (ConnectionException $exception) {
+                $certificate->record($pinned->target, $transfer->handlerStats);
                 $kind = $transfer->bodyCapExceeded ? FailureKind::BodyTooLarge : $this->failureKind($transfer->errorCode);
 
                 return $this->failed($secrets, $kind, $exception->getMessage(), $this->timings($transfer, $pinned, $startedAt), $transfer->httpStatus);
             } catch (Throwable $exception) {
+                $certificate->record($pinned->target, $transfer->handlerStats);
                 $kind = $transfer->bodyCapExceeded ? FailureKind::BodyTooLarge : FailureKind::Unknown;
 
                 return $this->failed($secrets, $kind, $exception->getMessage(), $this->timings($transfer, $pinned, $startedAt), $transfer->httpStatus);
@@ -115,7 +126,7 @@ final readonly class HttpProbe implements Probe
         return ProbeResult::failed($kind, DiagnosticRules::withoutSecrets($message, $secrets), $timings, $httpStatus);
     }
 
-    private function pendingRequest(PinnedTarget $pinned, float $remainingSeconds, TransferRecorder $transfer, ProbeHop $hop, ProbeRequest $probeRequest): PendingRequest
+    private function pendingRequest(PinnedTarget $pinned, float $remainingSeconds, TransferRecorder $transfer, ProbeHop $hop, ProbeRequest $probeRequest, bool $readsCertificate): PendingRequest
     {
         $cap = $this->settings->bodyReadCapBytes;
         $request = $probeRequest->request;
@@ -127,7 +138,7 @@ final readonly class HttpProbe implements Probe
             'headers' => ProbeHopRules::headers($hop, $request, $this->settings->userAgent),
             'protocols' => self::ALLOWED_PROTOCOLS,
             'proxy' => self::NO_PROXY,
-            'curl' => [CURLOPT_CONNECT_TO => [$this->connectTo($pinned)]],
+            'curl' => [CURLOPT_CONNECT_TO => [$this->connectTo($pinned)], CURLOPT_CERTINFO => $readsCertificate],
             'on_stats' => static function (TransferStats $stats) use ($transfer): void {
                 $transfer->record($stats->getHandlerStats(), $stats->getHandlerErrorData(), $stats->getResponse()?->getStatusCode());
             },

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Monitoring\Values;
 
 use App\Monitoring\Enums\FailureKind;
+use Carbon\CarbonImmutable;
 use InvalidArgumentException;
 
 final readonly class ProbeResult
@@ -19,6 +20,7 @@ final readonly class ProbeResult
         public ProbeTimings $timings,
         ?string $errorMessage,
         public ?string $body = null,
+        public ?CarbonImmutable $tlsExpiresAt = null,
     ) {
         if ($failureKind === FailureKind::HttpStatus) {
             throw new InvalidArgumentException('a probe reports transport failures, the http status is judged by the rules');
@@ -41,7 +43,12 @@ final readonly class ProbeResult
 
     public function withoutBody(): self
     {
-        return new self($this->httpStatus, $this->failureKind, $this->timings, $this->errorMessage);
+        return new self($this->httpStatus, $this->failureKind, $this->timings, $this->errorMessage, null, $this->tlsExpiresAt);
+    }
+
+    public function withTlsExpiresAt(?CarbonImmutable $tlsExpiresAt): self
+    {
+        return new self($this->httpStatus, $this->failureKind, $this->timings, $this->errorMessage, $this->body, $tlsExpiresAt);
     }
 
     public function responseMs(): ?int
