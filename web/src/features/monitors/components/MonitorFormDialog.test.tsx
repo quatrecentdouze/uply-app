@@ -49,6 +49,13 @@ describe('MonitorFormDialog', () => {
     expect(page.onSaved).toHaveBeenCalledWith(monitorFixture());
   });
 
+  it('offers the methods of meta', async () => {
+    openDialog(null);
+
+    const method = await screen.findByLabelText('Method');
+    expect([...method.querySelectorAll('option')].map((option) => option.textContent)).toEqual(['GET', 'HEAD', 'POST', 'PUT', 'PATCH']);
+  });
+
   it('checks the fields before sending', async () => {
     const page = openDialog(null);
     await page.user.type(await screen.findByLabelText('URL'), 'ftp://files.example.test');

@@ -107,7 +107,7 @@ export function metaFixture(overrides: Partial<Meta> = {}): Meta {
     monitoring: {
       intervals: { allowed_seconds: [30, 60, 120, 300, 600, 900, 1800, 3600], default_seconds: 60 },
       timeouts: { min_seconds: 1, max_seconds: 30, default_seconds: 10 },
-      methods: ['get', 'head'],
+      methods: ['get', 'head', 'post', 'put', 'patch'],
       body_methods: ['post', 'put', 'patch'],
       default_method: 'get',
       default_accepted_status_codes: ['200-299'],

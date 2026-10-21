@@ -144,7 +144,8 @@ describe('form helpers', () => {
 });
 
 describe('knownMethods', () => {
-  it('keeps the methods the form can name', () => {
-    expect(knownMethods(['get', 'head', 'post'])).toEqual(['get', 'head']);
+  it('keeps the methods of meta the form can name, in their order', () => {
+    expect(knownMethods(['get', 'head', 'post', 'put', 'patch'])).toEqual(['get', 'head', 'post', 'put', 'patch']);
+    expect(knownMethods(['get', 'delete', 'options'])).toEqual(['get']);
   });
 });

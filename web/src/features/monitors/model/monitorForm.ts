@@ -38,8 +38,12 @@ export const methodTextKeys: Record<HttpMethod, TextKey<'monitors'>> = {
 
 const httpMethods = ['get', 'head', 'post', 'put', 'patch'] as const satisfies readonly HttpMethod[];
 
+function isHttpMethod(method: string): method is HttpMethod {
+  return httpMethods.some((candidate) => candidate === method);
+}
+
 export function knownMethods(methods: readonly string[]): HttpMethod[] {
-  return methods.flatMap((method) => (method === 'get' || method === 'head' ? [method] : []));
+  return methods.filter(isHttpMethod);
 }
 
 const lowestStatus = 100;
