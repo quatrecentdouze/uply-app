@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  advancedCreateBody,
   advancedIssues,
   advancedOpenAtStart,
   type AdvancedTexts,
+  advancedUpdateBody,
   type AdvancedValues,
   advancedValues,
   bodyApplies,
@@ -253,5 +255,117 @@ describe('methodNotes', () => {
     expect(methodNotes('head', { keyword: 'ok', request_body: '' }, null, monitoring)).toEqual(['drops_keyword']);
     expect(methodNotes('head', { keyword: '  ', request_body: '' }, null, monitoring)).toEqual([]);
     expect(methodNotes('head', { keyword: 'ok', request_body: '' }, post, monitoring)).toEqual(['drops_body', 'drops_keyword']);
+  });
+});
+
+describe('advancedCreateBody', () => {
+  it('sends the thresholds and nothing else from the starting values', () => {
+    expect(advancedCreateBody(draft(), 'get', monitoring)).toEqual({ failure_threshold: 2, recovery_threshold: 2 });
+  });
+
+  it('sends the trimmed keyword with its match, headers trimmed and the body as typed', () => {
+    const values = draft({
+      keyword: '  Welcome ',
+      keyword_match: 'absent',
+      request_headers: [
+        { name: ' Authorization ', value: ' Bearer abc ' },
+        { name: 'Content-Type', value: 'application/json' },
+      ],
+      request_body: ' {"ping": true}\n',
+      failure_threshold: '1',
+      recovery_threshold: '3',
+    });
+
+    expect(advancedCreateBody(values, 'post', monitoring)).toEqual({
+      keyword: 'Welcome',
+      keyword_match: 'absent',
+      request_headers: [
+        { name: 'Authorization', value: 'Bearer abc' },
+        { name: 'Content-Type', value: 'application/json' },
+      ],
+      request_body: ' {"ping": true}\n',
+      failure_threshold: 1,
+      recovery_threshold: 3,
+    });
+  });
+
+  it('leaves out the fields the method hides', () => {
+    const values = draft({ keyword: 'Welcome', request_body: '{}' });
+
+    expect(advancedCreateBody(values, 'get', monitoring)).toEqual({ keyword: 'Welcome', keyword_match: 'present', failure_threshold: 2, recovery_threshold: 2 });
+    expect(advancedCreateBody(values, 'head', monitoring)).toEqual({ failure_threshold: 2, recovery_threshold: 2 });
+  });
+});
+
+describe('advancedUpdateBody', () => {
+  const stored = monitorFixture({
+    method: 'post',
+    keyword: 'Welcome',
+    keyword_match: 'present',
+    request_header_names: ['Authorization'],
+    has_request_body: true,
+  });
+
+  it('sends nothing while nothing changes, stored headers and body included', () => {
+    expect(advancedUpdateBody(stored, advancedValues(stored, monitoring), 'post', monitoring)).toEqual({});
+    expect(advancedUpdateBody(monitorFixture(), advancedValues(monitorFixture(), monitoring), 'get', monitoring)).toEqual({});
+  });
+
+  it('sends a changed keyword, a cleared keyword as null and the match only with a keyword', () => {
+    const values = advancedValues(stored, monitoring);
+
+    expect(advancedUpdateBody(stored, { ...values, keyword: 'Hello' }, 'post', monitoring)).toEqual({ keyword: 'Hello' });
+    expect(advancedUpdateBody(stored, { ...values, keyword: ' ', keyword_match: 'absent' }, 'post', monitoring)).toEqual({ keyword: null });
+    expect(advancedUpdateBody(stored, { ...values, keyword_match: 'absent' }, 'post', monitoring)).toEqual({ keyword_match: 'absent' });
+  });
+
+  it('sends the whole list of replaced headers, and an empty list to clear them', () => {
+    const replaced = { ...advancedValues(stored, monitoring), replace_headers: true };
+    const rows = [
+      { name: 'Authorization', value: 'Bearer new' },
+      { name: 'X-Trace', value: '1' },
+    ];
+
+    expect(advancedUpdateBody(stored, { ...replaced, request_headers: rows }, 'post', monitoring)).toEqual({ request_headers: rows });
+    expect(advancedUpdateBody(stored, { ...replaced, request_headers: [] }, 'post', monitoring)).toEqual({ request_headers: [] });
+  });
+
+  it('sends headers added to a monitor that had none, and nothing for no rows', () => {
+    const plain = monitorFixture();
+    const values = advancedValues(plain, monitoring);
+
+    expect(advancedUpdateBody(plain, { ...values, request_headers: [{ name: 'X-Trace', value: '1' }] }, 'get', monitoring)).toEqual({ request_headers: [{ name: 'X-Trace', value: '1' }] });
+    expect(advancedUpdateBody(plain, { ...values, request_headers: [] }, 'get', monitoring)).toEqual({});
+  });
+
+  it('keeps the stored body without Replace, sends the new one or null with it', () => {
+    const replaced = { ...advancedValues(stored, monitoring), replace_body: true };
+
+    expect(advancedUpdateBody(stored, { ...advancedValues(stored, monitoring), request_body: 'ignored' }, 'post', monitoring)).toEqual({});
+    expect(advancedUpdateBody(stored, { ...replaced, request_body: '{"a":1}' }, 'post', monitoring)).toEqual({ request_body: '{"a":1}' });
+    expect(advancedUpdateBody(stored, { ...replaced, request_body: '' }, 'post', monitoring)).toEqual({ request_body: null });
+  });
+
+  it('sends a body to a monitor that had none, and nothing for an empty one', () => {
+    const plain = monitorFixture({ method: 'put' });
+    const values = advancedValues(plain, monitoring);
+
+    expect(advancedUpdateBody(plain, { ...values, request_body: 'x' }, 'put', monitoring)).toEqual({ request_body: 'x' });
+    expect(advancedUpdateBody(plain, values, 'put', monitoring)).toEqual({});
+  });
+
+  it('sends null for the fields a new method hides', () => {
+    const values = advancedValues(stored, monitoring);
+
+    expect(advancedUpdateBody(stored, values, 'get', monitoring)).toEqual({ request_body: null });
+    expect(advancedUpdateBody(stored, values, 'head', monitoring)).toEqual({ keyword: null, request_body: null });
+    expect(advancedUpdateBody(monitorFixture(), { ...advancedValues(monitorFixture(), monitoring), request_body: 'typed' }, 'get', monitoring)).toEqual({});
+  });
+
+  it('sends a changed threshold only', () => {
+    const values = advancedValues(stored, monitoring);
+
+    expect(advancedUpdateBody(stored, { ...values, failure_threshold: '1' }, 'post', monitoring)).toEqual({ failure_threshold: 1 });
+    expect(advancedUpdateBody(stored, { ...values, recovery_threshold: '4' }, 'post', monitoring)).toEqual({ recovery_threshold: 4 });
   });
 });

@@ -1,3 +1,4 @@
+import type { CreateMonitorBody, UpdateMonitorBody } from '@/features/monitors/api/monitors';
 import type { Meta } from '@/shared/api/meta';
 import type { Monitor } from '@/shared/api/resources';
 import type { TextKey } from '@/shared/i18n/textKey';
@@ -220,4 +221,69 @@ export function methodNotes(method: Method, values: Pick<AdvancedValues, 'keywor
   const holdsBody = monitor?.has_request_body === true || values.request_body !== '';
   const holdsKeyword = values.keyword.trim() !== '';
   return [...(!bodyApplies(method, monitoring) && holdsBody ? ['drops_body' as const] : []), ...(!keywordApplies(method) && holdsKeyword ? ['drops_keyword' as const] : [])];
+}
+
+type AdvancedField = 'keyword' | 'keyword_match' | 'request_headers' | 'request_body' | 'failure_threshold' | 'recovery_threshold';
+
+export type AdvancedCreateBody = Pick<CreateMonitorBody, AdvancedField>;
+
+export type AdvancedUpdateBody = Pick<UpdateMonitorBody, AdvancedField>;
+
+function keywordToSend(values: AdvancedValues, method: Method): string | null {
+  const keyword = values.keyword.trim();
+  return keywordApplies(method) && keyword !== '' ? keyword : null;
+}
+
+function headersToSend(values: AdvancedValues): HeaderRow[] {
+  return values.request_headers.map((row) => ({ name: row.name.trim(), value: row.value.trim() }));
+}
+
+function bodyToSend(values: AdvancedValues, method: Method, monitoring: Monitoring): string | null {
+  return bodyApplies(method, monitoring) && values.request_body !== '' ? values.request_body : null;
+}
+
+export function advancedCreateBody(values: AdvancedValues, method: Method, monitoring: Monitoring): AdvancedCreateBody {
+  const keyword = keywordToSend(values, method);
+  const headers = values.replace_headers ? headersToSend(values) : [];
+  const body = values.replace_body ? bodyToSend(values, method, monitoring) : null;
+  return {
+    ...(keyword === null ? {} : { keyword, keyword_match: values.keyword_match }),
+    ...(headers.length === 0 ? {} : { request_headers: headers }),
+    ...(body === null ? {} : { request_body: body }),
+    failure_threshold: Number(values.failure_threshold),
+    recovery_threshold: Number(values.recovery_threshold),
+  };
+}
+
+function headersChange(monitor: Monitor, values: AdvancedValues): AdvancedUpdateBody {
+  if (!values.replace_headers) {
+    return {};
+  }
+  const headers = headersToSend(values);
+  return headers.length === 0 && monitor.request_header_names.length === 0 ? {} : { request_headers: headers };
+}
+
+function bodyChange(monitor: Monitor, values: AdvancedValues, method: Method, monitoring: Monitoring): AdvancedUpdateBody {
+  if (!bodyApplies(method, monitoring)) {
+    return monitor.has_request_body ? { request_body: null } : {};
+  }
+  if (!values.replace_body) {
+    return {};
+  }
+  const body = bodyToSend(values, method, monitoring);
+  return body === null && !monitor.has_request_body ? {} : { request_body: body };
+}
+
+export function advancedUpdateBody(monitor: Monitor, values: AdvancedValues, method: Method, monitoring: Monitoring): AdvancedUpdateBody {
+  const keyword = keywordToSend(values, method);
+  const failure = Number(values.failure_threshold);
+  const recovery = Number(values.recovery_threshold);
+  return {
+    ...(keyword === monitor.keyword ? {} : { keyword }),
+    ...(keyword === null || values.keyword_match === monitor.keyword_match ? {} : { keyword_match: values.keyword_match }),
+    ...headersChange(monitor, values),
+    ...bodyChange(monitor, values, method, monitoring),
+    ...(failure === monitor.failure_threshold ? {} : { failure_threshold: failure }),
+    ...(recovery === monitor.recovery_threshold ? {} : { recovery_threshold: recovery }),
+  };
 }
