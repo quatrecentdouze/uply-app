@@ -1,5 +1,6 @@
 import type { Meta } from '@/shared/api/meta';
 import type { Monitor } from '@/shared/api/resources';
+import type { TextKey } from '@/shared/i18n/textKey';
 
 type Monitoring = Meta['monitoring'];
 
@@ -206,4 +207,17 @@ export function advancedIssues(values: AdvancedValues, method: Method, monitorin
     ...bodyIssues(values, method, monitoring, texts),
     ...thresholdIssues(values, monitoring, texts),
   ];
+}
+
+export type MethodNote = 'drops_body' | 'drops_keyword';
+
+export const methodNoteTextKeys: Record<MethodNote, TextKey<'monitors'>> = {
+  drops_body: 'monitors:form.advanced.drops_body',
+  drops_keyword: 'monitors:form.advanced.drops_keyword',
+};
+
+export function methodNotes(method: Method, values: Pick<AdvancedValues, 'keyword' | 'request_body'>, monitor: Monitor | null, monitoring: Monitoring): MethodNote[] {
+  const holdsBody = monitor?.has_request_body === true || values.request_body !== '';
+  const holdsKeyword = values.keyword.trim() !== '';
+  return [...(!bodyApplies(method, monitoring) && holdsBody ? ['drops_body' as const] : []), ...(!keywordApplies(method) && holdsKeyword ? ['drops_keyword' as const] : [])];
 }

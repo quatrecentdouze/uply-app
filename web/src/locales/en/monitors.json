@@ -79,6 +79,10 @@
     "cancel": "Cancel",
     "create": "Add monitor",
     "save": "Save changes",
+    "advanced": {
+      "drops_body": "Saving removes the request body.",
+      "drops_keyword": "Saving removes the keyword."
+    },
     "errors": {
       "url": "Enter an http or https address.",
       "max_length": "Use at most {{max}} characters.",

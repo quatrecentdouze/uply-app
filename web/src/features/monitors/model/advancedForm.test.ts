@@ -8,6 +8,7 @@ import {
   bodyApplies,
   keywordApplies,
   knownKeywordMatches,
+  methodNotes,
   replacingHeaderRows,
   touchesAdvanced,
 } from '@/features/monitors/model/advancedForm';
@@ -230,5 +231,27 @@ describe('advancedIssues', () => {
       ['failure_threshold', 'from 1 to 10'],
       ['recovery_threshold', 'from 1 to 10'],
     ]);
+  });
+});
+
+describe('methodNotes', () => {
+  const post = monitorFixture({ method: 'post', has_request_body: true, keyword: 'ok' });
+
+  it('says nothing while every field holding a value stays shown', () => {
+    expect(methodNotes('post', { keyword: 'ok', request_body: '{}' }, post, monitoring)).toEqual([]);
+    expect(methodNotes('get', { keyword: 'ok', request_body: '' }, null, monitoring)).toEqual([]);
+  });
+
+  it('warns that a stored or typed body goes away with a method without body', () => {
+    expect(methodNotes('get', { keyword: '', request_body: '' }, post, monitoring)).toEqual(['drops_body']);
+    expect(methodNotes('put', { keyword: '', request_body: '' }, post, monitoring)).toEqual([]);
+    expect(methodNotes('get', { keyword: '', request_body: '{"a":1}' }, null, monitoring)).toEqual(['drops_body']);
+    expect(methodNotes('get', { keyword: '', request_body: '' }, monitorFixture(), monitoring)).toEqual([]);
+  });
+
+  it('warns that the keyword goes away with HEAD', () => {
+    expect(methodNotes('head', { keyword: 'ok', request_body: '' }, null, monitoring)).toEqual(['drops_keyword']);
+    expect(methodNotes('head', { keyword: '  ', request_body: '' }, null, monitoring)).toEqual([]);
+    expect(methodNotes('head', { keyword: 'ok', request_body: '' }, post, monitoring)).toEqual(['drops_body', 'drops_keyword']);
   });
 });
