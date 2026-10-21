@@ -14,10 +14,6 @@ it('sends a body with post, put and patch only', function (HttpMethod $method, b
     [HttpMethod::Patch, true],
 ]);
 
-it('lists the body methods in their order', function (): void {
-    expect(HttpMethod::bodyMethods())->toBe([HttpMethod::Post, HttpMethod::Put, HttpMethod::Patch]);
-});
-
 it('gets no response body with head only', function (): void {
     expect(array_map(fn (HttpMethod $method): bool => $method->receivesBody(), HttpMethod::cases()))->toBe([true, false, true, true, true]);
 });

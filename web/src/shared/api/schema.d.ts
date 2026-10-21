@@ -2102,13 +2102,28 @@ export interface operations {
                                     default_seconds: number;
                                 };
                                 methods: string[];
+                                body_methods: string[];
                                 /** @enum {string} */
                                 default_method: "get" | "head" | "post" | "put" | "patch";
                                 default_accepted_status_codes: string[];
+                                keyword_matches: string[];
+                                /** @enum {string} */
+                                default_keyword_match: "present" | "absent";
+                                thresholds: {
+                                    min: number;
+                                    max: number;
+                                    default_failure: number;
+                                    default_recovery: number;
+                                };
+                                tls: {
+                                    expiry_alert_days: number[];
+                                };
+                                refused_header_names: string[];
                                 windows: string[];
                                 limits: {
                                     max_monitors_per_organization: number;
                                     max_accepted_status_ranges: number;
+                                    max_request_headers: number;
                                 };
                                 lengths: {
                                     monitor_name: {
@@ -2117,6 +2132,22 @@ export interface operations {
                                         max: number;
                                     };
                                     url: {
+                                        max: number;
+                                    };
+                                    keyword: {
+                                        /** @constant */
+                                        min: 1;
+                                        max: number;
+                                    };
+                                    request_header_name: {
+                                        /** @constant */
+                                        min: 1;
+                                        max: number;
+                                    };
+                                    request_header_value: {
+                                        max: number;
+                                    };
+                                    request_body: {
                                         max: number;
                                     };
                                 };

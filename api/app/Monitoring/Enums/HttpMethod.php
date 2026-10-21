@@ -29,9 +29,4 @@ enum HttpMethod: string
     {
         return $this !== self::Head;
     }
-
-    public static function bodyMethods(): array
-    {
-        return array_values(array_filter(self::cases(), fn (self $method): bool => $method->sendsBody()));
-    }
 }

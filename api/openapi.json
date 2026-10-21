@@ -2142,6 +2142,12 @@
                                                                 "type": "string"
                                                             }
                                                         },
+                                                        "body_methods": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
                                                         "default_method": {
                                                             "type": "string",
                                                             "enum": [
@@ -2153,6 +2159,62 @@
                                                             ]
                                                         },
                                                         "default_accepted_status_codes": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "keyword_matches": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "default_keyword_match": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "present",
+                                                                "absent"
+                                                            ]
+                                                        },
+                                                        "thresholds": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "min": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "max": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "default_failure": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "default_recovery": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "min",
+                                                                "max",
+                                                                "default_failure",
+                                                                "default_recovery"
+                                                            ]
+                                                        },
+                                                        "tls": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "expiry_alert_days": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "expiry_alert_days"
+                                                            ]
+                                                        },
+                                                        "refused_header_names": {
                                                             "type": "array",
                                                             "items": {
                                                                 "type": "string"
@@ -2172,11 +2234,15 @@
                                                                 },
                                                                 "max_accepted_status_ranges": {
                                                                     "type": "integer"
+                                                                },
+                                                                "max_request_headers": {
+                                                                    "type": "integer"
                                                                 }
                                                             },
                                                             "required": [
                                                                 "max_monitors_per_organization",
-                                                                "max_accepted_status_ranges"
+                                                                "max_accepted_status_ranges",
+                                                                "max_request_headers"
                                                             ]
                                                         },
                                                         "lengths": {
@@ -2208,11 +2274,69 @@
                                                                     "required": [
                                                                         "max"
                                                                     ]
+                                                                },
+                                                                "keyword": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "min": {
+                                                                            "type": "integer",
+                                                                            "const": 1
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "min",
+                                                                        "max"
+                                                                    ]
+                                                                },
+                                                                "request_header_name": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "min": {
+                                                                            "type": "integer",
+                                                                            "const": 1
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "min",
+                                                                        "max"
+                                                                    ]
+                                                                },
+                                                                "request_header_value": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "max"
+                                                                    ]
+                                                                },
+                                                                "request_body": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "max"
+                                                                    ]
                                                                 }
                                                             },
                                                             "required": [
                                                                 "monitor_name",
-                                                                "url"
+                                                                "url",
+                                                                "keyword",
+                                                                "request_header_name",
+                                                                "request_header_value",
+                                                                "request_body"
                                                             ]
                                                         }
                                                     },
@@ -2220,8 +2344,14 @@
                                                         "intervals",
                                                         "timeouts",
                                                         "methods",
+                                                        "body_methods",
                                                         "default_method",
                                                         "default_accepted_status_codes",
+                                                        "keyword_matches",
+                                                        "default_keyword_match",
+                                                        "thresholds",
+                                                        "tls",
+                                                        "refused_header_names",
                                                         "windows",
                                                         "limits",
                                                         "lengths"
