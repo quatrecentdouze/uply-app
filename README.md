@@ -46,16 +46,25 @@ Made by `npm run screenshots` in `web` from the local demo data. The demo target
 | 4a | Web project, API client, real time, entry screens, app shell and dashboard (Web) | done |
 | 4b | Management screens: monitors, incidents, alert channels, status pages, settings (Web) | done |
 | 5 | Public status pages, landing page, mobile, end to end tests and polish (Web) | done |
-| 6 | Check depth: keyword, request headers and body, thresholds per monitor, TLS expiry alert (API, then Web) | next |
+| 6 | Check depth: keyword, request headers and body, thresholds per monitor, TLS expiry alert (API, then Web) | API done, Web next |
 | 7 | Alert depth: maintenance windows, reminders while an incident is open, flapping (API, then Web) | planned |
 
 ## Check engine
 
 - The scheduler claims the due monitors every 10 seconds in one `UPDATE ... FOR UPDATE SKIP LOCKED` statement and queues one job per check.
 - A target guard resolves the host, refuses private, reserved and metadata addresses, and pins the connection to the checked address on every redirect hop.
-- Pure rules judge the result, confirm a state after 2 consecutive results with a fast recheck after 20 seconds, and plan the next check from its scheduled time.
+- Pure rules judge the result, confirm a state after 2 consecutive results by default (1 to 10 per monitor) with a fast recheck after 20 seconds, and plan the next check from its scheduled time.
 - Raw results live in daily PostgreSQL partitions kept 30 days, hourly stats are kept 400 days.
 - Incidents open at the first failure of a confirmed outage and resolve at the first success of the recovery.
+
+## Check depth
+
+- A monitor sends `GET`, `HEAD`, `POST`, `PUT` or `PATCH`, with up to 20 request headers and, for the last three, a body of up to 10 000 characters sent as is. A header of the monitor replaces the probe's own, `User-Agent` included, and names like `Host` or `Content-Length` are refused.
+- Headers and body are secrets: they live in one encrypted column, never appear in an answer, a log, a check result, an event or a broadcast, and diagnostics hide them. Answers only give `request_header_names` and `has_request_body`.
+- Redirects 301, 302 and 303 turn a body method into a `GET` without body, 307 and 308 keep the method and the body. Headers and body are dropped on a hop to another origin.
+- A keyword is looked for in the decoded body, read up to 1 MiB, as a case sensitive byte substring. `present` fails with `keyword_missing` when it is not there, `absent` fails with `keyword_found` when it is. The body is never stored.
+- Each monitor confirms a failure or a recovery after its own number of results, 1 to 10. With 1 there is no recheck.
+- The probe reads the end of the leaf certificate of the first https hop. A `certificate_expiring` alert goes once at 14, 7 and 1 days before that end, to every enabled channel of the monitor, without an incident. A renewed certificate starts again.
 
 ## Alerts and real time
 
@@ -73,11 +82,11 @@ Made by `npm run screenshots` in `web` from the local demo data. The demo target
 - Invitations go by mail and expire after 7 days. Only the SHA-256 of their token is stored.
 - Domain errors answer `{"message": "...", "code": "last_owner"}` with a stable code. The API allows 120 requests per minute per user, per address for guests.
 - `POST /api/broadcasting/auth` signs the private channel `organization.{id}` for its members only.
-- `GET /api/v1/meta` gives the forms their limits: intervals, timeouts, methods, roles and abilities, channel types and lengths.
+- `GET /api/v1/meta` gives the forms their limits: intervals, timeouts, methods, keyword matches, thresholds, certificate alert days, refused header names, roles and abilities, channel types and lengths.
 
 ## Product API
 
-- Monitors live under `/api/v1/organizations/{organization}/monitors`, at most 100 per organization. A URL with another scheme or a literal private, reserved or metadata address is refused at once, names are checked by the target guard at each check. Changing the URL, the method, the accepted codes or the redirects checks at once and restarts the confirmation, while the state and an open incident stay until new results confirm. Pause and resume are a `PATCH` of `is_paused`.
+- Monitors live under `/api/v1/organizations/{organization}/monitors`, at most 100 per organization. A URL with another scheme or a literal private, reserved or metadata address is refused at once, names are checked by the target guard at each check. Changing the URL, the method, the accepted codes, the redirects, the keyword, the request headers or the body checks at once and restarts the confirmation, while the state and an open incident stay until new results confirm. Pause and resume are a `PATCH` of `is_paused`.
 - Raw checks come newest first with a cursor on the check time, inside the 30 day retention.
 - Stats and the organization overview cover `24h`, `7d` and `30d` with 24 hourly, 28 six hour or 30 daily buckets in UTC. The 24 hour uptime comes from the raw results, the longer ones from the hourly stats, and a bucket without checks is `null`. Uptime is rounded down to a hundredth, so one failure never shows 100%.
 - Incidents filter by state and monitor, the detail adds the timeline of the opening, the alerts and the resolution.
