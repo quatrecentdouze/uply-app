@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  advancedIssues,
   advancedOpenAtStart,
+  type AdvancedTexts,
+  type AdvancedValues,
   advancedValues,
   bodyApplies,
   keywordApplies,
@@ -11,6 +14,25 @@ import {
 import { metaFixture, monitorFixture } from '@/shared/testing/fixtures';
 
 const monitoring = metaFixture().monitoring;
+
+const texts: AdvancedTexts = {
+  required: 'required',
+  maxLength: (max) => `max ${String(max)}`,
+  headerName: 'token',
+  headerRefused: 'refused',
+  headerDuplicate: 'duplicate',
+  headerValue: 'control',
+  tooManyHeaders: (max) => `at most ${String(max)} headers`,
+  threshold: ({ min, max }) => `from ${String(min)} to ${String(max)}`,
+};
+
+function draft(overrides: Partial<AdvancedValues> = {}): AdvancedValues {
+  return { ...advancedValues(null, monitoring), ...overrides };
+}
+
+function issuesOf(values: AdvancedValues, method: 'get' | 'head' | 'post' = 'get') {
+  return advancedIssues(values, method, monitoring, texts).map((issue) => [issue.path.join('.'), issue.message]);
+}
 
 describe('advancedValues', () => {
   it('starts a new monitor from the defaults of meta with editable headers and body', () => {
@@ -107,5 +129,106 @@ describe('touchesAdvanced', () => {
     expect(touchesAdvanced(['name', 'failure_threshold'])).toBe(true);
     expect(touchesAdvanced(['request_headers.2.value'])).toBe(true);
     expect(touchesAdvanced(['keywords'])).toBe(false);
+  });
+});
+
+describe('advancedIssues', () => {
+  it('accepts the starting values of a new monitor', () => {
+    expect(issuesOf(draft())).toEqual([]);
+  });
+
+  it('bounds the keyword by the length of meta, and ignores it for HEAD', () => {
+    const keyword = 'k'.repeat(monitoring.lengths.keyword.max + 1);
+
+    expect(issuesOf(draft({ keyword: 'k'.repeat(monitoring.lengths.keyword.max) }))).toEqual([]);
+    expect(issuesOf(draft({ keyword }))).toEqual([['keyword', 'max 200']]);
+    expect(issuesOf(draft({ keyword }), 'head')).toEqual([]);
+  });
+
+  it('asks a name and a value on every header row', () => {
+    expect(issuesOf(draft({ request_headers: [{ name: ' ', value: '  ' }] }))).toEqual([
+      ['request_headers.0.name', 'required'],
+      ['request_headers.0.value', 'required'],
+    ]);
+  });
+
+  it('takes a header name as an HTTP token within its length', () => {
+    const long = 'X'.repeat(monitoring.lengths.request_header_name.max + 1);
+
+    expect(issuesOf(draft({ request_headers: [{ name: "X-Api_Key.v2!#$%&'*+^`|~", value: 'a' }] }))).toEqual([]);
+    expect(issuesOf(draft({ request_headers: [{ name: 'X Api', value: 'a' }] }))).toEqual([['request_headers.0.name', 'token']]);
+    expect(issuesOf(draft({ request_headers: [{ name: 'X:Api', value: 'a' }] }))).toEqual([['request_headers.0.name', 'token']]);
+    expect(issuesOf(draft({ request_headers: [{ name: 'Clé', value: 'a' }] }))).toEqual([['request_headers.0.name', 'token']]);
+    expect(issuesOf(draft({ request_headers: [{ name: long, value: 'a' }] }))).toEqual([['request_headers.0.name', 'max 100']]);
+  });
+
+  it('refuses the names of meta in any case', () => {
+    expect(issuesOf(draft({ request_headers: [{ name: 'Content-Length', value: '3' }] }))).toEqual([['request_headers.0.name', 'refused']]);
+    expect(issuesOf(draft({ request_headers: [{ name: 'X-Ok', value: '1' }] }), 'get')).toEqual([]);
+    expect(
+      advancedIssues(draft({ request_headers: [{ name: 'x-blocked', value: '1' }] }), 'get', { ...monitoring, refused_header_names: ['X-Blocked'] }, texts).map((issue) => issue.message),
+    ).toEqual(['refused']);
+  });
+
+  it('keeps header names unique ignoring case, the first one wins', () => {
+    expect(
+      issuesOf(
+        draft({
+          request_headers: [
+            { name: 'Authorization', value: 'a' },
+            { name: 'X-Trace', value: 'b' },
+            { name: 'authorization', value: 'c' },
+          ],
+        }),
+      ),
+    ).toEqual([['request_headers.2.name', 'duplicate']]);
+  });
+
+  it('refuses a control character in a value, tab included, and bounds its length', () => {
+    const long = 'v'.repeat(monitoring.lengths.request_header_value.max + 1);
+
+    expect(issuesOf(draft({ request_headers: [{ name: 'X-Name', value: 'Bearer é ✓ 123' }] }))).toEqual([]);
+    expect(issuesOf(draft({ request_headers: [{ name: 'X-Name', value: 'a\tb' }] }))).toEqual([['request_headers.0.value', 'control']]);
+    expect(issuesOf(draft({ request_headers: [{ name: 'X-Name', value: 'a\u007fb' }] }))).toEqual([['request_headers.0.value', 'control']]);
+    expect(issuesOf(draft({ request_headers: [{ name: 'X-Name', value: '  padded\t ' }] }))).toEqual([]);
+    expect(issuesOf(draft({ request_headers: [{ name: 'X-Name', value: long }] }))).toEqual([['request_headers.0.value', 'max 1000']]);
+  });
+
+  it('bounds the number of header rows by meta', () => {
+    const rows = Array.from({ length: monitoring.limits.max_request_headers + 1 }, (_, index) => ({ name: `X-Header-${String(index)}`, value: 'v' }));
+
+    expect(issuesOf(draft({ request_headers: rows.slice(1) }))).toEqual([]);
+    expect(issuesOf(draft({ request_headers: rows }))).toEqual([['request_headers', 'at most 20 headers']]);
+  });
+
+  it('does not check rows that are not being replaced', () => {
+    expect(issuesOf(draft({ replace_headers: false, request_headers: [{ name: 'Host', value: '' }] }))).toEqual([]);
+  });
+
+  it('bounds the body by meta for a body method being replaced only', () => {
+    const body = 'b'.repeat(monitoring.lengths.request_body.max + 1);
+
+    expect(issuesOf(draft({ request_body: body.slice(1) }), 'post')).toEqual([]);
+    expect(issuesOf(draft({ request_body: body }), 'post')).toEqual([['request_body', 'max 10000']]);
+    expect(issuesOf(draft({ request_body: body }), 'get')).toEqual([]);
+    expect(issuesOf(draft({ replace_body: false, request_body: body }), 'post')).toEqual([]);
+  });
+
+  it('counts characters, not code units', () => {
+    const emoji = '😀'.repeat(monitoring.lengths.keyword.max);
+
+    expect(issuesOf(draft({ keyword: emoji }))).toEqual([]);
+  });
+
+  it('takes whole thresholds within the bounds of meta', () => {
+    expect(issuesOf(draft({ failure_threshold: '1', recovery_threshold: '10' }))).toEqual([]);
+    expect(issuesOf(draft({ failure_threshold: '0', recovery_threshold: '11' }))).toEqual([
+      ['failure_threshold', 'from 1 to 10'],
+      ['recovery_threshold', 'from 1 to 10'],
+    ]);
+    expect(issuesOf(draft({ failure_threshold: '2.5', recovery_threshold: '' }))).toEqual([
+      ['failure_threshold', 'from 1 to 10'],
+      ['recovery_threshold', 'from 1 to 10'],
+    ]);
   });
 });
