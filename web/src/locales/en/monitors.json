@@ -137,6 +137,8 @@
     "too_many_redirects": "Too many redirects",
     "blocked_target": "Blocked address",
     "body_too_large": "Answer too large",
+    "keyword_missing": "Keyword not found",
+    "keyword_found": "Unwanted keyword found",
     "unknown": "Unknown error"
   },
   "detail": {

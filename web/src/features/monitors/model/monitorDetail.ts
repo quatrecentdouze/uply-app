@@ -37,7 +37,19 @@ export function timingBreakdown(timings: MonitorStats['timings']): TimingBreakdo
   };
 }
 
-const failureKinds = ['timeout', 'dns', 'connect', 'tls', 'http_status', 'too_many_redirects', 'blocked_target', 'body_too_large', 'unknown'] as const;
+const failureKinds = [
+  'timeout',
+  'dns',
+  'connect',
+  'tls',
+  'http_status',
+  'too_many_redirects',
+  'blocked_target',
+  'body_too_large',
+  'keyword_missing',
+  'keyword_found',
+  'unknown',
+] as const;
 
 type FailureKind = (typeof failureKinds)[number];
 
@@ -49,6 +61,8 @@ const failureTextKeys: Record<Exclude<FailureKind, 'http_status'>, TextKey<'moni
   too_many_redirects: 'monitors:failures.too_many_redirects',
   blocked_target: 'monitors:failures.blocked_target',
   body_too_large: 'monitors:failures.body_too_large',
+  keyword_missing: 'monitors:failures.keyword_missing',
+  keyword_found: 'monitors:failures.keyword_found',
   unknown: 'monitors:failures.unknown',
 };
 

@@ -45,6 +45,11 @@ describe('checkDetailText', () => {
     expect(checkDetailText(check({ outcome: 'down', failure_kind: 'timeout', http_status: null }))).toEqual({ key: 'monitors:failures.timeout', status: null });
     expect(checkDetailText(check({ outcome: 'down', failure_kind: 'http_status', http_status: null }))).toEqual({ key: 'monitors:failures.no_status', status: null });
   });
+
+  it('names a keyword failure even with the status code of the answer', () => {
+    expect(checkDetailText(check({ outcome: 'down', failure_kind: 'keyword_missing', http_status: 200 }))).toEqual({ key: 'monitors:failures.keyword_missing', status: null });
+    expect(checkDetailText(check({ outcome: 'down', failure_kind: 'keyword_found', http_status: 200 }))).toEqual({ key: 'monitors:failures.keyword_found', status: null });
+  });
 });
 
 describe('checksOf', () => {
