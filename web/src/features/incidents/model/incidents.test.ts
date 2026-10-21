@@ -36,4 +36,12 @@ describe('causeText', () => {
     expect(causeText({ failure_kind: 'brand_new', http_status: null, message: null }).key).toBe('incidents:cause.unknown');
     expect(causeText({ failure_kind: null, http_status: null, message: null }).key).toBe('incidents:cause.unknown');
   });
+
+  it('names the keyword failures, not the status of their answer', () => {
+    expect(causeText({ failure_kind: 'keyword_missing', http_status: 200, message: 'the keyword is missing from the response body' })).toEqual({
+      key: 'incidents:cause.keyword_missing',
+      status: null,
+    });
+    expect(causeText({ failure_kind: 'keyword_found', http_status: 200, message: null })).toEqual({ key: 'incidents:cause.keyword_found', status: null });
+  });
 });

@@ -28,6 +28,15 @@ describe('timelineEntry', () => {
     });
   });
 
+  it('reads a keyword failure as the cause of the opening', () => {
+    expect(timelineEntry(event({ kind: 'opened', failure_kind: 'keyword_missing', http_status: 200, message: 'the keyword is missing from the response body' }))).toEqual({
+      kind: 'opened',
+      tone: 'alert',
+      cause: { key: 'incidents:cause.keyword_missing', status: null },
+      message: 'the keyword is missing from the response body',
+    });
+  });
+
   it('reads the downtime of the resolution', () => {
     expect(timelineEntry(event({ kind: 'resolved', duration_seconds: 252 }))).toEqual({ kind: 'resolved', tone: 'positive', durationSeconds: 252 });
   });

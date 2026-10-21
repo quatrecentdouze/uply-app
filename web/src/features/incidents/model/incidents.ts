@@ -25,7 +25,19 @@ export function incidentDurationSeconds(incident: Pick<Incident, 'started_at' | 
   return incident.resolved_at === null ? secondsBetween(incident.started_at, now) : secondsBetween(incident.started_at, new Date(incident.resolved_at));
 }
 
-const failureKinds = ['timeout', 'dns', 'connect', 'tls', 'http_status', 'too_many_redirects', 'blocked_target', 'body_too_large', 'unknown'] as const;
+const failureKinds = [
+  'timeout',
+  'dns',
+  'connect',
+  'tls',
+  'http_status',
+  'too_many_redirects',
+  'blocked_target',
+  'body_too_large',
+  'keyword_missing',
+  'keyword_found',
+  'unknown',
+] as const;
 
 type FailureKind = (typeof failureKinds)[number];
 
@@ -37,6 +49,8 @@ const causeTextKeys: Record<Exclude<FailureKind, 'http_status'>, TextKey<'incide
   too_many_redirects: 'incidents:cause.too_many_redirects',
   blocked_target: 'incidents:cause.blocked_target',
   body_too_large: 'incidents:cause.body_too_large',
+  keyword_missing: 'incidents:cause.keyword_missing',
+  keyword_found: 'incidents:cause.keyword_found',
   unknown: 'incidents:cause.unknown',
 };
 
