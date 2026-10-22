@@ -1,6 +1,6 @@
 import { act, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { useCreateMonitor, useDeleteMonitor, useMonitorChecks, useUpdateMonitor } from '@/features/monitors/api/monitors';
+import { useDeleteMonitor, useMonitorChecks, usePauseMonitor, useSaveMonitor } from '@/features/monitors/api/monitors';
 import { queryKeys } from '@/shared/api/queryKeys';
 import { renderApiHook } from '@/shared/testing/renderApiHook';
 import { monitorFixture, organizationId } from '@/shared/testing/fixtures';
@@ -36,27 +36,46 @@ describe('monitor queries', () => {
 });
 
 describe('monitor mutations', () => {
-  it('creates a monitor and refreshes the lists and the overview', async () => {
-    const hook = renderApiHook(() => useCreateMonitor(organizationId));
+  it('creates a monitor, writes its detail and refreshes the lists and the overview', async () => {
+    const hook = renderApiHook(() => useSaveMonitor(organizationId));
     hook.queryClient.setQueryData(queryKeys.monitors.list(organizationId, {}), { data: [] });
     hook.queryClient.setQueryData(queryKeys.overview.window(organizationId, '24h'), { data: null });
     hook.server.respond({ method: 'POST', path: base, status: 201, body: { data: monitor } });
 
     await act(async () => {
-      await hook.result.current.mutateAsync({ name: 'Public API', url: 'https://api.example.test/health', interval_seconds: 60 });
+      await expect(hook.result.current.create({ name: 'Public API', url: 'https://api.example.test/health', interval_seconds: 60 })).resolves.toEqual(monitor);
     });
 
     expect(hook.server.requestsTo('POST', base)[0]?.body).toEqual({ name: 'Public API', url: 'https://api.example.test/health', interval_seconds: 60 });
+    expect(hook.queryClient.getQueryData(queryKeys.monitors.detail(organizationId, 'mon-1'))).toEqual({ data: monitor });
     expect(hook.queryClient.getQueryState(queryKeys.monitors.list(organizationId, {}))?.isInvalidated).toBe(true);
     expect(hook.queryClient.getQueryState(queryKeys.overview.window(organizationId, '24h'))?.isInvalidated).toBe(true);
   });
 
-  it('writes the updated monitor into its detail', async () => {
-    const hook = renderApiHook(() => useUpdateMonitor(organizationId));
+  it('keeps the header values and the body of a save out of every cache', async () => {
+    const hook = renderApiHook(() => useSaveMonitor(organizationId));
+    const stored = { ...monitor, method: 'post' as const, request_header_names: ['Authorization'], has_request_body: true };
+    hook.server.respond({ method: 'POST', path: base, status: 201, body: { data: stored } });
+    hook.server.respond({ method: 'PATCH', path: `${base}/mon-1`, body: { data: stored } });
+
+    await act(async () => {
+      await hook.result.current.create({ name: 'Public API', url: 'https://api.example.test/health', method: 'post', request_headers: [{ name: 'Authorization', value: 'Bearer secret-one' }], request_body: 'secret-two' });
+      await hook.result.current.update('mon-1', { request_headers: [{ name: 'Authorization', value: 'Bearer secret-three' }], request_body: 'secret-four' });
+    });
+
+    const cached = JSON.stringify([hook.queryClient.getQueryCache().getAll().map((query) => query.state), hook.queryClient.getMutationCache().getAll().map((mutation) => mutation.state)]);
+    expect(hook.server.requestsTo('PATCH', `${base}/mon-1`)[0]?.body).toEqual({ request_headers: [{ name: 'Authorization', value: 'Bearer secret-three' }], request_body: 'secret-four' });
+    expect(cached).toContain('Authorization');
+    expect(cached).not.toMatch(/secret-(one|two|three|four)/);
+    expect(hook.queryClient.getMutationCache().getAll()).toEqual([]);
+  });
+
+  it('pauses a monitor and writes it into its detail', async () => {
+    const hook = renderApiHook(() => usePauseMonitor(organizationId));
     hook.server.respond({ method: 'PATCH', path: `${base}/mon-1`, body: { data: { ...monitor, is_paused: true } } });
 
     await act(async () => {
-      await hook.result.current.mutateAsync({ monitorId: 'mon-1', body: { is_paused: true } });
+      await hook.result.current.mutateAsync({ monitorId: 'mon-1', paused: true });
     });
 
     expect(hook.server.requestsTo('PATCH', `${base}/mon-1`)[0]?.body).toEqual({ is_paused: true });

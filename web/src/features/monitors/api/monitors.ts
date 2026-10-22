@@ -107,36 +107,46 @@ function useMonitorsChanged(organizationId: string) {
   };
 }
 
-export function useCreateMonitor(organizationId: string) {
-  const client = useApiClient();
-  const changed = useMonitorsChanged(organizationId);
-  return useMutation({
-    mutationFn: async (body: CreateMonitorBody): Promise<Monitor> =>
-      (await expectData(client.POST('/v1/organizations/{organization}/monitors', { params: { path: { organization: organizationId } }, body }))).data,
-    onSuccess: changed,
-  });
+async function patchMonitor(client: ApiClient, organizationId: string, monitorId: string, body: UpdateMonitorBody): Promise<Monitor> {
+  return (
+    await expectData(client.PATCH('/v1/organizations/{organization}/monitors/{monitor}', { params: { path: { organization: organizationId, monitor: monitorId } }, body }))
+  ).data;
 }
 
-export interface MonitorUpdate {
-  monitorId: string;
-  body: UpdateMonitorBody;
-}
-
-export function useUpdateMonitor(organizationId: string) {
-  const client = useApiClient();
+function useMonitorSaved(organizationId: string) {
   const queryClient = useQueryClient();
   const changed = useMonitorsChanged(organizationId);
+  return async (monitor: Monitor): Promise<Monitor> => {
+    queryClient.setQueryData<MonitorResponse>(queryKeys.monitors.detail(organizationId, monitor.id), { data: monitor });
+    await changed();
+    return monitor;
+  };
+}
+
+export interface MonitorWriter {
+  create: (body: CreateMonitorBody) => Promise<Monitor>;
+  update: (monitorId: string, body: UpdateMonitorBody) => Promise<Monitor>;
+}
+
+export function useSaveMonitor(organizationId: string): MonitorWriter {
+  const client = useApiClient();
+  const saved = useMonitorSaved(organizationId);
+  return {
+    create: async (body) => saved((await expectData(client.POST('/v1/organizations/{organization}/monitors', { params: { path: { organization: organizationId } }, body }))).data),
+    update: async (monitorId, body) => saved(await patchMonitor(client, organizationId, monitorId, body)),
+  };
+}
+
+export interface MonitorPause {
+  monitorId: string;
+  paused: boolean;
+}
+
+export function usePauseMonitor(organizationId: string) {
+  const client = useApiClient();
+  const saved = useMonitorSaved(organizationId);
   return useMutation({
-    mutationFn: async ({ monitorId, body }: MonitorUpdate): Promise<Monitor> =>
-      (
-        await expectData(
-          client.PATCH('/v1/organizations/{organization}/monitors/{monitor}', { params: { path: { organization: organizationId, monitor: monitorId } }, body }),
-        )
-      ).data,
-    onSuccess: async (monitor) => {
-      queryClient.setQueryData<MonitorResponse>(queryKeys.monitors.detail(organizationId, monitor.id), { data: monitor });
-      await changed();
-    },
+    mutationFn: async ({ monitorId, paused }: MonitorPause): Promise<Monitor> => saved(await patchMonitor(client, organizationId, monitorId, { is_paused: paused })),
   });
 }
 

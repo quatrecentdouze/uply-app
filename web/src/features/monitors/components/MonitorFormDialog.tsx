@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type ReactNode, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useCreateMonitor, useUpdateMonitor } from '@/features/monitors/api/monitors';
+import { useSaveMonitor } from '@/features/monitors/api/monitors';
 import { useMonitorFormTexts } from '@/features/monitors/hooks/useMonitorFormTexts';
 import {
   createMonitorBody,
@@ -40,8 +40,7 @@ const fields = ['name', 'url', 'method', 'interval_seconds', 'timeout_seconds', 
 function MonitorForm({ organizationId, monitor, monitoring, extra, onSaved, onOpenChange }: Omit<MonitorFormDialogProps, 'open'>) {
   const { t } = useTranslation(['monitors', 'errors']);
   const texts = useMonitorFormTexts();
-  const create = useCreateMonitor(organizationId);
-  const update = useUpdateMonitor(organizationId);
+  const save = useSaveMonitor(organizationId);
   const schema = useMemo(() => monitorFormSchema(texts, monitoring), [texts, monitoring]);
   const form = useForm<MonitorFormValues>({ resolver: zodResolver(schema), defaultValues: monitorFormValues(monitor, monitoring) });
   const { errors, isSubmitting } = form.formState;
@@ -49,10 +48,10 @@ function MonitorForm({ organizationId, monitor, monitoring, extra, onSaved, onOp
   const submit = form.handleSubmit(async (values) => {
     try {
       if (monitor === null) {
-        await onSaved(await create.mutateAsync(createMonitorBody(values)));
+        await onSaved(await save.create(createMonitorBody(values)));
       } else {
         const body = updateMonitorBody(monitor, values);
-        await onSaved(hasChanges(body) ? await update.mutateAsync({ monitorId: monitor.id, body }) : monitor);
+        await onSaved(hasChanges(body) ? await save.update(monitor.id, body) : monitor);
       }
       onOpenChange(false);
     } catch (error) {

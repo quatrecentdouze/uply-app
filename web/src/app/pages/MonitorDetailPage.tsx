@@ -6,7 +6,7 @@ import { MonitorEditor } from '@/app/monitors/MonitorEditor';
 import { NotFoundPage } from '@/app/pages/NotFoundPage';
 import { LinkedChannelsCard } from '@/features/alerting/components/LinkedChannelsCard';
 import { MonitorIncidentsCard } from '@/features/incidents/components/MonitorIncidentsCard';
-import { useDeleteMonitor, useMonitor, useMonitorStats, useUpdateMonitor } from '@/features/monitors/api/monitors';
+import { useDeleteMonitor, useMonitor, useMonitorStats, usePauseMonitor } from '@/features/monitors/api/monitors';
 import { MonitorHeaderCard, MonitorResponseCard, TimingBreakdownCard, UptimeStatCard } from '@/features/monitors/components/MonitorDetailCards';
 import { RecentChecksCard } from '@/features/monitors/components/RecentChecksCard';
 import { dashboardSettings } from '@/features/monitors/model/settings';
@@ -33,7 +33,7 @@ export function MonitorDetailPage({ monitorId }: { monitorId: string }) {
   const [responseWindow, setResponseWindow] = useState<Window>(dashboardSettings.default_window);
   const response = { '24h': day, '7d': week, '30d': month }[responseWindow];
   const now = useNow(dashboardSettings.clock_tick_seconds);
-  const update = useUpdateMonitor(organizationId);
+  const pause = usePauseMonitor(organizationId);
   const remove = useDeleteMonitor(organizationId);
   const [editing, setEditing] = useState(false);
   const deletion = useConfirmAction(async (target: Monitor) => {
@@ -59,9 +59,9 @@ export function MonitorDetailPage({ monitorId }: { monitorId: string }) {
         actions={
           canManage
             ? {
-                pausing: update.isPending,
+                pausing: pause.isPending,
                 onTogglePause: (paused) => {
-                  update.mutate({ monitorId: current.id, body: { is_paused: paused } });
+                  pause.mutate({ monitorId: current.id, paused });
                 },
                 onEdit: () => {
                   setEditing(true);

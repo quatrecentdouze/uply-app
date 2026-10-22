@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWorkspace } from '@/app/hooks/useWorkspace';
 import { MonitorEditor } from '@/app/monitors/MonitorEditor';
-import { useDeleteMonitor, useMonitorList, useUpdateMonitor } from '@/features/monitors/api/monitors';
+import { useDeleteMonitor, useMonitorList, usePauseMonitor } from '@/features/monitors/api/monitors';
 import { type MonitorActions, MonitorTable } from '@/features/monitors/components/MonitorTable';
 import { emptinessOf, listFilters, type StateFilter, stateFilters, stateFilterTextKeys } from '@/features/monitors/model/monitorList';
 import { dashboardSettings } from '@/features/monitors/model/settings';
@@ -36,7 +36,7 @@ export function MonitorsPage() {
   const filters = listFilters(state, useDebounced(search, dashboardSettings.search_delay_ms), dashboardSettings.list_size);
   const monitors = useMonitorList(organizationId, filters);
   const now = useNow(dashboardSettings.clock_tick_seconds);
-  const update = useUpdateMonitor(organizationId);
+  const pause = usePauseMonitor(organizationId);
   const remove = useDeleteMonitor(organizationId);
   const [editor, setEditor] = useState<EditorState>({ open: false, monitor: null });
   const deletion = useConfirmAction(async (monitor: Monitor) => {
@@ -50,7 +50,7 @@ export function MonitorsPage() {
           setEditor({ open: true, monitor });
         },
         onTogglePause: (monitor) => {
-          update.mutate({ monitorId: monitor.id, body: { is_paused: !monitor.is_paused } });
+          pause.mutate({ monitorId: monitor.id, paused: !monitor.is_paused });
         },
         onDelete: deletion.ask,
       }
