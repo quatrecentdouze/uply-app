@@ -3,18 +3,21 @@ import { useId } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { KeywordFields } from '@/features/monitors/components/KeywordFields';
+import { RequestHeadersField } from '@/features/monitors/components/RequestHeadersField';
 import { ThresholdFields } from '@/features/monitors/components/ThresholdFields';
 import { keywordApplies } from '@/features/monitors/model/advancedForm';
 import type { MonitorFormValues, MonitoringMeta } from '@/features/monitors/model/monitorForm';
+import type { Monitor } from '@/shared/api/resources';
 import { ChevronDown } from '@/shared/ui/icons';
 
 interface MonitorAdvancedSectionProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   monitoring: MonitoringMeta;
+  monitor: Monitor | null;
 }
 
-export function MonitorAdvancedSection({ open, onOpenChange, monitoring }: MonitorAdvancedSectionProps) {
+export function MonitorAdvancedSection({ open, onOpenChange, monitoring, monitor }: MonitorAdvancedSectionProps) {
   const { t } = useTranslation(['monitors']);
   const id = useId();
   const { control } = useFormContext<MonitorFormValues>();
@@ -38,6 +41,7 @@ export function MonitorAdvancedSection({ open, onOpenChange, monitoring }: Monit
       </button>
       <div id={id} hidden={!open} className="grid gap-5">
         {keywordApplies(method) ? <KeywordFields matches={monitoring.keyword_matches} /> : null}
+        <RequestHeadersField storedNames={monitor?.request_header_names ?? []} maxHeaders={monitoring.limits.max_request_headers} />
         <ThresholdFields thresholds={monitoring.thresholds} />
       </div>
     </div>

@@ -115,7 +115,7 @@ function MonitorForm({ organizationId, monitor, monitoring, extra, onSaved, onOp
           )}
         />
         {extra}
-        <MonitorAdvancedSection open={advancedOpen} onOpenChange={setAdvancedOpen} monitoring={monitoring} />
+        <MonitorAdvancedSection open={advancedOpen} onOpenChange={setAdvancedOpen} monitoring={monitoring} monitor={monitor} />
         <DialogFooter className="gap-2">
           <Button
             type="button"

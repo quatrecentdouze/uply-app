@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { MonitorFormDialog } from '@/features/monitors/components/MonitorFormDialog';
 import type { Monitor } from '@/shared/api/resources';
@@ -210,6 +210,124 @@ describe('MonitorFormDialog', () => {
       expect(page.onOpenChange).toHaveBeenCalledWith(false);
     });
     expect(page.server.requestsTo('PATCH', `${base}/mon-1`)[0]?.body).toEqual({ keyword: null });
+  });
+
+  it('adds and removes header rows, and sends the rows left', async () => {
+    const page = openDialog(null);
+    page.server.respond({ method: 'POST', path: base, status: 201, body: { data: monitorFixture() } });
+
+    await fillNew(page);
+    await page.user.click(screen.getByRole('button', { name: /Advanced/ }));
+    await page.user.click(screen.getByRole('button', { name: 'Add header' }));
+    await page.user.click(screen.getByRole('button', { name: 'Add header' }));
+    const first = screen.getByRole('group', { name: 'Header 1' });
+    await page.user.type(within(first).getByLabelText('Header name'), 'X-Removed');
+    await page.user.type(within(first).getByLabelText('Header value'), 'gone');
+    const second = screen.getByRole('group', { name: 'Header 2' });
+    await page.user.type(within(second).getByLabelText('Header name'), 'Accept');
+    await page.user.type(within(second).getByLabelText('Header value'), ' application/json ');
+    await page.user.click(screen.getByRole('button', { name: 'Remove header 1' }));
+    expect(screen.queryByRole('group', { name: 'Header 2' })).toBeNull();
+    await page.user.click(screen.getByRole('button', { name: 'Add monitor' }));
+
+    await waitFor(() => {
+      expect(page.onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(page.server.requestsTo('POST', base)[0]?.body).toMatchObject({ request_headers: [{ name: 'Accept', value: 'application/json' }] });
+  });
+
+  it('stops adding rows at the limit of meta', async () => {
+    const server = fakeFetch([{ method: 'GET', path: '/sanctum/csrf-cookie', status: 204 }]);
+    const limited = { ...monitoring, limits: { ...monitoring.limits, max_request_headers: 1 } };
+    const page = renderPage(() => <MonitorFormDialog open organizationId={organizationId} monitor={null} monitoring={limited} onSaved={vi.fn()} onOpenChange={vi.fn()} />, { server });
+
+    await page.user.click(await screen.findByRole('button', { name: /Advanced/ }));
+    await page.user.click(screen.getByRole('button', { name: 'Add header' }));
+
+    expect(screen.getByRole('button', { name: 'Add header' })).toBeDisabled();
+    expect(screen.getByText('Up to 1 headers. Values are stored encrypted and never shown again.')).toBeInTheDocument();
+  });
+
+  it('checks the header rows before sending', async () => {
+    const page = openDialog(null);
+
+    await fillNew(page);
+    await page.user.click(screen.getByRole('button', { name: /Advanced/ }));
+    await page.user.click(screen.getByRole('button', { name: 'Add header' }));
+    await page.user.click(screen.getByRole('button', { name: 'Add header' }));
+    const first = screen.getByRole('group', { name: 'Header 1' });
+    await page.user.type(within(first).getByLabelText('Header name'), 'Host');
+    await page.user.type(within(first).getByLabelText('Header value'), 'example.test');
+    const second = screen.getByRole('group', { name: 'Header 2' });
+    await page.user.type(within(second).getByLabelText('Header name'), 'X Trace');
+    await page.user.click(screen.getByRole('button', { name: 'Add monitor' }));
+
+    expect(await within(first).findByText('Uply sets this header itself.')).toBeInTheDocument();
+    expect(within(second).getByText("Use letters, digits and ! # $ % & ' * + - . ^ _ ` | ~ only, without spaces.")).toBeInTheDocument();
+    expect(within(second).getByText('This field is required.')).toBeInTheDocument();
+    expect(page.server.requestsTo('POST', base)).toEqual([]);
+  });
+
+  it('lists the stored header names and replaces them all', async () => {
+    const monitor = monitorFixture({ id: 'mon-1', request_header_names: ['Authorization', 'X-Trace'] });
+    const page = openDialog(monitor);
+    page.server.respond({ method: 'PATCH', path: `${base}/mon-1`, body: { data: { ...monitor, request_header_names: ['Authorization'] } } });
+
+    const stored = await screen.findByRole('list', { name: 'Stored headers' });
+    expect(within(stored).getAllByRole('listitem').map((item) => item.textContent)).toEqual(['Authorization', 'X-Trace']);
+    expect(screen.queryByRole('group', { name: 'Header 1' })).toBeNull();
+    await page.user.click(screen.getByRole('button', { name: 'Replace headers' }));
+    const first = screen.getByRole('group', { name: 'Header 1' });
+    expect(within(first).getByLabelText('Header name')).toHaveValue('Authorization');
+    expect(within(first).getByLabelText('Header value')).toHaveValue('');
+    await page.user.type(within(first).getByLabelText('Header value'), 'Bearer next');
+    await page.user.click(screen.getByRole('button', { name: 'Remove header 2' }));
+    await page.user.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    await waitFor(() => {
+      expect(page.onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(page.server.requestsTo('PATCH', `${base}/mon-1`)[0]?.body).toEqual({ request_headers: [{ name: 'Authorization', value: 'Bearer next' }] });
+  });
+
+  it('clears the stored headers with an empty list, and keeps them without Replace', async () => {
+    const monitor = monitorFixture({ id: 'mon-1', request_header_names: ['Authorization'] });
+    const page = openDialog(monitor);
+    page.server.respond({ method: 'PATCH', path: `${base}/mon-1`, body: { data: { ...monitor, request_header_names: [] } } });
+
+    await page.user.click(await screen.findByRole('button', { name: 'Replace headers' }));
+    await page.user.click(screen.getByRole('button', { name: 'Remove header 1' }));
+    expect(screen.getByText('Type every value again. Saving an empty list removes the headers.')).toBeInTheDocument();
+    await page.user.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    await waitFor(() => {
+      expect(page.onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(page.server.requestsTo('PATCH', `${base}/mon-1`)[0]?.body).toEqual({ request_headers: [] });
+  });
+
+  it('shows the errors of the API on their header row', async () => {
+    const page = openDialog(null);
+    page.server.respond({
+      method: 'POST',
+      path: base,
+      status: 422,
+      body: { message: 'Invalid.', errors: { 'request_headers.1.name': ['The header name is refused.'], 'request_headers.0.value': ['The value is not valid.'] } },
+    });
+
+    await fillNew(page);
+    await page.user.click(screen.getByRole('button', { name: /Advanced/ }));
+    for (const [index, name] of ['X-One', 'X-Two'].entries()) {
+      await page.user.click(screen.getByRole('button', { name: 'Add header' }));
+      const row = screen.getByRole('group', { name: `Header ${String(index + 1)}` });
+      await page.user.type(within(row).getByLabelText('Header name'), name);
+      await page.user.type(within(row).getByLabelText('Header value'), 'value');
+    }
+    await page.user.click(screen.getByRole('button', { name: 'Add monitor' }));
+
+    expect(await within(screen.getByRole('group', { name: 'Header 2' })).findByText('The header name is refused.')).toBeInTheDocument();
+    expect(within(screen.getByRole('group', { name: 'Header 1' })).getByText('The value is not valid.')).toBeInTheDocument();
+    expect(page.onOpenChange).not.toHaveBeenCalled();
   });
 
   it('sends nothing when the monitor did not change', async () => {
