@@ -8,12 +8,15 @@ import {
   type AdvancedValues,
   advancedValues,
   bodyApplies,
+  headerRowFields,
+  isHeaderRowField,
   keywordApplies,
   knownKeywordMatches,
   methodNotes,
   replacingHeaderRows,
   touchesAdvanced,
 } from '@/features/monitors/model/advancedForm';
+import { withFieldRoots } from '@/shared/api/formFailure';
 import { metaFixture, monitorFixture } from '@/shared/testing/fixtures';
 
 const monitoring = metaFixture().monitoring;
@@ -123,6 +126,30 @@ describe('field visibility by method', () => {
 describe('knownKeywordMatches', () => {
   it('keeps the matches of meta the form can name', () => {
     expect(knownKeywordMatches(['present', 'absent', 'regex'])).toEqual(['present', 'absent']);
+  });
+});
+
+describe('header row fields', () => {
+  it('names the name and value of each row', () => {
+    expect(headerRowFields(2)).toEqual(['request_headers.0.name', 'request_headers.0.value', 'request_headers.1.name', 'request_headers.1.value']);
+    expect(headerRowFields(0)).toEqual([]);
+  });
+
+  it('keeps a row error of the API on its row and files the others under the list', () => {
+    const failure = withFieldRoots(
+      {
+        kind: 'validation',
+        message: 'Invalid.',
+        fields: { 'request_headers.1.name': ['Refused.'], 'request_headers.0.value': ['Control.'], 'request_headers.2': ['Shape.'], 'accepted_status_codes.0': ['Range.'] },
+      },
+      isHeaderRowField,
+    );
+
+    expect(failure).toEqual({
+      kind: 'validation',
+      message: 'Invalid.',
+      fields: { 'request_headers.1.name': ['Refused.'], 'request_headers.0.value': ['Control.'], request_headers: ['Shape.'], accepted_status_codes: ['Range.'] },
+    });
   });
 });
 

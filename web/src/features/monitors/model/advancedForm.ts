@@ -89,6 +89,18 @@ export function replacingHeaderRows(names: readonly string[]): HeaderRow[] {
   return names.map((name) => ({ name, value: '' }));
 }
 
+const headerRowFieldPattern = /^request_headers\.\d+\.(name|value)$/;
+
+export function isHeaderRowField(field: string): boolean {
+  return headerRowFieldPattern.test(field);
+}
+
+export type HeaderRowField = `request_headers.${number}.${keyof HeaderRow}`;
+
+export function headerRowFields(rowCount: number): HeaderRowField[] {
+  return Array.from({ length: rowCount }, (_, index): HeaderRowField[] => [`request_headers.${index}.name`, `request_headers.${index}.value`]).flat();
+}
+
 export function touchesAdvanced(fields: Iterable<string>): boolean {
   return [...fields].some((field) => advancedFields.some((advanced) => field === advanced || field.startsWith(`${advanced}.`)));
 }
