@@ -15,6 +15,12 @@ export function useMonitorFormTexts(): MonitorFormTexts {
       tooManyRanges: (max) => t('monitors:form.errors.too_many_ranges', { max }),
       interval: t('monitors:form.errors.interval'),
       timeout: (bounds) => t('monitors:form.errors.timeout', { ...bounds }),
+      headerName: t('monitors:form.errors.header_name'),
+      headerRefused: t('monitors:form.errors.header_refused'),
+      headerDuplicate: t('monitors:form.errors.header_duplicate'),
+      headerValue: t('monitors:form.errors.header_value'),
+      tooManyHeaders: (max) => t('monitors:form.errors.too_many_headers', { max }),
+      threshold: (bounds) => t('monitors:form.errors.threshold', { ...bounds }),
     }),
     [base, t],
   );

@@ -48,9 +48,9 @@ function MonitorForm({ organizationId, monitor, monitoring, extra, onSaved, onOp
   const submit = form.handleSubmit(async (values) => {
     try {
       if (monitor === null) {
-        await onSaved(await save.create(createMonitorBody(values)));
+        await onSaved(await save.create(createMonitorBody(values, monitoring)));
       } else {
-        const body = updateMonitorBody(monitor, values);
+        const body = updateMonitorBody(monitor, values, monitoring);
         await onSaved(hasChanges(body) ? await save.update(monitor.id, body) : monitor);
       }
       onOpenChange(false);

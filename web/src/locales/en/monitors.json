@@ -89,7 +89,13 @@
       "status_ranges": "Use codes from 100 to 599, like 200-299 or 304.",
       "too_many_ranges": "Use at most {{max}} codes or ranges.",
       "interval": "Choose one of the intervals.",
-      "timeout": "Use a whole number of seconds from {{min}} to {{max}}."
+      "timeout": "Use a whole number of seconds from {{min}} to {{max}}.",
+      "header_name": "Use letters, digits and ! # $ % & ' * + - . ^ _ ` | ~ only, without spaces.",
+      "header_refused": "Uply sets this header itself.",
+      "header_duplicate": "This header is already in the list.",
+      "header_value": "Remove tabs, line breaks and other control characters.",
+      "too_many_headers": "Use at most {{max}} headers.",
+      "threshold": "Use a whole number from {{min}} to {{max}}."
     }
   },
   "methods": {

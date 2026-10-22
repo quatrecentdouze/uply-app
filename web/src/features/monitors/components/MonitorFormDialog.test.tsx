@@ -45,6 +45,8 @@ describe('MonitorFormDialog', () => {
       timeout_seconds: 10,
       accepted_status_codes: ['200-299'],
       follow_redirects: true,
+      failure_threshold: 2,
+      recovery_threshold: 2,
     });
     expect(page.onSaved).toHaveBeenCalledWith(monitorFixture());
   });

@@ -27,6 +27,12 @@ const texts: MonitorFormTexts = {
   tooManyRanges: (max) => `too many ${String(max)}`,
   interval: 'interval',
   timeout: ({ min, max }) => `timeout ${String(min)}-${String(max)}`,
+  headerName: 'token',
+  headerRefused: 'refused',
+  headerDuplicate: 'duplicate',
+  headerValue: 'control',
+  tooManyHeaders: (max) => `headers ${String(max)}`,
+  threshold: ({ min, max }) => `threshold ${String(min)}-${String(max)}`,
 };
 
 function issues(values: Record<string, unknown>) {
@@ -44,6 +50,14 @@ describe('monitorFormValues', () => {
       timeout_seconds: '10',
       accepted_status_codes: '200-299',
       follow_redirects: true,
+      keyword: '',
+      keyword_match: 'present',
+      replace_headers: true,
+      request_headers: [],
+      replace_body: true,
+      request_body: '',
+      failure_threshold: '2',
+      recovery_threshold: '2',
     });
   });
 
@@ -82,13 +96,21 @@ describe('monitorFormSchema', () => {
     expect(issues({ accepted_status_codes: ' ' })).toEqual({ accepted_status_codes: 'required' });
     expect(issues({ accepted_status_codes: Array.from({ length: 21 }, (_, index) => String(200 + index)).join(',') })).toEqual({ accepted_status_codes: 'too many 20' });
   });
+
+  it('files the issues of the advanced section under their fields, next to the others', () => {
+    expect(issues({ name: '', method: 'post', request_headers: [{ name: 'Host', value: 'a' }], failure_threshold: '0' })).toEqual({
+      name: 'required',
+      'request_headers.0.name': 'refused',
+      failure_threshold: 'threshold 1-10',
+    });
+  });
 });
 
 describe('monitor bodies', () => {
   it('sends numbers and a list of ranges', () => {
     const values = { ...monitorFormValues(null, monitoring), name: ' API ', url: 'https://api.example.test ', accepted_status_codes: '200-299, 304' };
 
-    expect(createMonitorBody(values)).toEqual({
+    expect(createMonitorBody(values, monitoring)).toEqual({
       name: 'API',
       url: 'https://api.example.test',
       method: 'get',
@@ -96,25 +118,38 @@ describe('monitor bodies', () => {
       timeout_seconds: 10,
       accepted_status_codes: ['200-299', '304'],
       follow_redirects: true,
+      failure_threshold: 2,
+      recovery_threshold: 2,
     });
   });
 
   it('leaves out an interval the contract does not list', () => {
     const values = { ...monitorFormValues(null, monitoring), name: 'API', url: 'https://api.example.test', interval_seconds: '45' };
 
-    expect(createMonitorBody(values)).not.toHaveProperty('interval_seconds');
-    expect(updateMonitorBody(monitorFixture(), values)).not.toHaveProperty('interval_seconds');
+    expect(createMonitorBody(values, monitoring)).not.toHaveProperty('interval_seconds');
+    expect(updateMonitorBody(monitorFixture(), values, monitoring)).not.toHaveProperty('interval_seconds');
   });
 
   it('patches only what changed', () => {
     const monitor = monitorFixture();
     const values = monitorFormValues(monitor, monitoring);
 
-    expect(hasChanges(updateMonitorBody(monitor, values))).toBe(false);
-    expect(updateMonitorBody(monitor, { ...values, name: 'Renamed', accepted_status_codes: '200-299,304' })).toEqual({
+    expect(hasChanges(updateMonitorBody(monitor, values, monitoring))).toBe(false);
+    expect(updateMonitorBody(monitor, { ...values, name: 'Renamed', accepted_status_codes: '200-299,304' }, monitoring)).toEqual({
       name: 'Renamed',
       accepted_status_codes: ['200-299', '304'],
     });
+  });
+
+  it('adds the advanced fields to the post and the patch', () => {
+    const stored = monitorFixture({ method: 'post', has_request_body: true, request_header_names: ['Authorization'] });
+    const values = monitorFormValues(stored, monitoring);
+
+    expect(createMonitorBody({ ...monitorFormValues(null, monitoring), name: 'API', url: 'https://api.example.test', keyword: 'ok' }, monitoring)).toMatchObject({
+      keyword: 'ok',
+      keyword_match: 'present',
+    });
+    expect(updateMonitorBody(stored, { ...values, method: 'get' }, monitoring)).toEqual({ method: 'get', request_body: null });
   });
 });
 
