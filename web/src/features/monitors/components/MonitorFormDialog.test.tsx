@@ -113,6 +113,67 @@ describe('MonitorFormDialog', () => {
     expect(page.server.requestsTo('PATCH', `${base}/mon-1`)[0]?.body).toEqual({ name: 'Renamed API', follow_redirects: false });
   });
 
+  it('keeps the advanced section closed on create and sends its thresholds', async () => {
+    const page = openDialog(null);
+    page.server.respond({ method: 'POST', path: base, status: 201, body: { data: monitorFixture() } });
+
+    const toggle = await screen.findByRole('button', { name: /Advanced/ });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('spinbutton', { name: 'Failures before down' })).toBeNull();
+    await fillNew(page);
+    await page.user.click(toggle);
+    const failures = screen.getByRole('spinbutton', { name: 'Failures before down' });
+    await page.user.clear(failures);
+    await page.user.type(failures, '1');
+    await page.user.click(screen.getByRole('button', { name: 'Add monitor' }));
+
+    await waitFor(() => {
+      expect(page.onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(page.server.requestsTo('POST', base)[0]?.body).toMatchObject({ failure_threshold: 1, recovery_threshold: 2 });
+  });
+
+  it('opens the advanced section on a threshold off the default and patches the change', async () => {
+    const monitor = monitorFixture({ id: 'mon-1', recovery_threshold: 3 });
+    const page = openDialog(monitor);
+    page.server.respond({ method: 'PATCH', path: `${base}/mon-1`, body: { data: { ...monitor, recovery_threshold: 5 } } });
+
+    expect(await screen.findByRole('button', { name: /Advanced/ })).toHaveAttribute('aria-expanded', 'true');
+    const recoveries = screen.getByRole('spinbutton', { name: 'Successes before up' });
+    expect(recoveries).toHaveValue(3);
+    await page.user.clear(recoveries);
+    await page.user.type(recoveries, '5');
+    await page.user.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    await waitFor(() => {
+      expect(page.onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(page.server.requestsTo('PATCH', `${base}/mon-1`)[0]?.body).toEqual({ recovery_threshold: 5 });
+  });
+
+  it('opens the advanced section on one of its errors', async () => {
+    const page = openDialog(monitorFixture({ id: 'mon-1' }));
+    page.server.respond({ method: 'PATCH', path: `${base}/mon-1`, status: 422, body: { message: 'Invalid.', errors: { failure_threshold: ['The threshold is too high.'] } } });
+
+    const toggle = await screen.findByRole('button', { name: /Advanced/ });
+    await page.user.click(toggle);
+    const failures = screen.getByRole('spinbutton', { name: 'Failures before down' });
+    await page.user.clear(failures);
+    await page.user.type(failures, '0');
+    await page.user.click(toggle);
+    await page.user.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    expect(await screen.findByText('Use a whole number from 1 to 10.')).toBeVisible();
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await page.user.clear(failures);
+    await page.user.type(failures, '9');
+    await page.user.click(toggle);
+    await page.user.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    expect(await screen.findByText('The threshold is too high.')).toBeVisible();
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  });
+
   it('sends nothing when the monitor did not change', async () => {
     const monitor = monitorFixture({ id: 'mon-1' });
     const page = openDialog(monitor);

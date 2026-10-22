@@ -80,6 +80,11 @@
     "create": "Add monitor",
     "save": "Save changes",
     "advanced": {
+      "title": "Advanced",
+      "summary": "Keyword, request headers and body, confirmation",
+      "failure_threshold": "Failures before down",
+      "recovery_threshold": "Successes before up",
+      "in_a_row": "Checks in a row",
       "drops_body": "Saving removes the request body.",
       "drops_keyword": "Saving removes the keyword."
     },
