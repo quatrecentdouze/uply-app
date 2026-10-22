@@ -47,6 +47,11 @@ export function knownKeywordMatches(matches: readonly string[]): KeywordMatch[] 
   return matches.filter(isKeywordMatch);
 }
 
+export const keywordMatchTextKeys: Record<KeywordMatch, TextKey<'monitors'>> = {
+  present: 'monitors:keyword_matches.present',
+  absent: 'monitors:keyword_matches.absent',
+};
+
 export function advancedValues(monitor: Monitor | null, monitoring: Monitoring): AdvancedValues {
   if (monitor === null) {
     return {

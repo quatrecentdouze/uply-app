@@ -82,6 +82,9 @@
     "advanced": {
       "title": "Advanced",
       "summary": "Keyword, request headers and body, confirmation",
+      "keyword": "Keyword",
+      "keyword_hint": "Looked for in the answer, case sensitive. Leave it empty to skip it.",
+      "keyword_match": "Keyword rule",
       "failure_threshold": "Failures before down",
       "recovery_threshold": "Successes before up",
       "in_a_row": "Checks in a row",
@@ -102,6 +105,10 @@
       "too_many_headers": "Use at most {{max}} headers.",
       "threshold": "Use a whole number from {{min}} to {{max}}."
     }
+  },
+  "keyword_matches": {
+    "present": "Must contain",
+    "absent": "Must not contain"
   },
   "methods": {
     "get": "GET",

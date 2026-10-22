@@ -174,6 +174,44 @@ describe('MonitorFormDialog', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
   });
 
+  it('adds a keyword with its rule, and hides it for HEAD', async () => {
+    const page = openDialog(null);
+    page.server.respond({ method: 'POST', path: base, status: 201, body: { data: monitorFixture() } });
+
+    await fillNew(page);
+    await page.user.click(screen.getByRole('button', { name: /Advanced/ }));
+    await page.user.type(screen.getByRole('textbox', { name: 'Keyword' }), ' Maintenance ');
+    const rule = screen.getByRole('combobox', { name: 'Keyword rule' });
+    expect([...rule.querySelectorAll('option')].map((option) => option.textContent)).toEqual(['Must contain', 'Must not contain']);
+    await page.user.selectOptions(rule, 'Must not contain');
+    await page.user.selectOptions(screen.getByLabelText('Method'), 'HEAD');
+    expect(screen.queryByRole('textbox', { name: 'Keyword' })).toBeNull();
+    await page.user.selectOptions(screen.getByLabelText('Method'), 'GET');
+    expect(screen.getByRole('textbox', { name: 'Keyword' })).toHaveValue(' Maintenance ');
+    await page.user.click(screen.getByRole('button', { name: 'Add monitor' }));
+
+    await waitFor(() => {
+      expect(page.onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(page.server.requestsTo('POST', base)[0]?.body).toMatchObject({ method: 'get', keyword: 'Maintenance', keyword_match: 'absent' });
+  });
+
+  it('shows the keyword of a monitor and clears it', async () => {
+    const monitor = monitorFixture({ id: 'mon-1', keyword: 'Welcome', keyword_match: 'present' });
+    const page = openDialog(monitor);
+    page.server.respond({ method: 'PATCH', path: `${base}/mon-1`, body: { data: { ...monitor, keyword: null } } });
+
+    const keyword = await screen.findByRole('textbox', { name: 'Keyword' });
+    expect(keyword).toHaveValue('Welcome');
+    await page.user.clear(keyword);
+    await page.user.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    await waitFor(() => {
+      expect(page.onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(page.server.requestsTo('PATCH', `${base}/mon-1`)[0]?.body).toEqual({ keyword: null });
+  });
+
   it('sends nothing when the monitor did not change', async () => {
     const monitor = monitorFixture({ id: 'mon-1' });
     const page = openDialog(monitor);
