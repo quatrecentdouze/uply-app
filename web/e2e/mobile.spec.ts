@@ -34,6 +34,22 @@ test('the app screens fit 375 px without a horizontal scroll', async ({ page, co
   }
 
   await openFromDrawer(page, 'Monitors');
+  await page.getByRole('button', { name: 'Add monitor' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Add a monitor' });
+  await dialog.getByLabel('Method').selectOption({ label: 'POST' });
+  await dialog.getByRole('button', { name: /Advanced/ }).click();
+  await dialog.getByRole('button', { name: 'Add header' }).click();
+  const row = dialog.getByRole('group', { name: 'Header 1' });
+  const box = await dialog.boundingBox();
+  const name = await row.getByLabel('Header name').boundingBox();
+  const value = await row.getByLabel('Header value').boundingBox();
+  const remove = await row.getByRole('button', { name: 'Remove header 1' }).boundingBox();
+  expect(box !== null && box.x >= 0 && box.x + box.width <= 375, 'the monitor dialog leaves the screen').toBe(true);
+  expect(name !== null && value !== null && value.y >= name.y + name.height, 'the header row is not stacked').toBe(true);
+  expect(remove !== null && remove.width >= 40 && remove.height >= 40, 'the remove button is under 40 px').toBe(true);
+  await dialog.getByRole('button', { name: 'Cancel' }).click();
+  await expect(dialog).toBeHidden();
+
   await page.getByRole('table', { name: 'Monitors of the organization' }).getByRole('link').first().click();
   await expect(page).toHaveURL(/\/monitors\/[a-z0-9]+$/);
   await expectNoHorizontalScroll(page, 'Monitor detail');
