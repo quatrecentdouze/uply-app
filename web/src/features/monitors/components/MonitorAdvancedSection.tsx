@@ -3,9 +3,10 @@ import { useId } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { KeywordFields } from '@/features/monitors/components/KeywordFields';
+import { RequestBodyField } from '@/features/monitors/components/RequestBodyField';
 import { RequestHeadersField } from '@/features/monitors/components/RequestHeadersField';
 import { ThresholdFields } from '@/features/monitors/components/ThresholdFields';
-import { keywordApplies } from '@/features/monitors/model/advancedForm';
+import { bodyApplies, keywordApplies } from '@/features/monitors/model/advancedForm';
 import type { MonitorFormValues, MonitoringMeta } from '@/features/monitors/model/monitorForm';
 import type { Monitor } from '@/shared/api/resources';
 import { ChevronDown } from '@/shared/ui/icons';
@@ -42,6 +43,7 @@ export function MonitorAdvancedSection({ open, onOpenChange, monitoring, monitor
       <div id={id} hidden={!open} className="grid gap-5">
         {keywordApplies(method) ? <KeywordFields matches={monitoring.keyword_matches} /> : null}
         <RequestHeadersField storedNames={monitor?.request_header_names ?? []} maxHeaders={monitoring.limits.max_request_headers} />
+        {bodyApplies(method, monitoring) ? <RequestBodyField stored={monitor?.has_request_body === true} /> : null}
         <ThresholdFields thresholds={monitoring.thresholds} />
       </div>
     </div>

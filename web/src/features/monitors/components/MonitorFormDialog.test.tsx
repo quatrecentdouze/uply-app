@@ -330,6 +330,56 @@ describe('MonitorFormDialog', () => {
     expect(page.onOpenChange).not.toHaveBeenCalled();
   });
 
+  it('sends the body as typed for a body method only', async () => {
+    const page = openDialog(null);
+    page.server.respond({ method: 'POST', path: base, status: 201, body: { data: monitorFixture({ method: 'post', has_request_body: true }) } });
+
+    await fillNew(page);
+    await page.user.click(screen.getByRole('button', { name: /Advanced/ }));
+    expect(screen.queryByRole('textbox', { name: 'Request body' })).toBeNull();
+    await page.user.selectOptions(screen.getByLabelText('Method'), 'POST');
+    const body = screen.getByRole('textbox', { name: 'Request body' });
+    expect(body).toHaveAttribute('spellcheck', 'false');
+    expect(body).toHaveAttribute('autocomplete', 'off');
+    await page.user.type(body, ' {{"ping": true} ');
+    await page.user.click(screen.getByRole('button', { name: 'Add monitor' }));
+
+    await waitFor(() => {
+      expect(page.onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(page.server.requestsTo('POST', base)[0]?.body).toMatchObject({ method: 'post', request_body: ' {"ping": true} ' });
+  });
+
+  it('keeps a stored body until it is replaced, then clears it when left empty', async () => {
+    const monitor = monitorFixture({ id: 'mon-1', method: 'put', has_request_body: true });
+    const page = openDialog(monitor);
+    page.server.respond({ method: 'PATCH', path: `${base}/mon-1`, body: { data: { ...monitor, has_request_body: false } } });
+
+    expect(await screen.findByText('Body stored')).toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'Request body' })).toBeNull();
+    await page.user.click(screen.getByRole('button', { name: 'Replace body' }));
+    expect(screen.getByRole('textbox', { name: 'Request body' })).toHaveValue('');
+    expect(screen.getByText('Leave it empty to remove the body.')).toBeInTheDocument();
+    await page.user.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    await waitFor(() => {
+      expect(page.onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(page.server.requestsTo('PATCH', `${base}/mon-1`)[0]?.body).toEqual({ request_body: null });
+  });
+
+  it('sends nothing about a stored body that was not replaced', async () => {
+    const monitor = monitorFixture({ id: 'mon-1', method: 'post', has_request_body: true, request_header_names: ['Authorization'] });
+    const page = openDialog(monitor);
+
+    await page.user.click(await screen.findByRole('button', { name: 'Save changes' }));
+
+    await waitFor(() => {
+      expect(page.onSaved).toHaveBeenCalledWith(monitor);
+    });
+    expect(page.server.requestsTo('PATCH', `${base}/mon-1`)).toEqual([]);
+  });
+
   it('sends nothing when the monitor did not change', async () => {
     const monitor = monitorFixture({ id: 'mon-1' });
     const page = openDialog(monitor);
