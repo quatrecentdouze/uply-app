@@ -9,7 +9,7 @@ import { CardHeading, Pill, SurfaceCard } from '@/shared/ui/surface-card';
 
 function SettingRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="grid gap-1 border-b border-divider py-3 last:border-b-0 sm:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] sm:gap-4">
+    <div className="grid gap-1 border-b border-divider py-3 last:border-b-0 sm:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] sm:items-baseline sm:gap-4">
       <dt className="text-sm text-muted-foreground">{label}</dt>
       <dd className="flex min-w-0 flex-wrap items-center gap-2">{children}</dd>
     </div>
