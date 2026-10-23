@@ -7,7 +7,7 @@ import { PublicMonitorCard } from '@/features/status-pages/components/PublicMoni
 import { StatusBanner } from '@/features/status-pages/components/StatusBanner';
 import { overallStateOf } from '@/features/status-pages/model/publicPage';
 import type { TextKey } from '@/shared/i18n/textKey';
-import { Activity, BellRing, Gauge, KeyRound, LayoutGrid, type LucideIcon, Siren, Timer, Users } from '@/shared/ui/icons';
+import { Activity, BellRing, Gauge, KeyRound, LayoutGrid, type LucideIcon, Send, ShieldCheck, Siren, Timer, Users } from '@/shared/ui/icons';
 
 const showcaseBars = 30;
 
@@ -26,6 +26,8 @@ const miniFeatures: readonly MiniFeature[] = [
   { icon: Timer, title: 'landing:features.timings.title', text: 'landing:features.timings.text' },
   { icon: Users, title: 'landing:features.teams.title', text: 'landing:features.teams.text' },
   { icon: KeyRound, title: 'landing:features.security.title', text: 'landing:features.security.text' },
+  { icon: Send, title: 'landing:features.requests.title', text: 'landing:features.requests.text' },
+  { icon: ShieldCheck, title: 'landing:features.certificates.title', text: 'landing:features.certificates.text' },
 ];
 
 function FeatureCard({ icon: Icon, title, text, children }: { icon: LucideIcon; title: string; text: string; children: ReactNode }) {
@@ -75,7 +77,7 @@ export function LandingFeatures() {
           </div>
         </FeatureCard>
       </div>
-      <ul className="mt-8 grid gap-x-8 gap-y-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-8 grid gap-x-8 gap-y-6 sm:mt-10 sm:grid-cols-2 lg:grid-cols-4">
         {miniFeatures.map(({ icon: Icon, title, text }) => (
           <li key={title} className="flex items-start gap-3">
             <Icon className="mt-0.5 size-[22px] shrink-0 text-muted-foreground" strokeWidth={1.5} aria-hidden="true" />

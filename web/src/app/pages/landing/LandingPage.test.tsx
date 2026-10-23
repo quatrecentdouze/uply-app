@@ -81,13 +81,36 @@ describe('landing texts against the API', () => {
   });
 
   it('describes the confirmation and every alert channel', () => {
-    expect(faq.alerts.answer).toContain(`When ${String(phpNumber(monitoringConfig, 'failures_to_confirm_down'))} checks in a row fail`);
+    expect(faq.alerts.answer).toContain(`By default when ${String(phpNumber(monitoringConfig, 'failures_to_confirm_down'))} checks in a row fail`);
     expect(faq.alerts.answer).toContain(`when ${String(phpNumber(monitoringConfig, 'successes_to_confirm_up'))} checks in a row pass`);
     expect(faq.alerts.answer).toContain(`after ${String(phpNumber(monitoringConfig, 'recheck_delay_seconds'))} seconds`);
     expect(texts.features.checks.text).toContain(`${String(phpNumber(monitoringConfig, 'recheck_delay_seconds'))} seconds later`);
     for (const channel of enumOf('ChannelType')) {
       expect(faq.alerts.answer.toLowerCase()).toContain(channel);
     }
+  });
+
+  it('gives the thresholds of a monitor and the days of the certificate alert', () => {
+    const thresholds = `${String(phpNumber(monitoringConfig, 'min_threshold'))} to ${String(phpNumber(monitoringConfig, 'max_threshold'))}`;
+    const days = phpNumbers(monitoringConfig, 'expiry_alert_days');
+    const dayList = `${days.slice(0, -1).join(', ')} and ${String(days.at(-1))} days`;
+
+    expect(faq.alerts.answer).toContain(`can ask for ${thresholds} instead`);
+    expect(texts.features.checks.text).toContain(`after ${thresholds} of your choice`);
+    expect(texts.features.checks.text).toContain(`two results in a row by default`);
+    expect(phpNumber(monitoringConfig, 'failures_to_confirm_down')).toBe(2);
+    expect(faq.alerts.answer).toContain(`also ${dayList} before the TLS certificate`);
+    expect(texts.features.certificates.text).toContain(`${dayList} before the TLS certificate`);
+  });
+
+  it('names the request parts and the keyword rules of a check', () => {
+    for (const method of enumOf('HttpMethod')) {
+      expect(texts.features.requests.text).toContain(method.toUpperCase());
+    }
+    expect(enumOf('KeywordMatch')).toEqual(['present', 'absent']);
+    expect(texts.features.requests.text).toContain('must or must not be in the answer');
+    expect(faq.checks.answer).toContain('the headers and body you set');
+    expect(faq.checks.answer).toContain('A keyword can also have to be in the answer, or not be in it.');
   });
 
   it('gives the bar days and incident days of the public status pages', () => {

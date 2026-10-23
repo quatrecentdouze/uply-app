@@ -27,7 +27,7 @@
     "description": "Uply does a few things and does them on time: it checks, it confirms, it alerts and it keeps the history.",
     "checks": {
       "title": "Checks that confirm before they alert.",
-      "text": "Each monitor runs on its own interval, from every 30 seconds to every hour. A failed check runs again 20 seconds later, and a state only changes after two results in a row."
+      "text": "Each monitor runs on its own interval, from every 30 seconds to every hour. A failed check runs again 20 seconds later, and a state changes after two results in a row by default, or after 1 to 10 of your choice."
     },
     "status_pages": {
       "title": "A status page your users can read.",
@@ -56,6 +56,14 @@
     "security": {
       "title": "A careful sign in",
       "text": "A verified email for every account, and two factor authentication with recovery codes."
+    },
+    "requests": {
+      "title": "Checks that go deeper",
+      "text": "Send GET, HEAD, POST, PUT or PATCH with your own headers and body, and look for a keyword that must or must not be in the answer."
+    },
+    "certificates": {
+      "title": "Certificates on watch",
+      "text": "An alert 14, 7 and 1 days before the TLS certificate of a monitor ends."
     }
   },
   "steps": {
@@ -83,7 +91,7 @@
     "items": {
       "checks": {
         "question": "What does Uply check?",
-        "answer": "HTTP and HTTPS addresses, with a GET, HEAD, POST, PUT or PATCH request. A check passes when the status code is one you accept, 200 to 299 by default, and the answer arrives before the timeout: 10 seconds by default, 30 seconds at most."
+        "answer": "HTTP and HTTPS addresses, with a GET, HEAD, POST, PUT or PATCH request and the headers and body you set. A check passes when the status code is one you accept, 200 to 299 by default, and the answer arrives before the timeout: 10 seconds by default, 30 seconds at most. A keyword can also have to be in the answer, or not be in it."
       },
       "intervals": {
         "question": "How often is a service checked?",
@@ -91,7 +99,7 @@
       },
       "alerts": {
         "question": "When am I alerted?",
-        "answer": "When 2 checks in a row fail, and again when 2 checks in a row pass. A failed check runs again after 20 seconds. Alerts go by email, Discord and Slack, in plain text, to every enabled channel linked to the monitor."
+        "answer": "By default when 2 checks in a row fail, and again when 2 checks in a row pass. Each monitor can ask for 1 to 10 instead. A failed check runs again after 20 seconds. Alerts go by email, Discord and Slack, in plain text, to every enabled channel linked to the monitor, and also 14, 7 and 1 days before the TLS certificate of an HTTPS monitor ends."
       },
       "status_pages": {
         "question": "What do my users see on a status page?",
