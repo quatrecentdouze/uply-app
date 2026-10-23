@@ -202,6 +202,12 @@
       "min": "Fastest",
       "max": "Slowest"
     },
+    "settings": {
+      "certificate_none": "No certificate yet",
+      "certificate_days_left_one": "{{count}} day left",
+      "certificate_days_left_other": "{{count}} days left",
+      "certificate_expired": "Expired"
+    },
     "checks_title": "Recent checks",
     "checks_table": "Recent checks of the monitor",
     "no_checks": "No check yet. The first one runs within a minute.",
