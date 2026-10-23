@@ -10,7 +10,7 @@ Made by `npm run screenshots` in `web` from the local demo data. The demo target
 
 ![Dashboard: uptime over 24 hours, monitor states, response time and the monitors that need attention](.github/readme/dashboard.png)
 
-![Monitor detail: state, pause, uptime over 24 hours, 7 days and 30 days, response time, timing breakdown, incidents](.github/readme/monitor.png)
+![Monitor detail: state, pause, uptime over 24 hours, 7 days and 30 days, response time, timing breakdown, check settings](.github/readme/monitor.png)
 
 ![Incidents with their duration and cause](.github/readme/incidents.png)
 
@@ -46,7 +46,7 @@ Made by `npm run screenshots` in `web` from the local demo data. The demo target
 | 4a | Web project, API client, real time, entry screens, app shell and dashboard (Web) | done |
 | 4b | Management screens: monitors, incidents, alert channels, status pages, settings (Web) | done |
 | 5 | Public status pages, landing page, mobile, end to end tests and polish (Web) | done |
-| 6 | Check depth: keyword, request headers and body, thresholds per monitor, TLS expiry alert (API, then Web) | API done, Web next |
+| 6 | Check depth: keyword, request headers and body, thresholds per monitor, TLS expiry alert (API, then Web) | done |
 | 7 | Alert depth: maintenance windows, reminders while an incident is open, flapping (API, then Web) | planned |
 
 ## Check engine
@@ -143,7 +143,8 @@ Serve any page on that port, run the scheduler, a worker and Reverb, then change
 - The entry flow follows `GET /api/v1/me`: a guest signs in, an unverified user verifies the email, a user without organization creates one. Sign up, password reset, the two factor challenge and invitations have their own screens.
 - The app shell has a sidebar with the open incidents badge and the organization switcher, a `Ctrl K` palette for pages and monitors, a shortcuts dialog and a drawer under 1024 px.
 - The dashboard shows the uptime over 24 hours, 7 days or 30 days, the monitors by state, the response time, the recent incidents and the monitors that need attention first. One Echo subscription per organization keeps it live: each Reverb event writes or refreshes the TanStack Query cache, and no screen subscribes by itself.
-- The management screens cover monitors (list with state filter and search, a form in a dialog, pause, a detail with the uptime over 24 hours, 7 days and 30 days, the response time, the timing breakdown, the recent checks by cursor, the incidents and the linked alert channels), incidents with their timeline, alert channels per type with a test send, the status page editor with the order and display names of its monitors, and the settings of the organization, its members and invitations, the profile, the password, two factor authentication and the account deletion.
+- The management screens cover monitors (list with state filter and search, a form in a dialog with an Advanced section for the keyword, the request headers and body and the thresholds, pause, a detail with the uptime over 24 hours, 7 days and 30 days, the response time, the timing breakdown, the check settings with the end of the TLS certificate, the recent checks by cursor, the incidents and the linked alert channels), incidents with their timeline, alert channels per type with a test send, the status page editor with the order and display names of its monitors, and the settings of the organization, its members and invitations, the profile, the password, two factor authentication and the account deletion.
+- Header values and the request body are never read back: the form lists the stored header names and has Replace headers and Replace body, the detail shows the names and Sent. They live only in the form state, never in the query cache, the browser storage or the URL.
 - A write action shows only when the role of the user allows it, from the abilities `GET /api/v1/meta` gives each role. Every delete asks for a confirmation, the organization and the account ask for the password.
 - A public status page lives at `/status/{slug}` without a session: the overall state, one card per monitor with its 90 day uptime and one bar per day (the last 30 on a phone), and the incidents of the last 14 days, read again every 30 seconds while the tab is visible.
 - Visitors land on a page at `/` whose previews are real components of the app fed by a static sample. A signed in user goes straight to `/dashboard`.
