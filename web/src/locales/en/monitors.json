@@ -203,6 +203,14 @@
       "max": "Slowest"
     },
     "settings": {
+      "title": "Check settings",
+      "info": "What each check sends and looks for. Header values and the body stay hidden.",
+      "none": "None",
+      "header_names": "Request header names",
+      "body_sent": "Sent",
+      "in_a_row_one": "{{count}} check in a row",
+      "in_a_row_other": "{{count}} checks in a row",
+      "certificate": "TLS certificate",
       "certificate_none": "No certificate yet",
       "certificate_days_left_one": "{{count}} day left",
       "certificate_days_left_other": "{{count}} days left",

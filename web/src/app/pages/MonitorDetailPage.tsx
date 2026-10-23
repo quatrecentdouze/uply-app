@@ -7,6 +7,7 @@ import { NotFoundPage } from '@/app/pages/NotFoundPage';
 import { LinkedChannelsCard } from '@/features/alerting/components/LinkedChannelsCard';
 import { MonitorIncidentsCard } from '@/features/incidents/components/MonitorIncidentsCard';
 import { useDeleteMonitor, useMonitor, useMonitorStats, usePauseMonitor } from '@/features/monitors/api/monitors';
+import { CheckSettingsCard } from '@/features/monitors/components/CheckSettingsCard';
 import { MonitorHeaderCard, MonitorResponseCard, TimingBreakdownCard, UptimeStatCard } from '@/features/monitors/components/MonitorDetailCards';
 import { RecentChecksCard } from '@/features/monitors/components/RecentChecksCard';
 import { dashboardSettings } from '@/features/monitors/model/settings';
@@ -85,6 +86,7 @@ export function MonitorDetailPage({ monitorId }: { monitorId: string }) {
         </div>
         <div className="grid min-w-0 gap-4 2xl:gap-5">
           <TimingBreakdownCard stats={day.data} retry={retryOf(day)} />
+          <CheckSettingsCard monitor={current} now={now} alertDays={monitoring?.tls.expiry_alert_days ?? []} />
           <MonitorIncidentsCard organizationId={organizationId} monitorId={current.id} now={now} size={dashboardSettings.detail_incidents} />
           <LinkedChannelsCard organizationId={organizationId} monitorId={current.id} />
         </div>

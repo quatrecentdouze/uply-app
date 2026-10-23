@@ -56,6 +56,7 @@ describe('monitor detail page', () => {
     expect(await within(await screen.findByRole('table', { name: 'Recent checks of the monitor' })).findByText('Timeout')).toBeInTheDocument();
     expect(await screen.findByRole('link', { name: /HTTP 503/ })).toHaveAttribute('href', '/incidents/inc-1');
     expect(await within(screen.getByRole('region', { name: 'Alert channels' })).findByText('On-call email')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Check settings' })).getByText('No certificate yet')).toBeInTheDocument();
   });
 
   it('loads older checks with the cursor', async () => {
