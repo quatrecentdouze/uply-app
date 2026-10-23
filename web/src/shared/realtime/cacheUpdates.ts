@@ -29,6 +29,7 @@ export function applyRealtimeEvent(queryClient: QueryClient, organizationId: str
         last_checked_at: event.payload.checked_at,
         last_response_ms: event.payload.response_ms,
       });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.monitors.detail(organizationId, event.payload.monitor_id), exact: true });
       void queryClient.invalidateQueries({ queryKey: queryKeys.monitors.checks(organizationId, event.payload.monitor_id) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.monitors.stats(organizationId, event.payload.monitor_id) });
       return;
