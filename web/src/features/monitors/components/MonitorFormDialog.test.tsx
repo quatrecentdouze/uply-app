@@ -380,6 +380,40 @@ describe('MonitorFormDialog', () => {
     expect(page.server.requestsTo('PATCH', `${base}/mon-1`)).toEqual([]);
   });
 
+  it('warns that a method without body removes the stored body, then sends null for it', async () => {
+    const monitor = monitorFixture({ id: 'mon-1', method: 'post', has_request_body: true });
+    const page = openDialog(monitor);
+    page.server.respond({ method: 'PATCH', path: `${base}/mon-1`, body: { data: { ...monitor, method: 'get', has_request_body: false } } });
+
+    const method = await screen.findByLabelText('Method');
+    expect(screen.queryByText('Saving removes the request body.')).toBeNull();
+    await page.user.selectOptions(method, 'GET');
+    expect(method).toHaveAccessibleDescription('Saving removes the request body.');
+    await page.user.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    await waitFor(() => {
+      expect(page.onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(page.server.requestsTo('PATCH', `${base}/mon-1`)[0]?.body).toEqual({ method: 'get', request_body: null });
+  });
+
+  it('warns that HEAD removes the keyword, and leaves it out of the new monitor', async () => {
+    const page = openDialog(null);
+    page.server.respond({ method: 'POST', path: base, status: 201, body: { data: monitorFixture({ method: 'head' }) } });
+
+    await fillNew(page);
+    await page.user.click(screen.getByRole('button', { name: /Advanced/ }));
+    await page.user.type(screen.getByRole('textbox', { name: 'Keyword' }), 'Welcome');
+    await page.user.selectOptions(screen.getByLabelText('Method'), 'HEAD');
+    expect(screen.getByLabelText('Method')).toHaveAccessibleDescription('Saving removes the keyword.');
+    await page.user.click(screen.getByRole('button', { name: 'Add monitor' }));
+
+    await waitFor(() => {
+      expect(page.onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(page.server.requestsTo('POST', base)[0]?.body).not.toHaveProperty('keyword');
+  });
+
   it('sends nothing when the monitor did not change', async () => {
     const monitor = monitorFixture({ id: 'mon-1' });
     const page = openDialog(monitor);

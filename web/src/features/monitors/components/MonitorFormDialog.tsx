@@ -3,6 +3,7 @@ import { type ReactNode, useMemo, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useSaveMonitor } from '@/features/monitors/api/monitors';
+import { MethodField } from '@/features/monitors/components/MethodField';
 import { MonitorAdvancedSection } from '@/features/monitors/components/MonitorAdvancedSection';
 import { useMonitorFormTexts } from '@/features/monitors/hooks/useMonitorFormTexts';
 import { advancedFields, advancedOpenAtStart, headerRowFields, isHeaderRowField, touchesAdvanced } from '@/features/monitors/model/advancedForm';
@@ -10,8 +11,6 @@ import {
   createMonitorBody,
   hasChanges,
   intervalText,
-  knownMethods,
-  methodTextKeys,
   type MonitorFormValues,
   type MonitoringMeta,
   monitorFormSchema,
@@ -73,7 +72,6 @@ function MonitorForm({ organizationId, monitor, monitoring, extra, onSaved, onOp
     },
   );
 
-  const methodOptions = knownMethods(monitoring.methods).map((method) => ({ value: method, label: t(methodTextKeys[method]) }));
   const intervalOptions = monitoring.intervals.allowed_seconds.map((seconds) => {
     const text = intervalText(seconds);
     return { value: String(seconds), label: t(text.key, { count: text.count }) };
@@ -86,7 +84,7 @@ function MonitorForm({ organizationId, monitor, monitoring, extra, onSaved, onOp
         <FormField label={t('monitors:form.name')} autoComplete="off" error={errors.name?.message} {...form.register('name')} />
         <FormField label={t('monitors:form.url')} type="url" inputMode="url" autoComplete="off" placeholder={t('monitors:form.url_placeholder')} error={errors.url?.message} {...form.register('url')} />
         <div className="grid gap-5 sm:grid-cols-2">
-          <SelectField label={t('monitors:form.method')} options={methodOptions} error={errors.method?.message} {...form.register('method')} />
+          <MethodField monitor={monitor} monitoring={monitoring} />
           <SelectField label={t('monitors:form.interval')} options={intervalOptions} error={errors.interval_seconds?.message} {...form.register('interval_seconds')} />
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
