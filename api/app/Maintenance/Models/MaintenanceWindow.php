@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use LogicException;
 
 #[Fillable(['organization_id', 'name', 'starts_at', 'ends_at', 'created_by_user_id'])]
@@ -16,6 +17,23 @@ final class MaintenanceWindow extends Model
 {
     use HasFactory;
     use HasUlids;
+
+    public function monitors(): HasMany
+    {
+        return $this->hasMany(MaintenanceWindowMonitor::class)->orderBy('monitor_id');
+    }
+
+    public function monitorIds(): array
+    {
+        $ids = [];
+        foreach ($this->monitors as $monitor) {
+            if ($monitor instanceof MaintenanceWindowMonitor) {
+                $ids[] = $monitor->monitor_id;
+            }
+        }
+
+        return $ids;
+    }
 
     public function startsAt(): CarbonImmutable
     {
