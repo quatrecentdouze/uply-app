@@ -5,11 +5,12 @@ declare(strict_types=1);
 $seams = [
     'Shared' => [],
     'Organizations' => [],
-    'Monitoring' => ['Organizations\Contracts'],
+    'Monitoring' => ['Organizations\Contracts', 'Maintenance\Contracts'],
     'Incidents' => ['Organizations\Contracts', 'Monitoring\Events', 'Monitoring\Contracts', 'Alerting\Events'],
-    'Alerting' => ['Organizations\Contracts', 'Monitoring\Contracts', 'Monitoring\Events', 'Incidents\Events'],
-    'StatusPages' => ['Organizations\Contracts', 'Monitoring\Contracts', 'Incidents\Contracts'],
-    'Realtime' => ['Organizations\Contracts', 'Monitoring\Events', 'Incidents\Events'],
+    'Alerting' => ['Organizations\Contracts', 'Monitoring\Contracts', 'Monitoring\Events', 'Incidents\Events', 'Incidents\Contracts', 'Maintenance\Contracts'],
+    'StatusPages' => ['Organizations\Contracts', 'Monitoring\Contracts', 'Incidents\Contracts', 'Maintenance\Contracts'],
+    'Realtime' => ['Organizations\Contracts', 'Monitoring\Events', 'Incidents\Events', 'Maintenance\Events'],
+    'Maintenance' => ['Organizations\Contracts', 'Monitoring\Contracts'],
 ];
 $productFamilies = array_map(fn (string $family): string => "App\\{$family}", array_diff(array_keys($seams), ['Shared']));
 $globals = ['Illuminate\Support\Facades', 'now', 'today', 'config', 'app', 'resolve', 'request', 'auth', 'env', '__', 'trans', 'event', 'dispatch', 'logger', 'cache'];

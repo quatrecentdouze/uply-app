@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Providers\AlertingServiceProvider;
 use App\Providers\IncidentsServiceProvider;
+use App\Providers\MaintenanceServiceProvider;
 use App\Providers\MonitoringServiceProvider;
 use App\Providers\OpenApiServiceProvider;
 use App\Providers\OrganizationsServiceProvider;
@@ -14,6 +15,7 @@ use App\Providers\StatusPagesServiceProvider;
 return [
     SharedServiceProvider::class,
     OrganizationsServiceProvider::class,
+    MaintenanceServiceProvider::class,
     MonitoringServiceProvider::class,
     IncidentsServiceProvider::class,
     AlertingServiceProvider::class,
