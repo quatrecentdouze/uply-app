@@ -12,3 +12,7 @@ it('writes a time in utc with a z suffix', function (): void {
 it('keeps a missing time missing', function (): void {
     expect(IsoTime::format(null))->toBeNull();
 });
+
+it('writes a time that is always there', function (): void {
+    expect(IsoTime::of(CarbonImmutable::parse('2026-10-28 23:47:21', 'Europe/Paris')))->toBe('2026-10-28T22:47:21Z');
+});

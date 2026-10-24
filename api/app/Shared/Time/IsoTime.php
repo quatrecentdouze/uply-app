@@ -12,4 +12,9 @@ final class IsoTime
     {
         return $time?->toImmutable()->utc()->toIso8601ZuluString();
     }
+
+    public static function of(CarbonInterface $time): string
+    {
+        return $time->toImmutable()->utc()->toIso8601ZuluString();
+    }
 }
