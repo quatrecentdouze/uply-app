@@ -160,6 +160,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::get('organizations/{organization}/maintenance-windows', [MaintenanceWindowController::class, 'index'])
                 ->can('view', [MaintenanceWindow::class, 'organization'])
                 ->name('maintenance-windows.index');
+            Route::post('organizations/{organization}/maintenance-windows', [MaintenanceWindowController::class, 'store'])
+                ->can('manage', [MaintenanceWindow::class, 'organization'])
+                ->name('maintenance-windows.store');
             Route::get('organizations/{organization}/maintenance-windows/{maintenanceWindow}', [MaintenanceWindowController::class, 'show'])
                 ->can('view', [MaintenanceWindow::class, 'organization'])
                 ->name('maintenance-windows.show');

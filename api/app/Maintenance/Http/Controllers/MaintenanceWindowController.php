@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace App\Maintenance\Http\Controllers;
 
+use App\Maintenance\Actions\CreateMaintenanceWindow;
 use App\Maintenance\Http\Requests\MaintenanceWindowListRequest;
+use App\Maintenance\Http\Requests\StoreMaintenanceWindowRequest;
 use App\Maintenance\Http\Resources\MaintenanceWindowResource;
 use App\Maintenance\Models\MaintenanceWindow;
+use App\Maintenance\Settings\MaintenanceSettings;
 use App\Maintenance\Storage\MaintenanceWindowQuery;
+use App\Monitoring\Contracts\MonitorDirectory;
 use App\Shared\Clock;
 use App\Shared\Settings\PaginationSettings;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 final readonly class MaintenanceWindowController
 {
@@ -27,6 +33,13 @@ final readonly class MaintenanceWindowController
         return MaintenanceWindowResource::collection($page->through(
             fn (mixed $window): mixed => $window instanceof MaintenanceWindow ? new MaintenanceWindowResource($window, $now) : $window,
         ));
+    }
+
+    public function store(StoreMaintenanceWindowRequest $request, MaintenanceSettings $settings, MonitorDirectory $monitors, CreateMaintenanceWindow $createWindow, string $organization): JsonResponse
+    {
+        $window = $createWindow($organization, $request->draft($settings, $monitors), $request->authorId());
+
+        return (new MaintenanceWindowResource($window, $this->clock->now()))->response()->setStatusCode(Response::HTTP_CREATED);
     }
 
     public function show(string $organization, string $maintenanceWindow): MaintenanceWindowResource

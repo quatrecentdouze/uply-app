@@ -292,7 +292,7 @@ export interface paths {
         };
         get: operations["maintenance-windows.index"];
         put?: never;
-        post?: never;
+        post: operations["maintenance-windows.store"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1031,6 +1031,15 @@ export interface components {
             is_enabled?: boolean;
             recipients?: string[];
             webhook_url?: string;
+        };
+        /** StoreMaintenanceWindowRequest */
+        StoreMaintenanceWindowRequest: {
+            name: string;
+            /** Format: date-time */
+            starts_at?: string | null;
+            /** Format: date-time */
+            ends_at: string;
+            monitor_ids: string[];
         };
         /** StoreMonitorRequest */
         StoreMonitorRequest: {
@@ -1925,6 +1934,37 @@ export interface operations {
                             /** @description Total number of items being paginated. */
                             total: number;
                         };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "maintenance-windows.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreMaintenanceWindowRequest"];
+            };
+        };
+        responses: {
+            /** @description `MaintenanceWindowResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["MaintenanceWindowResource"];
                     };
                 };
             };
