@@ -312,7 +312,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        patch: operations["maintenance-windows.update"];
         trace?: never;
     };
     "/v1/me": {
@@ -1098,6 +1098,15 @@ export interface components {
             is_enabled?: boolean;
             recipients?: string[];
             webhook_url?: string;
+        };
+        /** UpdateMaintenanceWindowRequest */
+        UpdateMaintenanceWindowRequest: {
+            name?: string;
+            /** Format: date-time */
+            starts_at?: string;
+            /** Format: date-time */
+            ends_at?: string;
+            monitor_ids?: string[];
         };
         /** UpdateMeRequest */
         UpdateMeRequest: {
@@ -1998,6 +2007,38 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "maintenance-windows.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization: string;
+                maintenanceWindow: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateMaintenanceWindowRequest"];
+            };
+        };
+        responses: {
+            /** @description `MaintenanceWindowResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["MaintenanceWindowResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
         };
     };
     "me.show": {

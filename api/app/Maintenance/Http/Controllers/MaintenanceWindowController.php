@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Maintenance\Http\Controllers;
 
 use App\Maintenance\Actions\CreateMaintenanceWindow;
+use App\Maintenance\Actions\UpdateMaintenanceWindow;
 use App\Maintenance\Http\Requests\MaintenanceWindowListRequest;
 use App\Maintenance\Http\Requests\StoreMaintenanceWindowRequest;
+use App\Maintenance\Http\Requests\UpdateMaintenanceWindowRequest;
 use App\Maintenance\Http\Resources\MaintenanceWindowResource;
 use App\Maintenance\Models\MaintenanceWindow;
 use App\Maintenance\Settings\MaintenanceSettings;
@@ -45,5 +47,12 @@ final readonly class MaintenanceWindowController
     public function show(string $organization, string $maintenanceWindow): MaintenanceWindowResource
     {
         return new MaintenanceWindowResource($this->windows->get($organization, $maintenanceWindow), $this->clock->now());
+    }
+
+    public function update(UpdateMaintenanceWindowRequest $request, MaintenanceSettings $settings, MonitorDirectory $monitors, UpdateMaintenanceWindow $updateWindow, string $organization, string $maintenanceWindow): MaintenanceWindowResource
+    {
+        $window = $updateWindow($this->windows->get($organization, $maintenanceWindow), $request->draft($settings, $monitors));
+
+        return new MaintenanceWindowResource($window, $this->clock->now());
     }
 }
