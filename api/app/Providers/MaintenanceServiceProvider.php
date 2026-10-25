@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Maintenance\Contracts\MaintenanceSchedule;
+use App\Maintenance\Models\MaintenanceWindow;
+use App\Maintenance\Policies\MaintenanceWindowPolicy;
 use App\Maintenance\Settings\MaintenanceSettings;
 use App\Maintenance\Settings\MaintenanceSettingsParser;
 use App\Maintenance\Storage\DatabaseMaintenanceSchedule;
 use App\Shared\Settings\InvalidSettingException;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 final class MaintenanceServiceProvider extends ServiceProvider
@@ -29,5 +32,10 @@ final class MaintenanceServiceProvider extends ServiceProvider
 
             return (new MaintenanceSettingsParser)->parse(self::SETTINGS_SOURCE, $values);
         });
+    }
+
+    public function boot(): void
+    {
+        Gate::policy(MaintenanceWindow::class, MaintenanceWindowPolicy::class);
     }
 }

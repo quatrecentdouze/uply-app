@@ -283,6 +283,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/organizations/{organization}/maintenance-windows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["maintenance-windows.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/organizations/{organization}/maintenance-windows/{maintenanceWindow}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["maintenance-windows.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/me": {
         parameters: {
             query?: never;
@@ -783,6 +815,22 @@ export interface components {
             email: string;
             password: string;
             remember?: string;
+        };
+        /**
+         * MaintenanceState
+         * @enum {string}
+         */
+        MaintenanceState: "upcoming" | "active" | "ended";
+        /** MaintenanceWindowResource */
+        MaintenanceWindowResource: {
+            id: string;
+            name: string;
+            starts_at: string;
+            ends_at: string;
+            /** @enum {string} */
+            state: "upcoming" | "active" | "ended";
+            monitor_ids: string[];
+            created_at: string | null;
         };
         /** MeResource */
         MeResource: {
@@ -1827,6 +1875,89 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "maintenance-windows.index": {
+        parameters: {
+            query?: {
+                state?: components["schemas"]["MaintenanceState"] | null;
+                per_page?: number | null;
+                page?: number | null;
+            };
+            header?: never;
+            path: {
+                organization: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `MaintenanceWindowResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["MaintenanceWindowResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "maintenance-windows.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization: string;
+                maintenanceWindow: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `MaintenanceWindowResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["MaintenanceWindowResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "me.show": {

@@ -8,6 +8,8 @@ use App\Alerting\Http\Controllers\MonitorChannelController;
 use App\Alerting\Models\AlertChannel;
 use App\Incidents\Http\Controllers\IncidentController;
 use App\Incidents\Models\Incident;
+use App\Maintenance\Http\Controllers\MaintenanceWindowController;
+use App\Maintenance\Models\MaintenanceWindow;
 use App\Monitoring\Http\Controllers\CheckResultController;
 use App\Monitoring\Http\Controllers\MonitorController;
 use App\Monitoring\Http\Controllers\MonitorStatsController;
@@ -152,6 +154,15 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::put('organizations/{organization}/monitors/{monitor}/alert-channels', [MonitorChannelController::class, 'update'])
                 ->can('manageLinks', [AlertChannel::class, 'organization'])
                 ->name('monitors.alert-channels.update');
+        });
+
+        Route::whereUlid(['organization', 'maintenanceWindow'])->group(function (): void {
+            Route::get('organizations/{organization}/maintenance-windows', [MaintenanceWindowController::class, 'index'])
+                ->can('view', [MaintenanceWindow::class, 'organization'])
+                ->name('maintenance-windows.index');
+            Route::get('organizations/{organization}/maintenance-windows/{maintenanceWindow}', [MaintenanceWindowController::class, 'show'])
+                ->can('view', [MaintenanceWindow::class, 'organization'])
+                ->name('maintenance-windows.show');
         });
 
         Route::whereUlid(['organization', 'statusPage'])->group(function (): void {
