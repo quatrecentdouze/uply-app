@@ -127,7 +127,7 @@ function incidentsOf(data: SampleData): Incident[] {
 }
 
 function checksOf(data: SampleData): CheckResult[] {
-  return data.checks.map((check) => ({ ...check, dns_ms: null, connect_ms: null, tls_ms: null, ttfb_ms: null, error_message: null }));
+  return data.checks.map((check) => ({ ...check, dns_ms: null, connect_ms: null, tls_ms: null, ttfb_ms: null, error_message: null, in_maintenance: false }));
 }
 
 function statusPageOf(data: SampleData): PublicStatusPage {

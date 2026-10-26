@@ -14,6 +14,7 @@ function check(overrides: Partial<CheckResult> = {}): CheckResult {
     tls_ms: 20,
     ttfb_ms: 65,
     error_message: null,
+    in_maintenance: false,
     ...overrides,
   };
 }
