@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Incidents\Events\IncidentOpenedEvent;
 use App\Incidents\Events\IncidentResolvedEvent;
+use App\Maintenance\Enums\MaintenanceChange;
+use App\Maintenance\Events\MaintenanceChangedEvent;
 use App\Monitoring\Enums\CheckOutcome;
 use App\Monitoring\Enums\MonitorState;
 use App\Monitoring\Events\CheckCompletedEvent;
@@ -15,6 +17,7 @@ use App\Organizations\Contracts\Role;
 use App\Organizations\Models\Organization;
 use App\Realtime\Broadcasts\IncidentOpenedBroadcast;
 use App\Realtime\Broadcasts\IncidentResolvedBroadcast;
+use App\Realtime\Broadcasts\MaintenanceChangedBroadcast;
 use App\Realtime\Broadcasts\MonitorChangedBroadcast;
 use App\Realtime\Broadcasts\MonitorCheckedBroadcast;
 use App\Realtime\Broadcasts\MonitorStateChangedBroadcast;
@@ -64,6 +67,11 @@ it('names each broadcast, its payload, its private organization channel and its 
         new IncidentResolvedBroadcast('01organization', '01incident', '01monitor', '2027-03-10T12:02:40Z', 80),
         'incident.resolved',
         ['incident_id' => '01incident', 'monitor_id' => '01monitor', 'resolved_at' => '2027-03-10T12:02:40Z', 'duration_seconds' => 80],
+    ],
+    'maintenance changed' => [
+        new MaintenanceChangedBroadcast('01organization', '01window', 'ended', ['01monitor', '02monitor']),
+        'maintenance.changed',
+        ['window_id' => '01window', 'change' => 'ended', 'monitor_ids' => ['01monitor', '02monitor']],
     ],
 ]);
 
@@ -129,4 +137,13 @@ it('queues monitor.changed for each create, update and delete of a monitor', fun
         return true;
     });
     expect($changes)->toBe(['created', 'updated', 'deleted']);
+});
+
+it('broadcasts each change of a maintenance window with the monitors it touches', function (): void {
+    Event::fake([MaintenanceChangedBroadcast::class]);
+
+    event(new MaintenanceChangedEvent('01window', '01organization', MaintenanceChange::Updated, ['02monitor', '01monitor', '02monitor']));
+
+    Event::assertDispatched(MaintenanceChangedBroadcast::class, fn (MaintenanceChangedBroadcast $broadcast): bool => $broadcast->organizationId === '01organization'
+        && $broadcast->broadcastWith() === ['window_id' => '01window', 'change' => 'updated', 'monitor_ids' => ['01monitor', '02monitor']]);
 });
