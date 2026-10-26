@@ -17,6 +17,7 @@ final readonly class MonitorCheckedBroadcast implements ShouldBroadcast, ShouldD
         public string $outcome,
         public ?int $responseMs,
         public string $state,
+        public bool $inMaintenance,
     ) {}
 
     public function broadcastOn(): array
@@ -37,6 +38,7 @@ final readonly class MonitorCheckedBroadcast implements ShouldBroadcast, ShouldD
             'outcome' => $this->outcome,
             'response_ms' => $this->responseMs,
             'state' => $this->state,
+            'in_maintenance' => $this->inMaintenance,
         ];
     }
 

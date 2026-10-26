@@ -25,6 +25,7 @@ final readonly class BroadcastCheckCompleted
             $event->outcome->value,
             $event->responseMs,
             $event->state->value,
+            $event->inMaintenance,
         ));
 
         if ($event->state !== $event->previousState) {

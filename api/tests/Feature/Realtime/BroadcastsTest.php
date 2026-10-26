@@ -44,9 +44,9 @@ it('names each broadcast, its payload, its private organization channel and its 
         ->and($broadcast)->toBeInstanceOf(ShouldDispatchAfterCommit::class);
 })->with([
     'monitor checked' => [
-        new MonitorCheckedBroadcast('01organization', '01monitor', '2027-03-10T12:00:20Z', 'up', 42, 'up'),
+        new MonitorCheckedBroadcast('01organization', '01monitor', '2027-03-10T12:00:20Z', 'up', 42, 'up', true),
         'monitor.checked',
-        ['monitor_id' => '01monitor', 'checked_at' => '2027-03-10T12:00:20Z', 'outcome' => 'up', 'response_ms' => 42, 'state' => 'up'],
+        ['monitor_id' => '01monitor', 'checked_at' => '2027-03-10T12:00:20Z', 'outcome' => 'up', 'response_ms' => 42, 'state' => 'up', 'in_maintenance' => true],
     ],
     'monitor state changed' => [
         new MonitorStateChangedBroadcast('01organization', '01monitor', 'up', '2027-03-10T12:00:20Z'),
@@ -113,7 +113,8 @@ it('queues the broadcasts of a real check on the realtime queue', function (): v
     Queue::assertPushedOn('realtime', BroadcastEvent::class, fn (BroadcastEvent $job): bool => $job->event instanceof MonitorCheckedBroadcast
         && $job->event->monitorId === $monitor->id
         && $job->event->organizationId === $monitor->organization_id
-        && $job->event->state === 'pending');
+        && $job->event->state === 'pending'
+        && $job->event->inMaintenance === false);
     Queue::assertNotPushed(BroadcastEvent::class, fn (BroadcastEvent $job): bool => $job->event instanceof MonitorStateChangedBroadcast);
 });
 
