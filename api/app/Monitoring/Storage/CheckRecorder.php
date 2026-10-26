@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Monitoring\Storage;
 
+use App\Maintenance\Contracts\MaintenanceSchedule;
 use App\Monitoring\Enums\CheckOutcome;
 use App\Monitoring\Enums\FailureKind;
 use App\Monitoring\Enums\StateTransition;
@@ -28,6 +29,7 @@ final readonly class CheckRecorder
         private ConnectionInterface $database,
         private Dispatcher $events,
         private MonitoringSettings $settings,
+        private MaintenanceSchedule $maintenance,
     ) {}
 
     public function record(CompletedCheck $check): bool
@@ -38,19 +40,22 @@ final readonly class CheckRecorder
                 return false;
             }
             $confirmation = $this->settings->confirmation;
-            $advance = MonitorStateRules::advance($monitor->stateSnapshot(), $check->verdict, $monitor->confirmationThresholds(), $check->checkedAt);
+            $inMaintenance = $this->maintenance->covers($monitor->id, $check->checkedAt);
+            $advance = $inMaintenance
+                ? StateAdvance::unchanged($monitor->stateSnapshot())
+                : MonitorStateRules::advance($monitor->stateSnapshot(), $check->verdict, $monitor->confirmationThresholds(), $check->checkedAt);
             $nextCheckAt = CheckScheduleRules::nextCheckAt($check->scheduledAt, $check->checkedAt, $monitor->interval_seconds, $confirmation->recheckDelaySeconds, $advance->awaitsConfirmation);
 
-            $certificate = $this->watchCertificate($monitor, $check);
+            $certificate = $inMaintenance ? null : $this->watchCertificate($monitor, $check);
 
-            $this->insertResult($check);
-            $this->addToHourlyStats($check);
+            $this->insertResult($check, $inMaintenance);
+            $this->addToHourlyStats($check, $inMaintenance);
             $monitor->applyCheck($advance->snapshot, $check->checkedAt, $check->result->responseMs(), $nextCheckAt);
             if ($certificate !== null) {
                 $monitor->watchCertificate($certificate);
             }
             $monitor->save();
-            $this->announce($monitor, $check, $advance);
+            $this->announce($monitor, $check, $advance, $inMaintenance);
             $this->announceCertificate($monitor, $check, $certificate);
 
             return true;
@@ -81,7 +86,7 @@ final readonly class CheckRecorder
         ));
     }
 
-    private function insertResult(CompletedCheck $check): void
+    private function insertResult(CompletedCheck $check, bool $inMaintenance): void
     {
         $timings = $check->result->timings;
         $this->database->table('check_results')->insert([
@@ -96,35 +101,39 @@ final readonly class CheckRecorder
             'tls_ms' => $timings->tlsMs,
             'ttfb_ms' => $timings->ttfbMs,
             'error_message' => $check->errorMessage(),
+            'in_maintenance' => $inMaintenance,
         ]);
     }
 
-    private function addToHourlyStats(CompletedCheck $check): void
+    private function addToHourlyStats(CompletedCheck $check, bool $inMaintenance): void
     {
-        $responseMs = $check->result->responseMs();
+        $responseMs = $inMaintenance ? null : $check->result->responseMs();
         $this->database->statement(<<<'SQL'
             INSERT INTO monitor_hourly_stats AS stats
-                (monitor_id, hour_start, checks_total, checks_up, response_ms_sum, response_ms_count, response_ms_min, response_ms_max)
-            VALUES (?, ?, 1, ?, ?, ?, ?, ?)
+                (monitor_id, hour_start, checks_total, checks_up, response_ms_sum, response_ms_count, response_ms_min, response_ms_max, checks_maintenance)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (monitor_id, hour_start) DO UPDATE SET
-                checks_total = stats.checks_total + 1,
+                checks_total = stats.checks_total + EXCLUDED.checks_total,
                 checks_up = stats.checks_up + EXCLUDED.checks_up,
                 response_ms_sum = stats.response_ms_sum + EXCLUDED.response_ms_sum,
                 response_ms_count = stats.response_ms_count + EXCLUDED.response_ms_count,
                 response_ms_min = LEAST(stats.response_ms_min, EXCLUDED.response_ms_min),
-                response_ms_max = GREATEST(stats.response_ms_max, EXCLUDED.response_ms_max)
+                response_ms_max = GREATEST(stats.response_ms_max, EXCLUDED.response_ms_max),
+                checks_maintenance = stats.checks_maintenance + EXCLUDED.checks_maintenance
             SQL, [
             $check->monitorId,
             $check->checkedAt->startOfHour(),
-            $check->verdict->outcome === CheckOutcome::Up ? 1 : 0,
+            $inMaintenance ? 0 : 1,
+            ! $inMaintenance && $check->verdict->outcome === CheckOutcome::Up ? 1 : 0,
             $responseMs ?? 0,
             $responseMs === null ? 0 : 1,
             $responseMs,
             $responseMs,
+            $inMaintenance ? 1 : 0,
         ]);
     }
 
-    private function announce(Monitor $monitor, CompletedCheck $check, StateAdvance $advance): void
+    private function announce(Monitor $monitor, CompletedCheck $check, StateAdvance $advance, bool $inMaintenance): void
     {
         $snapshot = $advance->snapshot;
         $this->events->dispatch(new CheckCompletedEvent(
@@ -137,6 +146,7 @@ final readonly class CheckRecorder
             responseMs: $check->result->responseMs(),
             state: $snapshot->state,
             previousState: $advance->previousState,
+            inMaintenance: $inMaintenance,
         ));
 
         if ($advance->transition === StateTransition::WentDown) {

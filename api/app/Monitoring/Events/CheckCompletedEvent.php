@@ -22,5 +22,6 @@ final readonly class CheckCompletedEvent implements ShouldDispatchAfterCommit
         public ?int $responseMs,
         public MonitorState $state,
         public MonitorState $previousState,
+        public bool $inMaintenance,
     ) {}
 }

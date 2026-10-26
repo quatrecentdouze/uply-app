@@ -16,6 +16,11 @@ final readonly class StateAdvance
         public bool $awaitsConfirmation,
     ) {}
 
+    public static function unchanged(MonitorStateSnapshot $snapshot): self
+    {
+        return new self($snapshot, $snapshot->state, StateTransition::None, false);
+    }
+
     public function stateChanged(): bool
     {
         return $this->snapshot->state !== $this->previousState;

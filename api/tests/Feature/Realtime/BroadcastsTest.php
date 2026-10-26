@@ -33,7 +33,7 @@ use Tests\Support\StaticHostResolver;
 
 function checkCompleted(MonitorState $state, MonitorState $previous): CheckCompletedEvent
 {
-    return new CheckCompletedEvent('01monitor', '01organization', CarbonImmutable::parse('2027-03-10 12:00:20', 'UTC'), CheckOutcome::Up, null, 200, 42, $state, $previous);
+    return new CheckCompletedEvent('01monitor', '01organization', CarbonImmutable::parse('2027-03-10 12:00:20', 'UTC'), CheckOutcome::Up, null, 200, 42, $state, $previous, false);
 }
 
 it('names each broadcast, its payload, its private organization channel and its queue', function (ShouldBroadcast $broadcast, string $name, array $payload): void {
