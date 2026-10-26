@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Maintenance\Http\Controllers;
 
 use App\Maintenance\Actions\CreateMaintenanceWindow;
+use App\Maintenance\Actions\DeleteMaintenanceWindow;
 use App\Maintenance\Actions\EndMaintenanceWindow;
 use App\Maintenance\Actions\UpdateMaintenanceWindow;
 use App\Maintenance\Http\Requests\MaintenanceWindowListRequest;
@@ -62,5 +63,12 @@ final readonly class MaintenanceWindowController
         $window = $endWindow($this->windows->get($organization, $maintenanceWindow));
 
         return new MaintenanceWindowResource($window, $this->clock->now());
+    }
+
+    public function destroy(DeleteMaintenanceWindow $deleteWindow, string $organization, string $maintenanceWindow): Response
+    {
+        $deleteWindow($this->windows->get($organization, $maintenanceWindow));
+
+        return new Response(status: Response::HTTP_NO_CONTENT);
     }
 }

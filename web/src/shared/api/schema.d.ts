@@ -309,7 +309,7 @@ export interface paths {
         get: operations["maintenance-windows.show"];
         put?: never;
         post?: never;
-        delete?: never;
+        delete: operations["maintenance-windows.destroy"];
         options?: never;
         head?: never;
         patch: operations["maintenance-windows.update"];
@@ -2020,6 +2020,29 @@ export interface operations {
                         data: components["schemas"]["MaintenanceWindowResource"];
                     };
                 };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "maintenance-windows.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization: string;
+                maintenanceWindow: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
