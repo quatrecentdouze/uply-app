@@ -27,6 +27,7 @@ final readonly class RecentUptimeQuery
         $rows = $this->database->table('check_results')
             ->selectRaw('monitor_id, count(*) AS checks_total, count(*) FILTER (WHERE outcome = ?) AS checks_up', [CheckOutcome::Up->value])
             ->whereIn('monitor_id', $ids)
+            ->where('in_maintenance', false)
             ->where('checked_at', '>', UptimeRules::rollingDayStart($now))
             ->where('checked_at', '<=', $now)
             ->groupBy('monitor_id')

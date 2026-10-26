@@ -21,7 +21,7 @@ final class CheckHistory
         $maintenance->run($now);
     }
 
-    public static function result(string $monitorId, CarbonImmutable $checkedAt, bool $up, ?int $responseMs = 100, array $timings = []): void
+    public static function result(string $monitorId, CarbonImmutable $checkedAt, bool $up, ?int $responseMs = 100, array $timings = [], bool $inMaintenance = false): void
     {
         DB::table('check_results')->insert([
             'monitor_id' => $monitorId,
@@ -35,10 +35,11 @@ final class CheckHistory
             'tls_ms' => $timings['tls_ms'] ?? null,
             'ttfb_ms' => $timings['ttfb_ms'] ?? null,
             'error_message' => $up ? null : 'HTTP 500',
+            'in_maintenance' => $inMaintenance,
         ]);
     }
 
-    public static function hour(string $monitorId, CarbonImmutable $hourStart, int $total, int $up, int $responseMsSum = 0, int $responseMsCount = 0, ?int $min = null, ?int $max = null): void
+    public static function hour(string $monitorId, CarbonImmutable $hourStart, int $total, int $up, int $responseMsSum = 0, int $responseMsCount = 0, ?int $min = null, ?int $max = null, int $maintenance = 0): void
     {
         DB::table('monitor_hourly_stats')->insert([
             'monitor_id' => $monitorId,
@@ -49,6 +50,7 @@ final class CheckHistory
             'response_ms_count' => $responseMsCount,
             'response_ms_min' => $min,
             'response_ms_max' => $max,
+            'checks_maintenance' => $maintenance,
         ]);
     }
 }

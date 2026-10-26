@@ -51,6 +51,7 @@ final readonly class StatsQuery
                 [CheckOutcome::Up->value],
             )
             ->whereIn('monitor_id', $monitorIds)
+            ->where('in_maintenance', false)
             ->where('checked_at', '>', $after)
             ->where('checked_at', '<=', $until)
             ->first();
@@ -66,6 +67,7 @@ final readonly class StatsQuery
                 .'coalesce(sum(tls_ms), 0)::bigint AS tls_sum, count(tls_ms) AS tls_count, coalesce(sum(ttfb_ms), 0)::bigint AS ttfb_sum, count(ttfb_ms) AS ttfb_count',
             )
             ->where('monitor_id', $monitorId)
+            ->where('in_maintenance', false)
             ->where('checked_at', '>', $after)
             ->where('checked_at', '<=', $until)
             ->first();
