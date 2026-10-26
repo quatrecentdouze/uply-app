@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Maintenance\Http\Controllers;
 
 use App\Maintenance\Actions\CreateMaintenanceWindow;
+use App\Maintenance\Actions\EndMaintenanceWindow;
 use App\Maintenance\Actions\UpdateMaintenanceWindow;
 use App\Maintenance\Http\Requests\MaintenanceWindowListRequest;
 use App\Maintenance\Http\Requests\StoreMaintenanceWindowRequest;
@@ -52,6 +53,13 @@ final readonly class MaintenanceWindowController
     public function update(UpdateMaintenanceWindowRequest $request, MaintenanceSettings $settings, MonitorDirectory $monitors, UpdateMaintenanceWindow $updateWindow, string $organization, string $maintenanceWindow): MaintenanceWindowResource
     {
         $window = $updateWindow($this->windows->get($organization, $maintenanceWindow), $request->draft($settings, $monitors));
+
+        return new MaintenanceWindowResource($window, $this->clock->now());
+    }
+
+    public function end(EndMaintenanceWindow $endWindow, string $organization, string $maintenanceWindow): MaintenanceWindowResource
+    {
+        $window = $endWindow($this->windows->get($organization, $maintenanceWindow));
 
         return new MaintenanceWindowResource($window, $this->clock->now());
     }

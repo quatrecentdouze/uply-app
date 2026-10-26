@@ -315,6 +315,22 @@ export interface paths {
         patch: operations["maintenance-windows.update"];
         trace?: never;
     };
+    "/v1/organizations/{organization}/maintenance-windows/{maintenanceWindow}/end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["maintenance-windows.end"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/me": {
         parameters: {
             query?: never;
@@ -2039,6 +2055,33 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "maintenance-windows.end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization: string;
+                maintenanceWindow: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `MaintenanceWindowResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["MaintenanceWindowResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "me.show": {

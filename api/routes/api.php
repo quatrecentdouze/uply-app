@@ -169,6 +169,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::patch('organizations/{organization}/maintenance-windows/{maintenanceWindow}', [MaintenanceWindowController::class, 'update'])
                 ->can('manage', [MaintenanceWindow::class, 'organization'])
                 ->name('maintenance-windows.update');
+            Route::post('organizations/{organization}/maintenance-windows/{maintenanceWindow}/end', [MaintenanceWindowController::class, 'end'])
+                ->can('manage', [MaintenanceWindow::class, 'organization'])
+                ->name('maintenance-windows.end');
         });
 
         Route::whereUlid(['organization', 'statusPage'])->group(function (): void {
