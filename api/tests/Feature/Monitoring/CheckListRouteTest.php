@@ -23,7 +23,7 @@ beforeEach(function (): void {
 it('lists the raw results newest first to every role', function (Role $role): void {
     $now = $this->clock->now();
     CheckHistory::result($this->monitor->id, $now->subMinutes(2), up: true, responseMs: 120, timings: ['dns_ms' => 3, 'connect_ms' => 10, 'tls_ms' => 25, 'ttfb_ms' => 90]);
-    CheckHistory::result($this->monitor->id, $now->subMinute(), up: false, responseMs: null);
+    CheckHistory::result($this->monitor->id, $now->subMinute(), up: false, responseMs: null, inMaintenance: true);
     CheckHistory::result(Monitor::factory()->create()->id, $now->subMinute(), up: true);
 
     $this->actingAs(Members::seat($this->organization, $role))->getJson(checksUrl($this->monitor))
@@ -35,6 +35,8 @@ it('lists the raw results newest first to every role', function (Role $role): vo
         ->assertJsonPath('data.0.http_status', null)
         ->assertJsonPath('data.0.response_ms', null)
         ->assertJsonPath('data.0.error_message', 'HTTP 500')
+        ->assertJsonPath('data.0.in_maintenance', true)
+        ->assertJsonPath('data.1.in_maintenance', false)
         ->assertJsonPath('data.1.checked_at', '2027-03-10T11:58:00Z')
         ->assertJsonPath('data.1.outcome', 'up')
         ->assertJsonPath('data.1.http_status', 200)

@@ -16,7 +16,7 @@ use UnexpectedValueException;
 
 final readonly class CheckResultQuery
 {
-    private const array COLUMNS = ['id', 'checked_at', 'outcome', 'failure_kind', 'http_status', 'response_ms', 'dns_ms', 'connect_ms', 'tls_ms', 'ttfb_ms', 'error_message'];
+    private const array COLUMNS = ['id', 'checked_at', 'outcome', 'failure_kind', 'http_status', 'response_ms', 'dns_ms', 'connect_ms', 'tls_ms', 'ttfb_ms', 'error_message', 'in_maintenance'];
 
     public function __construct(private ConnectionInterface $database) {}
 
@@ -43,6 +43,7 @@ final readonly class CheckResultQuery
             responseMs: self::number($row->response_ms),
             timings: new ProbeTimings(self::number($row->dns_ms), self::number($row->connect_ms), self::number($row->tls_ms), self::number($row->ttfb_ms)),
             errorMessage: is_string($row->error_message) ? $row->error_message : null,
+            inMaintenance: $row->in_maintenance === true,
         );
     }
 

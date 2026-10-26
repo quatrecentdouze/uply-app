@@ -5186,6 +5186,9 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "in_maintenance": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -5198,7 +5201,8 @@
                     "connect_ms",
                     "tls_ms",
                     "ttfb_ms",
-                    "error_message"
+                    "error_message",
+                    "in_maintenance"
                 ],
                 "title": "CheckResultResource"
             },

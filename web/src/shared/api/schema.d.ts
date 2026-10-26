@@ -770,6 +770,7 @@ export interface components {
             tls_ms: number | null;
             ttfb_ms: number | null;
             error_message: string | null;
+            in_maintenance: boolean;
         };
         /**
          * HttpMethod

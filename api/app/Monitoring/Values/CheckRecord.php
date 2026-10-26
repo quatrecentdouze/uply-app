@@ -18,5 +18,6 @@ final readonly class CheckRecord
         public ?int $responseMs,
         public ProbeTimings $timings,
         public ?string $errorMessage,
+        public bool $inMaintenance,
     ) {}
 }

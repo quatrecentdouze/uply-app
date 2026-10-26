@@ -30,6 +30,7 @@ final class CheckResultResource extends JsonResource
             'tls_ms' => $this->check->timings->tlsMs,
             'ttfb_ms' => $this->check->timings->ttfbMs,
             'error_message' => $this->check->errorMessage,
+            'in_maintenance' => $this->check->inMaintenance,
         ];
     }
 }
