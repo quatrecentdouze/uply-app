@@ -176,6 +176,7 @@ export function publicBarsFixture(uptime: (index: number) => number | null = () 
   return Array.from({ length: barDays }, (_, index) => ({
     date: new Date(Date.UTC(2026, 7, 1 + index)).toISOString().slice(0, 10),
     uptime_percent: uptime(index),
+    maintenance: false,
   }));
 }
 

@@ -138,7 +138,7 @@ function statusPageOf(data: SampleData): PublicStatusPage {
     overall_state: data.status_page.overall_state,
     monitors: data.status_page.monitors.map((monitor) => ({
       ...monitor,
-      bars: monitor.bars.map((uptime_percent, index) => ({ date: dayBefore(data.now, monitor.bars.length - 1 - index), uptime_percent })),
+      bars: monitor.bars.map((uptime_percent, index) => ({ date: dayBefore(data.now, monitor.bars.length - 1 - index), uptime_percent, maintenance: false })),
     })),
     incidents: [],
   };

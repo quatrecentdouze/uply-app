@@ -5,7 +5,7 @@ import { uptimeSettings } from '@/shared/uptime/uptime';
 const thresholds = uptimeSettings.thresholds;
 
 function bars(values: readonly (number | null)[]) {
-  return values.map((uptime_percent, index) => ({ date: `2026-10-${String(index + 1).padStart(2, '0')}`, uptime_percent }));
+  return values.map((uptime_percent, index) => ({ date: `2026-10-${String(index + 1).padStart(2, '0')}`, uptime_percent, maintenance: false }));
 }
 
 describe('barViews', () => {
