@@ -6,12 +6,14 @@ namespace App\Providers;
 
 use App\Alerting\Events\AlertDeliveredEvent;
 use App\Incidents\Contracts\IncidentHistory;
+use App\Incidents\Contracts\OpenIncidents;
 use App\Incidents\Listeners\OpenIncidentOnMonitorDown;
 use App\Incidents\Listeners\RecordAlertInTimeline;
 use App\Incidents\Listeners\ResolveIncidentOnMonitorRecovered;
 use App\Incidents\Models\Incident;
 use App\Incidents\Policies\IncidentPolicy;
 use App\Incidents\Storage\DatabaseIncidentHistory;
+use App\Incidents\Storage\DatabaseOpenIncidents;
 use App\Monitoring\Events\MonitorRecoveredEvent;
 use App\Monitoring\Events\MonitorWentDownEvent;
 use Illuminate\Support\Facades\Event;
@@ -22,6 +24,7 @@ final class IncidentsServiceProvider extends ServiceProvider
 {
     public array $bindings = [
         IncidentHistory::class => DatabaseIncidentHistory::class,
+        OpenIncidents::class => DatabaseOpenIncidents::class,
     ];
 
     public function boot(): void
