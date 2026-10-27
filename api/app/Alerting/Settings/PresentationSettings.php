@@ -23,7 +23,7 @@ final readonly class PresentationSettings
     public function colorFor(DeliveryKind $kind): string
     {
         return match ($kind) {
-            DeliveryKind::Down => $this->downColor,
+            DeliveryKind::Down, DeliveryKind::Reminder => $this->downColor,
             DeliveryKind::Up => $this->upColor,
             DeliveryKind::Test => $this->testColor,
             DeliveryKind::CertificateExpiring => $this->certificateExpiringColor,

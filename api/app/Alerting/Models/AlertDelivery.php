@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['alert_channel_id', 'incident_id', 'monitor_id', 'certificate_expires_at', 'certificate_days', 'kind', 'status', 'attempts', 'last_error', 'sent_at'])]
+#[Fillable(['alert_channel_id', 'incident_id', 'monitor_id', 'certificate_expires_at', 'certificate_days', 'reminder_number', 'kind', 'status', 'attempts', 'last_error', 'sent_at'])]
 final class AlertDelivery extends Model
 {
     use HasFactory;
