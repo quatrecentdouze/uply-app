@@ -9,6 +9,10 @@ return [
         'messages_per_second_per_webhook' => 1,
         'test_sends_per_minute' => 5,
     ],
+    'reminders' => [
+        'intervals_minutes' => [15, 30, 60, 120, 240, 720, 1440],
+        'max_per_incident' => 24,
+    ],
     'webhooks' => [
         'timeout_seconds' => 10,
         'connect_timeout_seconds' => 5,

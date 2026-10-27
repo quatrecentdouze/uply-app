@@ -28,6 +28,7 @@ final class AlertingSettingsParser
                 $reader->integer('channels.max_per_monitor', 1),
             ),
             presentation: $this->presentation($reader),
+            reminders: $this->reminders($reader),
             demoChannelsFile: $reader->optionalText('demo_channels_file'),
         );
     }
@@ -46,6 +47,16 @@ final class AlertingSettingsParser
             messagesPerSecondPerWebhook: $reader->integer('delivery.messages_per_second_per_webhook', 1),
             testSendsPerMinute: $reader->integer('delivery.test_sends_per_minute', 1),
         );
+    }
+
+    private function reminders(SettingsReader $reader): ReminderSettings
+    {
+        $intervals = array_values(array_filter($reader->integerList('reminders.intervals_minutes', 1), is_int(...)));
+        if (count(array_unique($intervals)) !== count($intervals)) {
+            throw $reader->invalid('reminders.intervals_minutes', 'must list distinct minutes');
+        }
+
+        return new ReminderSettings($intervals, $reader->integer('reminders.max_per_incident', 1));
     }
 
     private function webhooks(SettingsReader $reader): WebhookSettings

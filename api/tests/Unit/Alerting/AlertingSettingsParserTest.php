@@ -37,6 +37,8 @@ it('parses the shipped alerting file', function (): void {
         ->and($settings->presentation->discordTitleMaxLength)->toBe(256)
         ->and($settings->presentation->discordFieldValueMaxLength)->toBe(1024)
         ->and($settings->presentation->incidentLink('01abc'))->toBe('http://localhost:5173/incidents/01abc')
+        ->and($settings->reminders->intervalsMinutes)->toBe([15, 30, 60, 120, 240, 720, 1440])
+        ->and($settings->reminders->maxPerIncident)->toBe(24)
         ->and($settings->demoChannelsFile)->toBeNull();
 });
 
@@ -57,6 +59,10 @@ it('rejects an invalid alerting setting with its file and key', function (string
     'backoff with zero' => ['delivery.backoff_seconds', [0, 30, 60, 120]],
     'webhook rate zero' => ['delivery.messages_per_second_per_webhook', 0],
     'test sends zero' => ['delivery.test_sends_per_minute', 0],
+    'no reminder interval' => ['reminders.intervals_minutes', []],
+    'reminder interval twice' => ['reminders.intervals_minutes', [15, 15]],
+    'reminder interval zero' => ['reminders.intervals_minutes', [0, 15]],
+    'no reminder' => ['reminders.max_per_incident', 0],
     'webhook timeout zero' => ['webhooks.timeout_seconds', 0],
     'webhook connect timeout zero' => ['webhooks.connect_timeout_seconds', 0],
     'discord without host' => ['webhooks.discord.hosts', []],
