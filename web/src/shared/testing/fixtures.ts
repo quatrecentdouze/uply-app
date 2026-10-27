@@ -164,6 +164,7 @@ export function alertChannelFixture(overrides: Partial<AlertChannel> = {}): Aler
     disabled_reason: null,
     recipients: ['ops@example.test'],
     webhook_hint: null,
+    reminder_interval_minutes: null,
     created_at: '2026-10-28T08:00:00Z',
     updated_at: '2026-10-28T08:00:00Z',
     ...overrides,
