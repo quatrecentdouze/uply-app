@@ -45,18 +45,18 @@ it('builds a daily history with a null day when nothing was checked', function (
         '2027-03-08' => new CheckTotals(10, 10, 0, 0, null, null),
         '2027-03-10' => new CheckTotals(10, 5, 0, 0, null, null),
         '2027-03-07' => new CheckTotals(100, 0, 0, 0, null, null),
-    ]);
+    ], ['2027-03-09', '2027-03-10', '2027-03-06']);
 
     expect($history->uptimePercent)->toBe(75.0)
-        ->and(array_map(fn (DailyUptime $day): array => [$day->day->toDateString(), $day->uptimePercent], $history->days))->toBe([
-            ['2027-03-08', 100.0],
-            ['2027-03-09', null],
-            ['2027-03-10', 50.0],
+        ->and(array_map(fn (DailyUptime $day): array => [$day->day->toDateString(), $day->uptimePercent, $day->maintenance], $history->days))->toBe([
+            ['2027-03-08', 100.0, false],
+            ['2027-03-09', null, true],
+            ['2027-03-10', 50.0, true],
         ]);
 });
 
 it('has no uptime over days without checks', function (): void {
-    $history = UptimeRules::history(CarbonImmutable::parse('2027-03-10', 'UTC'), 90, []);
+    $history = UptimeRules::history(CarbonImmutable::parse('2027-03-10', 'UTC'), 90, [], []);
 
     expect($history->uptimePercent)->toBeNull()
         ->and($history->days)->toHaveCount(90)

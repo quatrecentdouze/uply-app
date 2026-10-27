@@ -11,5 +11,6 @@ final readonly class DailyUptime
     public function __construct(
         public CarbonImmutable $day,
         public ?float $uptimePercent,
+        public bool $maintenance,
     ) {}
 }

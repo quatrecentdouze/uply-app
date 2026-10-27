@@ -36,7 +36,7 @@ final class UptimeRules
         return $lastDay->utc()->startOfDay()->subDays(max(1, $days) - 1);
     }
 
-    public static function history(CarbonImmutable $lastDay, int $days, array $totalsByDay): UptimeHistory
+    public static function history(CarbonImmutable $lastDay, int $days, array $totalsByDay, array $maintenanceDays): UptimeHistory
     {
         $first = self::firstDay($lastDay, $days);
         $series = [];
@@ -44,11 +44,12 @@ final class UptimeRules
         $total = 0;
         for ($offset = 0; $offset < max(1, $days); $offset++) {
             $day = $first->addDays($offset);
-            $totals = $totalsByDay[$day->format(self::DAY_KEY)] ?? null;
+            $key = $day->format(self::DAY_KEY);
+            $totals = $totalsByDay[$key] ?? null;
             $dayTotals = $totals instanceof CheckTotals ? $totals : CheckTotals::none();
             $up += $dayTotals->checksUp;
             $total += $dayTotals->checksTotal;
-            $series[] = new DailyUptime($day, self::percent($dayTotals->checksUp, $dayTotals->checksTotal));
+            $series[] = new DailyUptime($day, self::percent($dayTotals->checksUp, $dayTotals->checksTotal), in_array($key, $maintenanceDays, true));
         }
 
         return new UptimeHistory(self::percent($up, $total), $series);

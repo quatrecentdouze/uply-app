@@ -22,7 +22,7 @@ final readonly class DatabaseUptimeQuery implements UptimeQuery
         }
         $first = UptimeRules::firstDay($lastDay, $days);
         $rows = $this->database->table('monitor_hourly_stats')
-            ->selectRaw("monitor_id, to_char(date_trunc('day', hour_start AT TIME ZONE 'UTC'), 'YYYY-MM-DD') AS day, sum(checks_total)::bigint AS checks_total, sum(checks_up)::bigint AS checks_up")
+            ->selectRaw("monitor_id, to_char(date_trunc('day', hour_start AT TIME ZONE 'UTC'), 'YYYY-MM-DD') AS day, sum(checks_total)::bigint AS checks_total, sum(checks_up)::bigint AS checks_up, sum(checks_maintenance)::bigint AS checks_maintenance")
             ->whereIn('monitor_id', $ids)
             ->where('hour_start', '>=', $first)
             ->where('hour_start', '<', $lastDay->utc()->startOfDay()->addDay())
@@ -30,15 +30,19 @@ final readonly class DatabaseUptimeQuery implements UptimeQuery
             ->get();
 
         $totals = [];
+        $maintenanceDays = [];
         foreach ($rows as $row) {
             if (is_string($row->monitor_id) && is_string($row->day) && is_int($row->checks_total) && is_int($row->checks_up)) {
                 $totals[$row->monitor_id][$row->day] = new CheckTotals($row->checks_total, $row->checks_up, 0, 0, null, null);
+            }
+            if (is_string($row->monitor_id) && is_string($row->day) && is_int($row->checks_maintenance) && $row->checks_maintenance > 0) {
+                $maintenanceDays[$row->monitor_id][] = $row->day;
             }
         }
 
         $histories = [];
         foreach ($ids as $id) {
-            $histories[$id] = UptimeRules::history($lastDay, $days, $totals[$id] ?? []);
+            $histories[$id] = UptimeRules::history($lastDay, $days, $totals[$id] ?? [], $maintenanceDays[$id] ?? []);
         }
 
         return $histories;
