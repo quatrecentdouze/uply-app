@@ -5635,6 +5635,30 @@
                 ],
                 "title": "MembershipResource"
             },
+            "MonitorMaintenanceResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "starts_at": {
+                        "type": "string"
+                    },
+                    "ends_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "starts_at",
+                    "ends_at"
+                ],
+                "title": "MonitorMaintenanceResource"
+            },
             "MonitorResource": {
                 "type": "object",
                 "properties": {
@@ -5741,6 +5765,16 @@
                             "null"
                         ]
                     },
+                    "maintenance": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MonitorMaintenanceResource"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "created_at": {
                         "type": [
                             "string",
@@ -5776,6 +5810,7 @@
                     "last_response_ms",
                     "tls_expires_at",
                     "uptime_24h",
+                    "maintenance",
                     "created_at",
                     "updated_at"
                 ],

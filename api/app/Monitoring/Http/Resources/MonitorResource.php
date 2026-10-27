@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Monitoring\Http\Resources;
 
 use App\Monitoring\Models\Monitor;
+use App\Monitoring\Values\MaintenanceByMonitor;
 use App\Monitoring\Values\StatusCodeRange;
 use App\Monitoring\Values\UptimeByMonitor;
 use App\Shared\Time\IsoTime;
@@ -16,6 +17,7 @@ final class MonitorResource extends JsonResource
     public function __construct(
         private readonly Monitor $monitor,
         private readonly UptimeByMonitor $uptimes,
+        private readonly MaintenanceByMonitor $maintenance,
     ) {
         parent::__construct($monitor);
     }
@@ -44,9 +46,17 @@ final class MonitorResource extends JsonResource
             'last_response_ms' => $this->monitor->last_response_ms,
             'tls_expires_at' => IsoTime::format($this->monitor->tls_expires_at),
             'uptime_24h' => $this->uptimes->of($this->monitor->id),
+            'maintenance' => $this->maintenance(),
             'created_at' => IsoTime::format($this->monitor->created_at),
             'updated_at' => IsoTime::format($this->monitor->updated_at),
         ];
+    }
+
+    private function maintenance(): ?MonitorMaintenanceResource
+    {
+        $window = $this->maintenance->of($this->monitor->id);
+
+        return $window === null ? null : new MonitorMaintenanceResource($window);
     }
 
     private function acceptedStatusCodes(): array

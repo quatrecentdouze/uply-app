@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Monitoring\Http\Controllers;
 
+use App\Maintenance\Contracts\MaintenanceSchedule;
 use App\Monitoring\Actions\CreateMonitor;
 use App\Monitoring\Actions\DeleteMonitor;
 use App\Monitoring\Actions\UpdateMonitor;
@@ -15,6 +16,8 @@ use App\Monitoring\Models\Monitor;
 use App\Monitoring\Settings\MonitoringSettings;
 use App\Monitoring\Storage\MonitorQuery;
 use App\Monitoring\Storage\RecentUptimeQuery;
+use App\Monitoring\Values\MaintenanceByMonitor;
+use App\Shared\Clock;
 use App\Shared\Settings\PaginationSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -25,15 +28,19 @@ final readonly class MonitorController
     public function __construct(
         private MonitorQuery $monitors,
         private RecentUptimeQuery $uptimes,
+        private MaintenanceSchedule $maintenance,
+        private Clock $clock,
     ) {}
 
     public function index(MonitorListRequest $request, PaginationSettings $pagination, string $organization): AnonymousResourceCollection
     {
         $page = $this->monitors->page($organization, $request->status(), $request->search(), $request->perPage($pagination));
-        $uptimes = $this->uptimes->lastDay(MonitorQuery::idsOf($page));
+        $ids = MonitorQuery::idsOf($page);
+        $uptimes = $this->uptimes->lastDay($ids);
+        $maintenance = $this->maintenanceOf($ids);
 
         return MonitorResource::collection($page->through(
-            fn (mixed $monitor): mixed => $monitor instanceof Monitor ? new MonitorResource($monitor, $uptimes) : $monitor,
+            fn (mixed $monitor): mixed => $monitor instanceof Monitor ? new MonitorResource($monitor, $uptimes, $maintenance) : $monitor,
         ));
     }
 
@@ -65,6 +72,11 @@ final readonly class MonitorController
 
     private function resource(Monitor $monitor): MonitorResource
     {
-        return new MonitorResource($monitor, $this->uptimes->lastDay([$monitor->id]));
+        return new MonitorResource($monitor, $this->uptimes->lastDay([$monitor->id]), $this->maintenanceOf([$monitor->id]));
+    }
+
+    private function maintenanceOf(array $monitorIds): MaintenanceByMonitor
+    {
+        return new MaintenanceByMonitor($this->maintenance->windowsFor($monitorIds, $this->clock->now()));
     }
 }

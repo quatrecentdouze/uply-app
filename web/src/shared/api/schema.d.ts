@@ -883,6 +883,13 @@ export interface components {
             } | null;
             joined_at: string | null;
         };
+        /** MonitorMaintenanceResource */
+        MonitorMaintenanceResource: {
+            id: string;
+            name: string;
+            starts_at: string;
+            ends_at: string;
+        };
         /** MonitorResource */
         MonitorResource: {
             id: string;
@@ -909,6 +916,7 @@ export interface components {
             last_response_ms: number | null;
             tls_expires_at: string | null;
             uptime_24h: number | null;
+            maintenance: components["schemas"]["MonitorMaintenanceResource"] | null;
             created_at: string | null;
             updated_at: string | null;
         };
