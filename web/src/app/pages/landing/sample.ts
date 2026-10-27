@@ -95,6 +95,7 @@ function monitorsOf(data: SampleData): Monitor[] {
     state_changed_at: null,
     last_checked_at: data.now,
     tls_expires_at: null,
+    maintenance: null,
     created_at: null,
     updated_at: null,
   }));
