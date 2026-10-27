@@ -10,6 +10,7 @@ use App\Alerting\Values\ChannelDraft;
 use App\Alerting\Values\EmailRecipients;
 use App\Alerting\Values\WebhookUrl;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 final readonly class AlertChannelFields
 {
@@ -26,6 +27,7 @@ final readonly class AlertChannelFields
         return [
             'name' => [$presence, 'string', 'min:'.self::NAME_MIN_LENGTH, 'max:'.$this->settings->channels->nameMaxLength],
             'is_enabled' => ['sometimes', 'boolean'],
+            'reminder_interval_minutes' => ['sometimes', 'nullable', 'integer', Rule::in($this->settings->reminders->intervalsMinutes)],
             'recipients' => $type === ChannelType::Email
                 ? [$presence, 'array', 'list', 'max:'.$this->settings->email->maxRecipients, new ValidRecipients($this->settings->email)]
                 : ['prohibited'],
@@ -49,6 +51,8 @@ final readonly class AlertChannelFields
             webhook: $type->usesWebhook() && $request->has('webhook_url')
                 ? WebhookUrl::parse($request->string('webhook_url')->toString(), $this->settings->webhooks->policyFor($type))
                 : null,
+            changesReminder: $request->has('reminder_interval_minutes'),
+            reminderIntervalMinutes: $request->filled('reminder_interval_minutes') ? $request->integer('reminder_interval_minutes') : null,
         );
     }
 }

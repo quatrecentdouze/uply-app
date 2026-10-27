@@ -30,7 +30,8 @@ it('creates an email channel for the roles that manage channels', function (Role
         ->assertJsonPath('data.name', 'Ops mail')
         ->assertJsonPath('data.is_enabled', true)
         ->assertJsonPath('data.recipients', ['ops@example.com', 'cto@example.com'])
-        ->assertJsonPath('data.webhook_hint', null);
+        ->assertJsonPath('data.webhook_hint', null)
+        ->assertJsonPath('data.reminder_interval_minutes', null);
 
     $channel = AlertChannel::query()->sole();
     expect($channel->organization_id)->toBe($this->organization->id)

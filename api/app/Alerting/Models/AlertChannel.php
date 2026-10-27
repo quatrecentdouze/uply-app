@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['organization_id', 'type', 'name', 'settings', 'is_enabled', 'disabled_reason'])]
+#[Fillable(['organization_id', 'type', 'name', 'settings', 'is_enabled', 'disabled_reason', 'reminder_interval_minutes'])]
 #[Hidden(['settings'])]
 final class AlertChannel extends Model
 {
@@ -71,6 +71,9 @@ final class AlertChannel extends Model
         }
         if ($draft->webhook !== null) {
             $this->setAttribute('settings', [self::WEBHOOK_URL_SETTING => $draft->webhook->value]);
+        }
+        if ($draft->changesReminder) {
+            $this->reminder_interval_minutes = $draft->reminderIntervalMinutes;
         }
     }
 

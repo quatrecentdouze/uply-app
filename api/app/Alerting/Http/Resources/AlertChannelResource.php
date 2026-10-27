@@ -29,6 +29,7 @@ final class AlertChannelResource extends JsonResource
             'disabled_reason' => $this->channel->disabled_reason?->value,
             'recipients' => $this->channel->type === ChannelType::Email ? $this->recipients() : null,
             'webhook_hint' => $hint === null ? null : ['host' => $hint->host, 'last_four' => $hint->lastFour],
+            'reminder_interval_minutes' => $this->channel->reminder_interval_minutes,
             'created_at' => IsoTime::format($this->channel->created_at),
             'updated_at' => IsoTime::format($this->channel->updated_at),
         ];

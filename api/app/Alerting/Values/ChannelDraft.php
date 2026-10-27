@@ -11,5 +11,7 @@ final readonly class ChannelDraft
         public ?bool $isEnabled,
         public ?EmailRecipients $recipients,
         public ?WebhookUrl $webhook,
+        public bool $changesReminder,
+        public ?int $reminderIntervalMinutes,
     ) {}
 }

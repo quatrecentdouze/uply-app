@@ -5062,6 +5062,12 @@
                             "last_four"
                         ]
                     },
+                    "reminder_interval_minutes": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
                     "created_at": {
                         "type": [
                             "string",
@@ -5083,6 +5089,7 @@
                     "disabled_reason",
                     "recipients",
                     "webhook_hint",
+                    "reminder_interval_minutes",
                     "created_at",
                     "updated_at"
                 ],
@@ -6366,6 +6373,22 @@
                     "is_enabled": {
                         "type": "boolean"
                     },
+                    "reminder_interval_minutes": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "enum": [
+                            15,
+                            30,
+                            60,
+                            120,
+                            240,
+                            720,
+                            1440,
+                            null
+                        ]
+                    },
                     "recipients": {
                         "type": "array",
                         "items": {
@@ -6687,6 +6710,12 @@
                     },
                     "is_enabled": {
                         "type": "boolean"
+                    },
+                    "reminder_interval_minutes": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
                     },
                     "recipients": {
                         "type": "array",

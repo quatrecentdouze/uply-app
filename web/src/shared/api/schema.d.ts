@@ -744,6 +744,7 @@ export interface components {
                 host: string;
                 last_four: string;
             } | null;
+            reminder_interval_minutes: number | null;
             created_at: string | null;
             updated_at: string | null;
         };
@@ -1056,6 +1057,8 @@ export interface components {
             type: components["schemas"]["ChannelType"];
             name: string;
             is_enabled?: boolean;
+            /** @enum {integer|null} */
+            reminder_interval_minutes?: 15 | 30 | 60 | 120 | 240 | 720 | 1440 | null;
             recipients?: string[];
             webhook_url?: string;
         };
@@ -1123,6 +1126,7 @@ export interface components {
             type?: string;
             name?: string;
             is_enabled?: boolean;
+            reminder_interval_minutes?: number | null;
             recipients?: string[];
             webhook_url?: string;
         };
