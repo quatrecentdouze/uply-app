@@ -980,6 +980,7 @@ export interface components {
         PublicBarResource: {
             date: string;
             uptime_percent: number | null;
+            maintenance: boolean;
         };
         /** PublicIncidentResource */
         PublicIncidentResource: {
@@ -1005,7 +1006,8 @@ export interface components {
         PublicMonitorResource: {
             id: string;
             display_name: string;
-            state: string;
+            /** @enum {string} */
+            state: "up" | "down" | "pending" | "paused" | "maintenance";
             uptime_90d: number | null;
             bars: components["schemas"]["PublicBarResource"][];
         };

@@ -20,7 +20,7 @@ final class PublicMonitorResource extends JsonResource
         return [
             'id' => $this->monitor->id,
             'display_name' => $this->monitor->displayName,
-            'state' => $this->monitor->state,
+            'state' => $this->monitor->state->value,
             'uptime_90d' => $this->monitor->uptime90d,
             'bars' => PublicBarResource::collection($this->monitor->bars),
         ];

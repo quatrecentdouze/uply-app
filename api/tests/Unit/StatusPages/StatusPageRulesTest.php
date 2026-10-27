@@ -4,21 +4,29 @@ declare(strict_types=1);
 
 use App\Monitoring\Contracts\MonitorStatus;
 use App\StatusPages\Enums\OverallState;
+use App\StatusPages\Enums\PublicMonitorState;
 use App\StatusPages\Rules\StatusPageRules;
 use Carbon\CarbonImmutable;
 
-it('says operational, partial or major outage from the shown monitors', function (array $statuses, OverallState $state): void {
-    expect(StatusPageRules::overallState($statuses))->toBe($state);
+it('says operational, partial or major outage from the shown monitors', function (array $states, OverallState $state): void {
+    expect(StatusPageRules::overallState($states))->toBe($state);
 })->with([
     'nothing shown' => [[], OverallState::Operational],
-    'all up' => [[MonitorStatus::Up, MonitorStatus::Up], OverallState::Operational],
-    'pending is not down' => [[MonitorStatus::Pending, MonitorStatus::Up], OverallState::Operational],
-    'only paused' => [[MonitorStatus::Paused], OverallState::Operational],
-    'one of two down' => [[MonitorStatus::Down, MonitorStatus::Up], OverallState::PartialOutage],
-    'down and pending' => [[MonitorStatus::Down, MonitorStatus::Pending], OverallState::PartialOutage],
-    'all down' => [[MonitorStatus::Down, MonitorStatus::Down], OverallState::MajorOutage],
-    'all not paused down' => [[MonitorStatus::Down, MonitorStatus::Paused], OverallState::MajorOutage],
+    'all up' => [[PublicMonitorState::Up, PublicMonitorState::Up], OverallState::Operational],
+    'pending is not down' => [[PublicMonitorState::Pending, PublicMonitorState::Up], OverallState::Operational],
+    'only paused' => [[PublicMonitorState::Paused], OverallState::Operational],
+    'only in maintenance' => [[PublicMonitorState::Maintenance], OverallState::Operational],
+    'one of two down' => [[PublicMonitorState::Down, PublicMonitorState::Up], OverallState::PartialOutage],
+    'down and pending' => [[PublicMonitorState::Down, PublicMonitorState::Pending], OverallState::PartialOutage],
+    'all down' => [[PublicMonitorState::Down, PublicMonitorState::Down], OverallState::MajorOutage],
+    'all not paused down' => [[PublicMonitorState::Down, PublicMonitorState::Paused], OverallState::MajorOutage],
+    'all out of maintenance down' => [[PublicMonitorState::Down, PublicMonitorState::Maintenance], OverallState::MajorOutage],
 ]);
+
+it('shows a monitor in an active window as in maintenance whatever its state', function (MonitorStatus $status): void {
+    expect(PublicMonitorState::of($status, inMaintenance: true))->toBe(PublicMonitorState::Maintenance)
+        ->and(PublicMonitorState::of($status, inMaintenance: false)->value)->toBe($status->value);
+})->with(MonitorStatus::cases());
 
 it('names a shown monitor by its display name or else its monitor name, cut to the limit', function (?string $given, string $expected): void {
     expect(StatusPageRules::displayName($given, '  Checkout API  ', 8))->toBe($expected);

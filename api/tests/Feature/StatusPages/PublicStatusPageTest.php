@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Incidents\Models\Incident;
+use App\Maintenance\Models\MaintenanceWindow;
+use App\Maintenance\Models\MaintenanceWindowMonitor;
 use App\Monitoring\Enums\MonitorState;
 use App\Monitoring\Models\Monitor;
 use App\Organizations\Contracts\Role;
@@ -62,9 +64,9 @@ it('shows a published page without a session', function (): void {
         ->assertJsonPath('data.monitors.1.state', 'down')
         ->assertJsonPath('data.monitors.1.uptime_90d', 75)
         ->assertJsonCount(90, 'data.monitors.1.bars')
-        ->assertJsonPath('data.monitors.1.bars.0', ['date' => '2026-12-11', 'uptime_percent' => 100])
-        ->assertJsonPath('data.monitors.1.bars.1', ['date' => '2026-12-12', 'uptime_percent' => null])
-        ->assertJsonPath('data.monitors.1.bars.89', ['date' => '2027-03-10', 'uptime_percent' => 50])
+        ->assertJsonPath('data.monitors.1.bars.0', ['date' => '2026-12-11', 'uptime_percent' => 100, 'maintenance' => false])
+        ->assertJsonPath('data.monitors.1.bars.1', ['date' => '2026-12-12', 'uptime_percent' => null, 'maintenance' => false])
+        ->assertJsonPath('data.monitors.1.bars.89', ['date' => '2027-03-10', 'uptime_percent' => 50, 'maintenance' => false])
         ->assertJsonPath('data.monitors.2.state', 'paused')
         ->assertJsonCount(2, 'data.incidents')
         ->assertJsonPath('data.incidents.0', ['display_name' => 'Public API', 'started_at' => '2027-03-10T11:40:00Z', 'resolved_at' => null, 'duration_seconds' => null])
@@ -91,6 +93,22 @@ it('says major outage when every watched monitor is down and operational when no
     $this->api->forceFill(['state' => MonitorState::Up])->save();
     $this->web->forceFill(['state' => MonitorState::Up])->save();
     $this->getJson(PUBLIC_PAGE_URL)->assertOk()->assertJsonPath('data.overall_state', 'operational');
+});
+
+it('shows a monitor in an active window as in maintenance, leaves it out of the overall state and marks the days with maintenance', function (): void {
+    $window = MaintenanceWindow::factory()->between('2027-03-10 11:30:00', '2027-03-10 13:00:00')->create(['organization_id' => $this->organization->id]);
+    MaintenanceWindowMonitor::query()->create(['maintenance_window_id' => $window->id, 'monitor_id' => $this->api->id]);
+    $upcoming = MaintenanceWindow::factory()->between('2027-03-10 15:00:00', '2027-03-10 16:00:00')->create(['organization_id' => $this->organization->id]);
+    MaintenanceWindowMonitor::query()->create(['maintenance_window_id' => $upcoming->id, 'monitor_id' => $this->web->id]);
+    CheckHistory::hour($this->api->id, $this->clock->now()->setTime(11, 0), 0, 0, maintenance: 30);
+
+    $this->getJson(PUBLIC_PAGE_URL)
+        ->assertOk()
+        ->assertJsonPath('data.overall_state', 'operational')
+        ->assertJsonPath('data.monitors.0.state', 'up')
+        ->assertJsonPath('data.monitors.1.state', 'maintenance')
+        ->assertJsonPath('data.monitors.1.bars.89', ['date' => '2027-03-10', 'uptime_percent' => 50, 'maintenance' => true])
+        ->assertJsonPath('data.monitors.1.bars.88.maintenance', false);
 });
 
 it('answers 404 for an unpublished or unknown page', function (string $slug): void {

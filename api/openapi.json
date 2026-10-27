@@ -6063,11 +6063,15 @@
                             "number",
                             "null"
                         ]
+                    },
+                    "maintenance": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
                     "date",
-                    "uptime_percent"
+                    "uptime_percent",
+                    "maintenance"
                 ],
                 "title": "PublicBarResource"
             },
@@ -6167,7 +6171,14 @@
                         "type": "string"
                     },
                     "state": {
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "up",
+                            "down",
+                            "pending",
+                            "paused",
+                            "maintenance"
+                        ]
                     },
                     "uptime_90d": {
                         "type": [

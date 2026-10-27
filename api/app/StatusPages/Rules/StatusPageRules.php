@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\StatusPages\Rules;
 
-use App\Monitoring\Contracts\MonitorStatus;
 use App\StatusPages\Enums\OverallState;
+use App\StatusPages\Enums\PublicMonitorState;
 use Carbon\CarbonImmutable;
 
 final class StatusPageRules
@@ -17,16 +17,16 @@ final class StatusPageRules
         return mb_substr($name, 0, $maxLength);
     }
 
-    public static function overallState(array $statuses): OverallState
+    public static function overallState(array $states): OverallState
     {
         $watched = 0;
         $down = 0;
-        foreach ($statuses as $status) {
-            if (! $status instanceof MonitorStatus || $status === MonitorStatus::Paused) {
+        foreach ($states as $state) {
+            if (! $state instanceof PublicMonitorState || ! $state->isWatched()) {
                 continue;
             }
             $watched++;
-            $down += $status === MonitorStatus::Down ? 1 : 0;
+            $down += $state === PublicMonitorState::Down ? 1 : 0;
         }
 
         return match (true) {

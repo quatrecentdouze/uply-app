@@ -38,6 +38,11 @@ final readonly class Snapshot
         return is_int($value) ? $value : null;
     }
 
+    public function flag(string $key): bool
+    {
+        return ($this->values[$key] ?? null) === true;
+    }
+
     public function list(string $key): array
     {
         $value = $this->values[$key] ?? null;

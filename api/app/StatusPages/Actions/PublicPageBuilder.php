@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\StatusPages\Actions;
 
 use App\Incidents\Contracts\IncidentSummary;
+use App\Maintenance\Contracts\ScheduledWindow;
 use App\Monitoring\Contracts\DailyUptime;
 use App\Monitoring\Contracts\MonitorView;
 use App\Monitoring\Contracts\UptimeHistory;
 use App\Shared\Clock;
 use App\Shared\Time\IsoTime;
+use App\StatusPages\Enums\PublicMonitorState;
 use App\StatusPages\Models\StatusPage;
 use App\StatusPages\Models\StatusPageMonitor;
 use App\StatusPages\Rules\StatusPageRules;
@@ -42,17 +44,20 @@ final readonly class PublicPageBuilder
         $ids = array_keys($names);
         $views = $this->sources->monitors->findMany($ids);
         $histories = $this->sources->uptimes->daily($ids, $now, $public->barDays);
+        $windows = $this->sources->maintenance->windowsFor($ids, $now);
 
         $monitors = [];
-        $statuses = [];
+        $states = [];
         foreach ($names as $monitorId => $displayName) {
             $view = $views[$monitorId] ?? null;
             if (! $view instanceof MonitorView) {
                 continue;
             }
             $history = $histories[$monitorId] ?? null;
-            $statuses[] = $view->status;
-            $monitors[] = $this->monitor($view, $displayName, $history instanceof UptimeHistory ? $history : null);
+            $window = $windows[$monitorId] ?? null;
+            $state = PublicMonitorState::of($view->status, $window instanceof ScheduledWindow && $window->isActive);
+            $states[] = $state;
+            $monitors[] = $this->monitor($view, $displayName, $state, $history instanceof UptimeHistory ? $history : null);
         }
 
         $incidents = [];
@@ -62,18 +67,18 @@ final readonly class PublicPageBuilder
             }
         }
 
-        return new PublicPage($page->title, $page->description, StatusPageRules::overallState($statuses)->value, $monitors, $incidents);
+        return new PublicPage($page->title, $page->description, StatusPageRules::overallState($states)->value, $monitors, $incidents);
     }
 
-    private function monitor(MonitorView $view, string $displayName, ?UptimeHistory $history): PublicMonitor
+    private function monitor(MonitorView $view, string $displayName, PublicMonitorState $state, ?UptimeHistory $history): PublicMonitor
     {
         $bars = [];
         foreach ($history->days ?? [] as $day) {
             if ($day instanceof DailyUptime) {
-                $bars[] = new PublicBar($day->day->format(self::BAR_DATE_FORMAT), $day->uptimePercent);
+                $bars[] = new PublicBar($day->day->format(self::BAR_DATE_FORMAT), $day->uptimePercent, $day->maintenance);
             }
         }
 
-        return new PublicMonitor($view->id, $displayName, $view->status->value, $history?->uptimePercent, $bars);
+        return new PublicMonitor($view->id, $displayName, $state, $history?->uptimePercent, $bars);
     }
 }

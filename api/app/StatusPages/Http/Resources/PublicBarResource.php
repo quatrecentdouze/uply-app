@@ -20,6 +20,7 @@ final class PublicBarResource extends JsonResource
         return [
             'date' => $this->bar->date,
             'uptime_percent' => $this->bar->uptimePercent,
+            'maintenance' => $this->bar->maintenance,
         ];
     }
 }
