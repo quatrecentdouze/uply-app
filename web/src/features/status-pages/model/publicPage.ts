@@ -22,9 +22,9 @@ export const overallTextKeys: Record<OverallState, TextKey<'status-pages'>> = {
   major_outage: 'status-pages:public.overall.major_outage',
 };
 
-export type PublicMonitorState = 'up' | 'down' | 'pending' | 'paused';
+export type PublicMonitorState = 'up' | 'down' | 'pending' | 'paused' | 'maintenance';
 
-const monitorStates: readonly PublicMonitorState[] = ['up', 'down', 'pending', 'paused'];
+const monitorStates: readonly PublicMonitorState[] = ['up', 'down', 'pending', 'paused', 'maintenance'];
 
 export function publicMonitorState(value: string): PublicMonitorState {
   return monitorStates.find((state) => state === value) ?? 'pending';

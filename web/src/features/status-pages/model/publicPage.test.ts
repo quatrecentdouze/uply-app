@@ -46,6 +46,7 @@ describe('states', () => {
 
   it('reads a monitor state, an unknown one as pending', () => {
     expect(publicMonitorState('paused')).toBe('paused');
+    expect(publicMonitorState('maintenance')).toBe('maintenance');
     expect(publicMonitorState('weird')).toBe('pending');
   });
 });

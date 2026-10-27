@@ -10,6 +10,7 @@ const stateTones: Record<PublicMonitorState, PillTone> = {
   down: 'alert',
   pending: 'pending',
   paused: 'paused',
+  maintenance: 'paused',
 };
 
 const stateTextKeys: Record<PublicMonitorState, TextKey<'status-pages'>> = {
@@ -17,6 +18,7 @@ const stateTextKeys: Record<PublicMonitorState, TextKey<'status-pages'>> = {
   down: 'status-pages:public.states.down',
   pending: 'status-pages:public.states.pending',
   paused: 'status-pages:public.states.paused',
+  maintenance: 'status-pages:public.states.maintenance',
 };
 
 interface PublicMonitorCardProps {

@@ -71,7 +71,8 @@
       "up": "Operational",
       "down": "Down",
       "pending": "Pending",
-      "paused": "Paused"
+      "paused": "Paused",
+      "maintenance": "Under maintenance"
     },
     "uptime": "{{value, number(maximumFractionDigits: 2)}}% uptime",
     "uptime_none": "No data yet",
