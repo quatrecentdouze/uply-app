@@ -16,5 +16,6 @@ final readonly class MonitoringSettings
         public MonitorLimits $limits,
         public RequestSettings $request,
         public CertificateSettings $certificate,
+        public FlappingSettings $flapping,
     ) {}
 }

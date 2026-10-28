@@ -15,6 +15,8 @@ final class MonitoringSettingsParser
 {
     private const string LOWERCASE_HEADER_NAME = "/^[a-z0-9!#$%&'*+.^_`|~-]+$/";
 
+    private const int FEWEST_FLAPPING_CHANGES = 2;
+
     public function parse(string $source, array $values): MonitoringSettings
     {
         $reader = new SettingsReader($source, $values);
@@ -35,6 +37,11 @@ final class MonitoringSettingsParser
             ),
             request: $this->request($reader),
             certificate: $this->certificate($reader),
+            flapping: new FlappingSettings(
+                changes: $reader->integer('flapping.changes', self::FEWEST_FLAPPING_CHANGES),
+                windowMinutes: $reader->integer('flapping.window_minutes', 1),
+                stableMinutes: $reader->integer('flapping.stable_minutes', 1),
+            ),
         );
     }
 

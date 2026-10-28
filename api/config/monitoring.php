@@ -50,6 +50,11 @@ return [
     'certificate' => [
         'expiry_alert_days' => [14, 7, 1],
     ],
+    'flapping' => [
+        'changes' => 5,
+        'window_minutes' => 30,
+        'stable_minutes' => 30,
+    ],
     'dispatch' => [
         'tick_seconds' => 10,
         'batch_size' => 500,
