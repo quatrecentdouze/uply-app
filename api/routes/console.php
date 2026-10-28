@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Alerting\Console\SendRemindersCommand;
 use App\Monitoring\Console\DispatchChecksCommand;
 use App\Monitoring\Console\MaintainCheckStorageCommand;
 use App\Monitoring\Settings\DispatchTick;
@@ -20,3 +21,5 @@ match (app(MonitoringSettings::class)->dispatch->tick) {
 };
 
 Schedule::command(MaintainCheckStorageCommand::class)->hourly()->withoutOverlapping()->onOneServer();
+
+Schedule::command(SendRemindersCommand::class)->everyMinute()->withoutOverlapping()->onOneServer();

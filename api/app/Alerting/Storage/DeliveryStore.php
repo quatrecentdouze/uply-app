@@ -41,6 +41,13 @@ final readonly class DeliveryStore
         ]);
     }
 
+    public function createReminder(AlertChannel $channel, string $incidentId, int $number): ?QueuedDelivery
+    {
+        $deliveryId = $this->insert($channel->id, DeliveryKind::Reminder, ['incident_id' => $incidentId, 'reminder_number' => $number]);
+
+        return $deliveryId === null ? null : new QueuedDelivery($deliveryId, $channel->id, $channel->type->usesWebhook());
+    }
+
     public function createTest(AlertChannel $channel): QueuedDelivery
     {
         $deliveryId = $this->insert($channel->id, DeliveryKind::Test, []);

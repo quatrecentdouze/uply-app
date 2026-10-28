@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Alerting\Console\SendRemindersCommand;
 use App\Alerting\Console\SendTestAlertCommand;
 use App\Alerting\Http\AlertingMetaSection;
 use App\Alerting\Jobs\SendAlertJob;
@@ -55,6 +56,7 @@ final class AlertingServiceProvider extends ServiceProvider
         )->by($job->channelId));
 
         $this->commands([
+            SendRemindersCommand::class,
             SendTestAlertCommand::class,
         ]);
     }

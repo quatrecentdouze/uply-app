@@ -31,6 +31,17 @@ final readonly class AlertQueue
         return $this->dispatchAll($this->deliveries->createForCertificate($monitorId, $expiresAt, $days), $message);
     }
 
+    public function queueReminder(AlertChannel $channel, string $incidentId, int $number, AlertMessage $message): bool
+    {
+        $delivery = $this->deliveries->createReminder($channel, $incidentId, $number);
+        if ($delivery === null) {
+            return false;
+        }
+        $this->dispatch($delivery, $message);
+
+        return true;
+    }
+
     public function queueTest(AlertChannel $channel, AlertMessage $message): string
     {
         $delivery = $this->deliveries->createTest($channel);
