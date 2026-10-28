@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 use App\Monitoring\Models\Monitor;
 use App\Monitoring\Settings\MonitoringSettings;
+use App\Monitoring\Values\FlappingState;
 use App\Monitoring\Values\MonitorRequest;
 use App\Monitoring\Values\RequestHeader;
 use App\Organizations\Contracts\Role;
 use App\Organizations\Models\Organization;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\Members;
@@ -63,4 +65,18 @@ it('stores no request when there is nothing to send', function (): void {
 
     expect(DB::table('monitors')->where('id', $monitor->id)->value('request'))->toBeNull()
         ->and($monitor->checkRequest()->isEmpty())->toBeTrue();
+});
+
+it('starts a monitor without flapping nor state changes and keeps its changes as a list', function (): void {
+    $monitor = Monitor::factory()->create();
+
+    expect($monitor->fresh()?->flappingState())->toEqual(FlappingState::none());
+
+    $state = new FlappingState(CarbonImmutable::parse('2027-03-10 12:04:00', 'UTC'), [CarbonImmutable::parse('2027-03-10 12:00:00', 'UTC'), CarbonImmutable::parse('2027-03-10 12:04:00', 'UTC')]);
+    $monitor->applyFlapping($state);
+    $monitor->save();
+
+    expect($monitor->fresh()?->flappingState())->toEqual($state)
+        ->and(DB::table('monitors')->where('id', $monitor->id)->value('state_changes'))->toBe('["2027-03-10T12:00:00Z", "2027-03-10T12:04:00Z"]')
+        ->and(fn () => DB::table('monitors')->where('id', $monitor->id)->update(['state_changes' => '{}']))->toThrow(QueryException::class);
 });

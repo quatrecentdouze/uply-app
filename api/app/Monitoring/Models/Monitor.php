@@ -11,6 +11,7 @@ use App\Monitoring\Values\AcceptedStatusCodes;
 use App\Monitoring\Values\CertificateWatch;
 use App\Monitoring\Values\CheckDefinition;
 use App\Monitoring\Values\ConfirmationThresholds;
+use App\Monitoring\Values\FlappingState;
 use App\Monitoring\Values\Keyword;
 use App\Monitoring\Values\MonitorDraft;
 use App\Monitoring\Values\MonitorRequest;
@@ -126,6 +127,19 @@ final class Monitor extends Model
         );
     }
 
+    public function flappingState(): FlappingState
+    {
+        $changes = $this->getAttribute('state_changes');
+
+        return FlappingState::fromStored($this->flapping_since, is_array($changes) ? $changes : []);
+    }
+
+    public function applyFlapping(FlappingState $state): void
+    {
+        $this->flapping_since = $state->flappingSince;
+        $this->setAttribute('state_changes', $state->toStored());
+    }
+
     public function nextCheckAt(): CarbonImmutable
     {
         return $this->next_check_at ?? throw new LogicException("monitor {$this->id} has no next check time");
@@ -193,6 +207,8 @@ final class Monitor extends Model
             'last_checked_at' => 'immutable_datetime',
             'next_check_at' => 'immutable_datetime',
             'tls_expires_at' => 'immutable_datetime',
+            'flapping_since' => 'immutable_datetime',
+            'state_changes' => 'array',
             'created_at' => 'immutable_datetime',
             'updated_at' => 'immutable_datetime',
         ];
