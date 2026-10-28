@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Alerting\Enums\DecisionOutcome;
+use App\Alerting\Enums\DeliveryKind;
 use App\Alerting\Mail\AlertMail;
 use App\Alerting\Messages\AlertMessageBuilder;
 use App\Alerting\Rules\DeliveryRules;
@@ -10,6 +11,7 @@ use App\Alerting\Senders\DiscordSender;
 use App\Alerting\Senders\MailSender;
 use App\Alerting\Senders\SlackSender;
 use App\Alerting\Settings\AlertingSettings;
+use App\Alerting\Values\AlertField;
 use App\Alerting\Values\AlertMessage;
 use App\Alerting\Values\EmailRecipients;
 use App\Alerting\Values\WebhookUrl;
@@ -59,6 +61,21 @@ it('builds the down, up and test texts from the language file', function (): voi
         ->and($test->color)->toBe('#f36e29')
         ->and($builder->down(hostileMonitor(), '01', CarbonImmutable::now(), 'timeout', null)->fields[0]->text)->toBe('Timeout')
         ->and($builder->down(hostileMonitor(), '01', CarbonImmutable::now(), 'never_heard_of', null)->fields[0]->text)->toBe('Unknown error');
+});
+
+it('builds the reminder text with the cause and the time down so far', function (): void {
+    $reminder = app(AlertMessageBuilder::class)->reminder(hostileMonitor(), '01incident', CarbonImmutable::parse('2026-10-28 20:54:51', 'UTC'), 'http_status', 503, CarbonImmutable::parse('2026-10-28 22:10:00', 'UTC'));
+
+    expect($reminder->kind)->toBe(DeliveryKind::Reminder)
+        ->and($reminder->title)->toBe('@everyone <b>Billing</b> & co is still down')
+        ->and($reminder->summary)->toBe('https://billing.example.com/health?a=1&b=2')
+        ->and($reminder->link)->toBe('http://localhost:5173/incidents/01incident')
+        ->and($reminder->color)->toBe('#f23b39')
+        ->and(array_map(fn (AlertField $field): array => [$field->label, $field->text], $reminder->fields))->toBe([
+            ['Cause', 'HTTP 503'],
+            ['Down for', '1 h 15 min 9 s'],
+        ])
+        ->and(app(AlertMessageBuilder::class)->reminder(hostileMonitor(), '01', CarbonImmutable::now(), null, null, CarbonImmutable::now())->fields[0]->text)->toBe('Unknown error');
 });
 
 it('names every failure kind with a text of its own', function (FailureKind $kind): void {

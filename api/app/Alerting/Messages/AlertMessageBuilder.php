@@ -40,21 +40,31 @@ final readonly class AlertMessageBuilder
 
     public function up(MonitorView $monitor, string $incidentId, CarbonImmutable $resolvedAt, int $durationSeconds): AlertMessage
     {
-        $duration = implode(' ', array_map(
-            fn (mixed $part): string => $part instanceof TranslatableText ? $this->translated($part) : '',
-            AlertTextRules::durationParts($durationSeconds),
-        ));
-
         return new AlertMessage(
             DeliveryKind::Up,
             $this->text('alerting.up.title', ['name' => $monitor->name]),
-            $this->text('alerting.up.downtime', ['duration' => $duration]),
+            $this->text('alerting.up.downtime', ['duration' => $this->duration($durationSeconds)]),
             $this->settings->presentation->incidentLink($incidentId),
             $this->text('alerting.link'),
             $this->settings->presentation->colorFor(DeliveryKind::Up),
             $resolvedAt,
             AlertField::text($this->text('alerting.labels.url'), $monitor->url),
             $this->timeField('alerting.labels.back_up', $resolvedAt),
+        );
+    }
+
+    public function reminder(MonitorView $monitor, string $incidentId, CarbonImmutable $startedAt, ?string $failureKind, ?int $httpStatus, CarbonImmutable $now): AlertMessage
+    {
+        return new AlertMessage(
+            DeliveryKind::Reminder,
+            $this->text('alerting.reminder.title', ['name' => $monitor->name]),
+            $monitor->url,
+            $this->settings->presentation->incidentLink($incidentId),
+            $this->text('alerting.link'),
+            $this->settings->presentation->colorFor(DeliveryKind::Reminder),
+            $now,
+            AlertField::text($this->text('alerting.labels.cause'), $this->translated(AlertTextRules::cause($failureKind ?? AlertTextRules::UNKNOWN_CAUSE, $httpStatus))),
+            AlertField::text($this->text('alerting.labels.down_for'), $this->duration($now->getTimestamp() - $startedAt->getTimestamp())),
         );
     }
 
@@ -85,6 +95,14 @@ final readonly class AlertMessageBuilder
             $this->settings->presentation->colorFor(DeliveryKind::Test),
             $sentAt,
         );
+    }
+
+    private function duration(int $seconds): string
+    {
+        return implode(' ', array_map(
+            fn (mixed $part): string => $part instanceof TranslatableText ? $this->translated($part) : '',
+            AlertTextRules::durationParts($seconds),
+        ));
     }
 
     private function timeField(string $labelKey, CarbonImmutable $time): AlertField

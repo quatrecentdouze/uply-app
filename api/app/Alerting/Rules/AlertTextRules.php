@@ -10,7 +10,7 @@ final class AlertTextRules
 {
     private const string CAUSE_KEY_PREFIX = 'alerting.cause.';
 
-    private const string UNKNOWN_CAUSE = 'unknown';
+    public const string UNKNOWN_CAUSE = 'unknown';
 
     private const string STABLE_ID_PATTERN = '/^[a-z][a-z_]*$/';
 

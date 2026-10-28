@@ -10,6 +10,9 @@ return [
         'title' => ':name is back up',
         'downtime' => 'Down for :duration',
     ],
+    'reminder' => [
+        'title' => ':name is still down',
+    ],
     'certificate' => [
         'title' => '{1} :name: TLS certificate expires in :days day|[2,*] :name: TLS certificate expires in :days days',
     ],
@@ -22,6 +25,7 @@ return [
         'cause' => 'Cause',
         'started' => 'Started',
         'back_up' => 'Back up',
+        'down_for' => 'Down for',
         'expires' => 'Expires',
     ],
     'link' => 'Open the incident',
