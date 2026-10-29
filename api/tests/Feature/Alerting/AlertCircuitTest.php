@@ -50,7 +50,7 @@ function openIncidentFor(Monitor $monitor): IncidentOpenedEvent
 {
     $incident = Incident::factory()->create(['monitor_id' => $monitor->id, 'started_at' => '2027-03-10 11:58:00+00']);
 
-    return new IncidentOpenedEvent($incident->id, $monitor->organization_id, $monitor->id, $incident->startedAt(), 'http_status', 500);
+    return new IncidentOpenedEvent($incident->id, $monitor->organization_id, $monitor->id, $incident->startedAt(), 'http_status', 500, false);
 }
 
 function queuedDeliveryFor(Monitor $monitor, AlertChannel $only): QueuedDelivery

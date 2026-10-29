@@ -16,5 +16,6 @@ final readonly class IncidentResolvedEvent implements ShouldDispatchAfterCommit
         public CarbonImmutable $startedAt,
         public CarbonImmutable $resolvedAt,
         public int $durationSeconds,
+        public bool $monitorFlapping,
     ) {}
 }

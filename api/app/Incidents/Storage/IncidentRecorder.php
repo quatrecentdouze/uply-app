@@ -60,6 +60,7 @@ final readonly class IncidentRecorder
                 $opening->startedAt,
                 $opening->causeFailureKind,
                 $opening->causeHttpStatus,
+                $opening->monitorFlapping,
             ));
         });
     }
@@ -77,9 +78,9 @@ final readonly class IncidentRecorder
         ]);
     }
 
-    public function resolve(string $monitorId, CarbonImmutable $recoveredAt): void
+    public function resolve(string $monitorId, CarbonImmutable $recoveredAt, bool $monitorFlapping): void
     {
-        $this->database->transaction(function () use ($monitorId, $recoveredAt): void {
+        $this->database->transaction(function () use ($monitorId, $recoveredAt, $monitorFlapping): void {
             $incident = Incident::query()->where('monitor_id', $monitorId)->whereNull('resolved_at')->lockForUpdate()->first();
             if ($incident === null) {
                 return;
@@ -102,6 +103,7 @@ final readonly class IncidentRecorder
                 $startedAt,
                 $resolvedAt,
                 $durationSeconds,
+                $monitorFlapping,
             ));
         });
     }

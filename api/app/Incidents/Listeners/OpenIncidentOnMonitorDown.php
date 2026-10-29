@@ -23,6 +23,7 @@ final readonly class OpenIncidentOnMonitorDown
             causeFailureKind: $event->failureKind->value,
             causeHttpStatus: $event->httpStatus,
             causeMessage: $event->errorMessage,
+            monitorFlapping: $event->flapping,
         ));
     }
 }

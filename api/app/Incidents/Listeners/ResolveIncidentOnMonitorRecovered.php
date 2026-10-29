@@ -15,6 +15,6 @@ final readonly class ResolveIncidentOnMonitorRecovered
 
     public function handle(MonitorRecoveredEvent $event): void
     {
-        $this->incidents->resolve($event->monitorId, $event->upSince);
+        $this->incidents->resolve($event->monitorId, $event->upSince, $event->flapping);
     }
 }

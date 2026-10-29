@@ -16,5 +16,6 @@ final readonly class IncidentOpenedEvent implements ShouldDispatchAfterCommit
         public CarbonImmutable $startedAt,
         public string $causeFailureKind,
         public ?int $causeHttpStatus,
+        public bool $monitorFlapping,
     ) {}
 }

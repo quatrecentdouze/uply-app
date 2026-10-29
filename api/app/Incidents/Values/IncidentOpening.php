@@ -15,5 +15,6 @@ final readonly class IncidentOpening
         public string $causeFailureKind,
         public ?int $causeHttpStatus,
         public ?string $causeMessage,
+        public bool $monitorFlapping,
     ) {}
 }

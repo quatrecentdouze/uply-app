@@ -93,8 +93,8 @@ it('broadcasts every check and a state change only when the state moved, pending
 it('broadcasts the opening and the resolution of an incident', function (): void {
     Event::fake([IncidentOpenedBroadcast::class, IncidentResolvedBroadcast::class]);
 
-    event(new IncidentOpenedEvent('01incident', '01organization', '01monitor', CarbonImmutable::parse('2027-03-10 12:01:20', 'UTC'), 'http_status', 500));
-    event(new IncidentResolvedEvent('01incident', '01organization', '01monitor', CarbonImmutable::parse('2027-03-10 12:01:20', 'UTC'), CarbonImmutable::parse('2027-03-10 12:02:40', 'UTC'), 80));
+    event(new IncidentOpenedEvent('01incident', '01organization', '01monitor', CarbonImmutable::parse('2027-03-10 12:01:20', 'UTC'), 'http_status', 500, false));
+    event(new IncidentResolvedEvent('01incident', '01organization', '01monitor', CarbonImmutable::parse('2027-03-10 12:01:20', 'UTC'), CarbonImmutable::parse('2027-03-10 12:02:40', 'UTC'), 80, false));
 
     Event::assertDispatched(IncidentOpenedBroadcast::class, fn (IncidentOpenedBroadcast $broadcast): bool => $broadcast->broadcastWith()['started_at'] === '2027-03-10T12:01:20Z');
     Event::assertDispatched(IncidentResolvedBroadcast::class, fn (IncidentResolvedBroadcast $broadcast): bool => $broadcast->broadcastWith()['duration_seconds'] === 80);

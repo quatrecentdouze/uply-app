@@ -23,7 +23,7 @@ beforeEach(function (): void {
     $this->monitor = Monitor::factory()->create(['url' => 'https://api.example.com/health', 'next_check_at' => $this->clock->now()]);
 });
 
-function wentDown(Monitor $monitor, string $since, string $confirmedAt): MonitorWentDownEvent
+function wentDown(Monitor $monitor, string $since, string $confirmedAt, bool $flapping = false): MonitorWentDownEvent
 {
     return new MonitorWentDownEvent(
         monitorId: $monitor->id,
@@ -33,13 +33,13 @@ function wentDown(Monitor $monitor, string $since, string $confirmedAt): Monitor
         failureKind: FailureKind::HttpStatus,
         httpStatus: 503,
         errorMessage: null,
-        flapping: false,
+        flapping: $flapping,
     );
 }
 
-function recovered(Monitor $monitor, string $since, string $confirmedAt): MonitorRecoveredEvent
+function recovered(Monitor $monitor, string $since, string $confirmedAt, bool $flapping = false): MonitorRecoveredEvent
 {
-    return new MonitorRecoveredEvent($monitor->id, $monitor->organization_id, CarbonImmutable::parse($since, 'UTC'), CarbonImmutable::parse($confirmedAt, 'UTC'), false);
+    return new MonitorRecoveredEvent($monitor->id, $monitor->organization_id, CarbonImmutable::parse($since, 'UTC'), CarbonImmutable::parse($confirmedAt, 'UTC'), $flapping);
 }
 
 it('opens an incident at the first failure of the streak', function (): void {
@@ -78,6 +78,17 @@ it('resolves the open incident at the first success of the recovery', function (
         && $event->durationSeconds === 220
         && $event->resolvedAt->toTimeString() === '12:05:00');
 });
+
+it('keeps opening and resolving incidents of a flapping monitor and tells it to the alerts', function (bool $flapping): void {
+    Event::fake([IncidentOpenedEvent::class, IncidentResolvedEvent::class]);
+
+    event(wentDown($this->monitor, '2027-03-10 12:01:20', '2027-03-10 12:01:40', $flapping));
+    event(recovered($this->monitor, '2027-03-10 12:05:00', '2027-03-10 12:05:20', $flapping));
+
+    expect(Incident::query()->sole()->resolved_at)->not->toBeNull();
+    Event::assertDispatched(IncidentOpenedEvent::class, fn (IncidentOpenedEvent $event): bool => $event->monitorFlapping === $flapping);
+    Event::assertDispatched(IncidentResolvedEvent::class, fn (IncidentResolvedEvent $event): bool => $event->monitorFlapping === $flapping);
+})->with([true, false]);
 
 it('keeps a single open incident per monitor', function (): void {
     event(wentDown($this->monitor, '2027-03-10 12:01:20', '2027-03-10 12:01:40'));
