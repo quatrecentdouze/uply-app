@@ -20,7 +20,7 @@ final readonly class QueueDownAlerts
 
     public function handle(IncidentOpenedEvent $event): void
     {
-        $monitor = $this->monitors->find($event->monitorId);
+        $monitor = $event->monitorFlapping ? null : $this->monitors->find($event->monitorId);
         if ($monitor === null) {
             return;
         }
