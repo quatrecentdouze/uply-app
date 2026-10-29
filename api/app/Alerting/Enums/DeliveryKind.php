@@ -11,12 +11,14 @@ enum DeliveryKind: string
     case Test = 'test';
     case CertificateExpiring = 'certificate_expiring';
     case Reminder = 'reminder';
+    case FlappingStarted = 'flapping_started';
+    case FlappingEnded = 'flapping_ended';
 
     public function hasIncident(): bool
     {
         return match ($this) {
             self::Down, self::Up, self::Reminder => true,
-            self::Test, self::CertificateExpiring => false,
+            self::Test, self::CertificateExpiring, self::FlappingStarted, self::FlappingEnded => false,
         };
     }
 }

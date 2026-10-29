@@ -32,6 +32,9 @@ it('parses the shipped alerting file', function (): void {
         ->and($settings->presentation->colorFor(DeliveryKind::Up))->toBe('#34b591')
         ->and($settings->presentation->colorFor(DeliveryKind::Test))->toBe('#f36e29')
         ->and($settings->presentation->colorFor(DeliveryKind::CertificateExpiring))->toBe('#f36e29')
+        ->and($settings->presentation->colorFor(DeliveryKind::Reminder))->toBe('#f23b39')
+        ->and($settings->presentation->colorFor(DeliveryKind::FlappingStarted))->toBe('#f36e29')
+        ->and($settings->presentation->colorFor(DeliveryKind::FlappingEnded))->toBe('#34b591')
         ->and($settings->presentation->monitorLink('01monitor'))->toBe('http://localhost:5173/monitors/01monitor')
         ->and($settings->presentation->discordUsername)->toBe('Uply')
         ->and($settings->presentation->discordTitleMaxLength)->toBe(256)
@@ -80,6 +83,7 @@ it('rejects an invalid alerting setting with its file and key', function (string
     'up color' => ['presentation.colors.up', '#34b59'],
     'test color' => ['presentation.colors.test', 42],
     'certificate color' => ['presentation.colors.certificate_expiring', 'orange'],
+    'flapping color' => ['presentation.colors.flapping', '#f36e2'],
     'discord username blank' => ['presentation.discord_username', ' '],
     'discord title zero' => ['presentation.discord_title_max_length', 0],
     'discord description zero' => ['presentation.discord_description_max_length', 0],

@@ -14,6 +14,7 @@ final readonly class PresentationSettings
         public string $upColor,
         public string $testColor,
         public string $certificateExpiringColor,
+        public string $flappingColor,
         public string $discordUsername,
         public int $discordTitleMaxLength,
         public int $discordDescriptionMaxLength,
@@ -24,9 +25,10 @@ final readonly class PresentationSettings
     {
         return match ($kind) {
             DeliveryKind::Down, DeliveryKind::Reminder => $this->downColor,
-            DeliveryKind::Up => $this->upColor,
+            DeliveryKind::Up, DeliveryKind::FlappingEnded => $this->upColor,
             DeliveryKind::Test => $this->testColor,
             DeliveryKind::CertificateExpiring => $this->certificateExpiringColor,
+            DeliveryKind::FlappingStarted => $this->flappingColor,
         };
     }
 

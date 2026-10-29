@@ -41,6 +41,7 @@ return [
             'up' => '#34b591',
             'test' => '#f36e29',
             'certificate_expiring' => '#f36e29',
+            'flapping' => '#f36e29',
         ],
         'discord_username' => 'Uply',
         'discord_title_max_length' => 256,
