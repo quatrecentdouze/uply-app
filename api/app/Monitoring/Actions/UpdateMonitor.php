@@ -8,6 +8,7 @@ use App\Monitoring\Enums\MonitorChange;
 use App\Monitoring\Events\MonitorChangedEvent;
 use App\Monitoring\Models\Monitor;
 use App\Monitoring\Rules\MonitorChangeRules;
+use App\Monitoring\Values\FlappingState;
 use App\Monitoring\Values\MonitorDraft;
 
 final readonly class UpdateMonitor
@@ -24,6 +25,7 @@ final readonly class UpdateMonitor
             $plan = MonitorChangeRules::plan($before, $locked->checkDefinition(), $locked->nextCheckAt(), $this->context->clock->now());
             if ($plan->clearsStreak) {
                 $locked->clearStreak();
+                $locked->applyFlapping(FlappingState::none());
             }
             if ($plan->forgetsCertificate) {
                 $locked->forgetCertificate();
