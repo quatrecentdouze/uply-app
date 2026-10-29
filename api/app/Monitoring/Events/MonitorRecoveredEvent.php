@@ -14,5 +14,6 @@ final readonly class MonitorRecoveredEvent implements ShouldDispatchAfterCommit
         public string $organizationId,
         public CarbonImmutable $upSince,
         public CarbonImmutable $confirmedAt,
+        public bool $flapping,
     ) {}
 }

@@ -33,12 +33,13 @@ function wentDown(Monitor $monitor, string $since, string $confirmedAt): Monitor
         failureKind: FailureKind::HttpStatus,
         httpStatus: 503,
         errorMessage: null,
+        flapping: false,
     );
 }
 
 function recovered(Monitor $monitor, string $since, string $confirmedAt): MonitorRecoveredEvent
 {
-    return new MonitorRecoveredEvent($monitor->id, $monitor->organization_id, CarbonImmutable::parse($since, 'UTC'), CarbonImmutable::parse($confirmedAt, 'UTC'));
+    return new MonitorRecoveredEvent($monitor->id, $monitor->organization_id, CarbonImmutable::parse($since, 'UTC'), CarbonImmutable::parse($confirmedAt, 'UTC'), false);
 }
 
 it('opens an incident at the first failure of the streak', function (): void {

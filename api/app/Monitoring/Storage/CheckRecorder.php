@@ -6,28 +6,25 @@ namespace App\Monitoring\Storage;
 
 use App\Maintenance\Contracts\MaintenanceSchedule;
 use App\Monitoring\Enums\CheckOutcome;
-use App\Monitoring\Enums\FailureKind;
 use App\Monitoring\Enums\StateTransition;
-use App\Monitoring\Events\CertificateExpiringEvent;
-use App\Monitoring\Events\CheckCompletedEvent;
-use App\Monitoring\Events\MonitorRecoveredEvent;
-use App\Monitoring\Events\MonitorWentDownEvent;
 use App\Monitoring\Models\Monitor;
 use App\Monitoring\Rules\CertificateExpiryRules;
 use App\Monitoring\Rules\CheckScheduleRules;
+use App\Monitoring\Rules\FlappingRules;
 use App\Monitoring\Rules\MonitorStateRules;
 use App\Monitoring\Settings\MonitoringSettings;
 use App\Monitoring\Values\CertificateWatch;
+use App\Monitoring\Values\CheckEffects;
 use App\Monitoring\Values\CompletedCheck;
+use App\Monitoring\Values\FlappingStep;
 use App\Monitoring\Values\StateAdvance;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
 
 final readonly class CheckRecorder
 {
     public function __construct(
         private ConnectionInterface $database,
-        private Dispatcher $events,
+        private CheckAnnouncer $announcer,
         private MonitoringSettings $settings,
         private MaintenanceSchedule $maintenance,
     ) {}
@@ -39,27 +36,39 @@ final readonly class CheckRecorder
             if ($monitor === null || $monitor->is_paused || ! CheckScheduleRules::slotIsOpen($monitor->last_checked_at, $check->scheduledAt)) {
                 return false;
             }
-            $confirmation = $this->settings->confirmation;
-            $inMaintenance = $this->maintenance->covers($monitor->id, $check->checkedAt);
-            $advance = $inMaintenance
-                ? StateAdvance::unchanged($monitor->stateSnapshot())
-                : MonitorStateRules::advance($monitor->stateSnapshot(), $check->verdict, $monitor->confirmationThresholds(), $check->checkedAt);
-            $nextCheckAt = CheckScheduleRules::nextCheckAt($check->scheduledAt, $check->checkedAt, $monitor->interval_seconds, $confirmation->recheckDelaySeconds, $advance->awaitsConfirmation);
+            $effects = $this->maintenance->covers($monitor->id, $check->checkedAt)
+                ? $this->frozenEffects($monitor)
+                : $this->effects($monitor, $check);
+            $nextCheckAt = CheckScheduleRules::nextCheckAt($check->scheduledAt, $check->checkedAt, $monitor->interval_seconds, $this->settings->confirmation->recheckDelaySeconds, $effects->advance->awaitsConfirmation);
 
-            $certificate = $inMaintenance ? null : $this->watchCertificate($monitor, $check);
-
-            $this->insertResult($check, $inMaintenance);
-            $this->addToHourlyStats($check, $inMaintenance);
-            $monitor->applyCheck($advance->snapshot, $check->checkedAt, $check->result->responseMs(), $nextCheckAt);
-            if ($certificate !== null) {
-                $monitor->watchCertificate($certificate);
+            $this->insertResult($check, $effects->inMaintenance);
+            $this->addToHourlyStats($check, $effects->inMaintenance);
+            $monitor->applyCheck($effects->advance->snapshot, $check->checkedAt, $check->result->responseMs(), $nextCheckAt);
+            $monitor->applyFlapping($effects->flapping->state);
+            if ($effects->certificate !== null) {
+                $monitor->watchCertificate($effects->certificate);
             }
             $monitor->save();
-            $this->announce($monitor, $check, $advance, $inMaintenance);
-            $this->announceCertificate($monitor, $check, $certificate);
+            $this->announcer->announce($monitor, $check, $effects);
 
             return true;
         });
+    }
+
+    private function frozenEffects(Monitor $monitor): CheckEffects
+    {
+        return new CheckEffects(StateAdvance::unchanged($monitor->stateSnapshot()), true, FlappingStep::unchanged($monitor->flappingState()), null);
+    }
+
+    private function effects(Monitor $monitor, CompletedCheck $check): CheckEffects
+    {
+        $advance = MonitorStateRules::advance($monitor->stateSnapshot(), $check->verdict, $monitor->confirmationThresholds(), $check->checkedAt);
+        $flapping = $this->settings->flapping;
+        $step = $advance->transition === StateTransition::None
+            ? FlappingRules::afterCheck($monitor->flappingState(), $check->checkedAt, $flapping->stableMinutes)
+            : FlappingRules::afterTransition($monitor->flappingState(), $check->checkedAt, $flapping->changes, $flapping->windowMinutes);
+
+        return new CheckEffects($advance, false, $step, $this->watchCertificate($monitor, $check));
     }
 
     private function watchCertificate(Monitor $monitor, CompletedCheck $check): ?CertificateWatch
@@ -70,20 +79,6 @@ final readonly class CheckRecorder
         }
 
         return CertificateExpiryRules::watch($monitor->tls_expires_at, $monitor->tls_alerted_days, $seenExpiry, $check->checkedAt, $this->settings->certificate->expiryAlertDays);
-    }
-
-    private function announceCertificate(Monitor $monitor, CompletedCheck $check, ?CertificateWatch $certificate): void
-    {
-        if ($certificate?->alertDays === null) {
-            return;
-        }
-        $this->events->dispatch(new CertificateExpiringEvent(
-            monitorId: $monitor->id,
-            organizationId: $monitor->organization_id,
-            expiresAt: $certificate->expiresAt,
-            days: $certificate->alertDays,
-            detectedAt: $check->checkedAt,
-        ));
     }
 
     private function insertResult(CompletedCheck $check, bool $inMaintenance): void
@@ -131,42 +126,5 @@ final readonly class CheckRecorder
             $responseMs,
             $inMaintenance ? 1 : 0,
         ]);
-    }
-
-    private function announce(Monitor $monitor, CompletedCheck $check, StateAdvance $advance, bool $inMaintenance): void
-    {
-        $snapshot = $advance->snapshot;
-        $this->events->dispatch(new CheckCompletedEvent(
-            monitorId: $monitor->id,
-            organizationId: $monitor->organization_id,
-            checkedAt: $check->checkedAt,
-            outcome: $check->verdict->outcome,
-            failureKind: $check->verdict->failureKind,
-            httpStatus: $check->result->httpStatus,
-            responseMs: $check->result->responseMs(),
-            state: $snapshot->state,
-            previousState: $advance->previousState,
-            inMaintenance: $inMaintenance,
-        ));
-
-        if ($advance->transition === StateTransition::WentDown) {
-            $this->events->dispatch(new MonitorWentDownEvent(
-                monitorId: $monitor->id,
-                organizationId: $monitor->organization_id,
-                downSince: $snapshot->streakStartedAt ?? $check->checkedAt,
-                confirmedAt: $check->checkedAt,
-                failureKind: $check->verdict->failureKind ?? FailureKind::Unknown,
-                httpStatus: $check->result->httpStatus,
-                errorMessage: $check->errorMessage(),
-            ));
-        }
-        if ($advance->transition === StateTransition::Recovered) {
-            $this->events->dispatch(new MonitorRecoveredEvent(
-                monitorId: $monitor->id,
-                organizationId: $monitor->organization_id,
-                upSince: $snapshot->streakStartedAt ?? $check->checkedAt,
-                confirmedAt: $check->checkedAt,
-            ));
-        }
     }
 }

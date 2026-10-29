@@ -18,5 +18,6 @@ final readonly class MonitorWentDownEvent implements ShouldDispatchAfterCommit
         public FailureKind $failureKind,
         public ?int $httpStatus,
         public ?string $errorMessage,
+        public bool $flapping,
     ) {}
 }
