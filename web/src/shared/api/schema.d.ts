@@ -2435,6 +2435,11 @@ export interface operations {
                                 tls: {
                                     expiry_alert_days: number[];
                                 };
+                                flapping: {
+                                    changes: number;
+                                    window_minutes: number;
+                                    stable_minutes: number;
+                                };
                                 refused_header_names: string[];
                                 windows: string[];
                                 limits: {

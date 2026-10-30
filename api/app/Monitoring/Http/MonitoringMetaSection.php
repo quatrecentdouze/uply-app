@@ -50,6 +50,11 @@ final readonly class MonitoringMetaSection implements MetaSection
             'tls' => [
                 'expiry_alert_days' => $this->expiryAlertDays(),
             ],
+            'flapping' => [
+                'changes' => $this->settings->flapping->changes,
+                'window_minutes' => $this->settings->flapping->windowMinutes,
+                'stable_minutes' => $this->settings->flapping->stableMinutes,
+            ],
             'refused_header_names' => $this->refusedHeaderNames(),
             'windows' => array_map(fn (StatsWindow $window): string => $window->value, StatsWindow::cases()),
             'limits' => [

@@ -2766,6 +2766,25 @@
                                                                 "expiry_alert_days"
                                                             ]
                                                         },
+                                                        "flapping": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "changes": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "window_minutes": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "stable_minutes": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "changes",
+                                                                "window_minutes",
+                                                                "stable_minutes"
+                                                            ]
+                                                        },
                                                         "refused_header_names": {
                                                             "type": "array",
                                                             "items": {
@@ -2903,6 +2922,7 @@
                                                         "default_keyword_match",
                                                         "thresholds",
                                                         "tls",
+                                                        "flapping",
                                                         "refused_header_names",
                                                         "windows",
                                                         "limits",
