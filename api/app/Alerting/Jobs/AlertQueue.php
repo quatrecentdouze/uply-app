@@ -31,6 +31,11 @@ final readonly class AlertQueue
         return $this->dispatchAll($this->deliveries->createForCertificate($monitorId, $expiresAt, $days), $message);
     }
 
+    public function queueForFlapping(string $monitorId, DeliveryKind $kind, CarbonImmutable $flappingSince, AlertMessage $message): int
+    {
+        return $this->dispatchAll($this->deliveries->createForFlapping($monitorId, $kind, $flappingSince), $message);
+    }
+
     public function queueReminder(AlertChannel $channel, string $incidentId, int $number, AlertMessage $message): bool
     {
         $delivery = $this->deliveries->createReminder($channel, $incidentId, $number);

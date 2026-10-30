@@ -10,6 +10,7 @@ use App\Alerting\Settings\AlertingSettings;
 use App\Alerting\Values\AlertField;
 use App\Alerting\Values\AlertMessage;
 use App\Alerting\Values\TranslatableText;
+use App\Monitoring\Contracts\MonitorStatus;
 use App\Monitoring\Contracts\MonitorView;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Translation\Translator;
@@ -65,6 +66,34 @@ final readonly class AlertMessageBuilder
             $now,
             AlertField::text($this->text('alerting.labels.cause'), $this->translated(AlertTextRules::cause($failureKind ?? AlertTextRules::UNKNOWN_CAUSE, $httpStatus))),
             AlertField::text($this->text('alerting.labels.down_for'), $this->duration($now->getTimestamp() - $startedAt->getTimestamp())),
+        );
+    }
+
+    public function flappingStarted(MonitorView $monitor, int $changes, int $windowMinutes, CarbonImmutable $flappingSince): AlertMessage
+    {
+        return new AlertMessage(
+            DeliveryKind::FlappingStarted,
+            $this->text('alerting.flapping.started_title', ['name' => $monitor->name]),
+            $this->text('alerting.flapping.started_summary', ['changes' => $changes, 'minutes' => $windowMinutes]),
+            $this->settings->presentation->monitorLink($monitor->id),
+            $this->text('alerting.monitor_link'),
+            $this->settings->presentation->colorFor(DeliveryKind::FlappingStarted),
+            $flappingSince,
+            AlertField::text($this->text('alerting.labels.url'), $monitor->url),
+        );
+    }
+
+    public function flappingEnded(MonitorView $monitor, MonitorStatus $state, int $stableMinutes, CarbonImmutable $endedAt): AlertMessage
+    {
+        return new AlertMessage(
+            DeliveryKind::FlappingEnded,
+            $this->text('alerting.flapping.ended_title', ['name' => $monitor->name]),
+            $this->text('alerting.flapping.ended_summary', ['minutes' => $stableMinutes]),
+            $this->settings->presentation->monitorLink($monitor->id),
+            $this->text('alerting.monitor_link'),
+            $this->settings->presentation->colorFor($state === MonitorStatus::Down ? DeliveryKind::Down : DeliveryKind::Up),
+            $endedAt,
+            AlertField::text($this->text('alerting.labels.state'), $this->text('alerting.states.'.$state->value)),
         );
     }
 

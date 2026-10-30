@@ -13,6 +13,18 @@ return [
     'reminder' => [
         'title' => ':name is still down',
     ],
+    'flapping' => [
+        'started_title' => ':name is flapping',
+        'started_summary' => 'Changed state :changes times in :minutes minutes',
+        'ended_title' => ':name is stable again',
+        'ended_summary' => 'No state change for :minutes minutes',
+    ],
+    'states' => [
+        'up' => 'Up',
+        'down' => 'Down',
+        'pending' => 'Pending',
+        'paused' => 'Paused',
+    ],
     'certificate' => [
         'title' => '{1} :name: TLS certificate expires in :days day|[2,*] :name: TLS certificate expires in :days days',
     ],
@@ -26,6 +38,7 @@ return [
         'started' => 'Started',
         'back_up' => 'Back up',
         'down_for' => 'Down for',
+        'state' => 'State',
         'expires' => 'Expires',
     ],
     'link' => 'Open the incident',

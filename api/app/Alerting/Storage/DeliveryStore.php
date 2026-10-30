@@ -41,6 +41,11 @@ final readonly class DeliveryStore
         ]);
     }
 
+    public function createForFlapping(string $monitorId, DeliveryKind $kind, CarbonImmutable $flappingSince): array
+    {
+        return $this->createForLinkedChannels($monitorId, $kind, ['monitor_id' => $monitorId, 'flapping_since' => $flappingSince]);
+    }
+
     public function createReminder(AlertChannel $channel, string $incidentId, int $number): ?QueuedDelivery
     {
         $deliveryId = $this->insert($channel->id, DeliveryKind::Reminder, ['incident_id' => $incidentId, 'reminder_number' => $number]);
