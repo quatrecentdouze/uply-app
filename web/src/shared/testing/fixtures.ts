@@ -104,6 +104,8 @@ export function metaFixture(overrides: Partial<Meta> = {}): Meta {
       test_sends_per_minute: 5,
       max_channels_per_monitor: 50,
       lengths: { channel_name: { min: 1, max: 80 }, webhook_url: { max: 2048 } },
+      reminder_intervals_minutes: [15, 30, 60, 120, 240, 720, 1440],
+      limits: { max_reminders_per_incident: 24 },
     },
     api: { pagination: { default_per_page: 25, max_per_page: 100 }, rate_limit_per_minute: 120 },
     maintenance: {
