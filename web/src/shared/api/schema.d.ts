@@ -2384,6 +2384,25 @@ export interface operations {
                                 };
                                 rate_limit_per_minute: number;
                             };
+                            maintenance: {
+                                lengths: {
+                                    name: {
+                                        /** @constant */
+                                        min: 1;
+                                        max: number;
+                                    };
+                                };
+                                limits: {
+                                    max_open_windows: number;
+                                    /** @constant */
+                                    min_monitors: 1;
+                                    max_monitors: number;
+                                };
+                                max_duration_hours: number;
+                                max_days_ahead: number;
+                                start_grace_seconds: number;
+                                states: string[];
+                            };
                             monitoring: {
                                 intervals: {
                                     allowed_seconds: number[];

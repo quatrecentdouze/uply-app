@@ -2556,6 +2556,78 @@
                                                         "rate_limit_per_minute"
                                                     ]
                                                 },
+                                                "maintenance": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "lengths": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "name": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "min": {
+                                                                            "type": "integer",
+                                                                            "const": 1
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "min",
+                                                                        "max"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "name"
+                                                            ]
+                                                        },
+                                                        "limits": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "max_open_windows": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "min_monitors": {
+                                                                    "type": "integer",
+                                                                    "const": 1
+                                                                },
+                                                                "max_monitors": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "max_open_windows",
+                                                                "min_monitors",
+                                                                "max_monitors"
+                                                            ]
+                                                        },
+                                                        "max_duration_hours": {
+                                                            "type": "integer"
+                                                        },
+                                                        "max_days_ahead": {
+                                                            "type": "integer"
+                                                        },
+                                                        "start_grace_seconds": {
+                                                            "type": "integer"
+                                                        },
+                                                        "states": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "lengths",
+                                                        "limits",
+                                                        "max_duration_hours",
+                                                        "max_days_ahead",
+                                                        "start_grace_seconds",
+                                                        "states"
+                                                    ]
+                                                },
                                                 "monitoring": {
                                                     "type": "object",
                                                     "properties": {
@@ -3103,6 +3175,7 @@
                                             "required": [
                                                 "alerting",
                                                 "api",
+                                                "maintenance",
                                                 "monitoring",
                                                 "organizations",
                                                 "realtime",

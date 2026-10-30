@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Maintenance\Contracts\MaintenanceSchedule;
+use App\Maintenance\Http\MaintenanceMetaSection;
 use App\Maintenance\Models\MaintenanceWindow;
 use App\Maintenance\Policies\MaintenanceWindowPolicy;
 use App\Maintenance\Settings\MaintenanceSettings;
 use App\Maintenance\Settings\MaintenanceSettingsParser;
 use App\Maintenance\Storage\DatabaseMaintenanceSchedule;
+use App\Shared\Meta\MetaSection;
 use App\Shared\Settings\InvalidSettingException;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -32,6 +34,7 @@ final class MaintenanceServiceProvider extends ServiceProvider
 
             return (new MaintenanceSettingsParser)->parse(self::SETTINGS_SOURCE, $values);
         });
+        $this->app->tag(MaintenanceMetaSection::class, MetaSection::TAG);
     }
 
     public function boot(): void
