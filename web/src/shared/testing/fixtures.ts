@@ -27,6 +27,7 @@ export function monitorFixture(overrides: Partial<Monitor> = {}): Monitor {
     tls_expires_at: null,
     uptime_24h: 99.5,
     maintenance: null,
+    flapping_since: null,
     created_at: '2026-10-28T08:00:00Z',
     updated_at: '2026-10-28T08:00:00Z',
     ...overrides,
