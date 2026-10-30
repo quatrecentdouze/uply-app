@@ -80,7 +80,9 @@ final readonly class SendReminders
 
     private function silenced(MonitorView $monitor, CarbonImmutable $now): bool
     {
-        return $monitor->status === MonitorStatus::Paused || $this->context->maintenance->covers($monitor->id, $now);
+        return $monitor->status === MonitorStatus::Paused
+            || $monitor->flappingSince !== null
+            || $this->context->maintenance->covers($monitor->id, $now);
     }
 
     private function message(MonitorView $monitor, OpenIncident $incident, CarbonImmutable $now): AlertMessage

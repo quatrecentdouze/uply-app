@@ -15,6 +15,7 @@ use App\Maintenance\Models\MaintenanceWindowMonitor;
 use App\Monitoring\Contracts\MonitorDirectory;
 use App\Monitoring\Enums\MonitorState;
 use App\Monitoring\Models\Monitor;
+use App\Monitoring\Values\FlappingState;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Event as ScheduledEvent;
 use Illuminate\Console\Scheduling\Schedule;
@@ -158,4 +159,16 @@ it('runs every minute on one server without overlapping', function (): void {
         ->and($reminders[0]->expression)->toBe('* * * * *')
         ->and($reminders[0]->withoutOverlapping)->toBeTrue()
         ->and($reminders[0]->onOneServer)->toBeTrue();
+});
+
+it('stays silent while the monitor flaps and reminds once the flapping ends', function (): void {
+    $this->monitor->applyFlapping(new FlappingState(CarbonImmutable::parse('2027-03-10 11:40:00', 'UTC'), [CarbonImmutable::parse('2027-03-10 11:40:00', 'UTC')]));
+    $this->monitor->save();
+
+    $this->artisan('alerts:remind')->expectsOutput('queued=0')->assertSuccessful();
+
+    $this->monitor->applyFlapping(FlappingState::none());
+    $this->monitor->save();
+    $this->artisan('alerts:remind')->expectsOutput('queued=1')->assertSuccessful();
+    expect(remindersOf($this->channel))->toBe([1]);
 });

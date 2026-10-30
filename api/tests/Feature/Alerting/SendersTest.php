@@ -28,7 +28,7 @@ const SLACK_TEST_URL = 'https://hooks.slack.com/services/T1/B2/slack-token';
 
 function hostileMonitor(): MonitorView
 {
-    return new MonitorView('01monitor', '01organization', '@everyone <b>Billing</b> & co', 'https://billing.example.com/health?a=1&b=2', MonitorStatus::Down);
+    return new MonitorView('01monitor', '01organization', '@everyone <b>Billing</b> & co', 'https://billing.example.com/health?a=1&b=2', MonitorStatus::Down, null);
 }
 
 function downMessage(): AlertMessage
@@ -132,7 +132,7 @@ it('posts one discord embed that pings nobody', function (): void {
 });
 
 it('cuts discord texts to the embed limits', function (): void {
-    $long = new MonitorView('01m', '01o', str_repeat('n', 400), 'https://example.com/'.str_repeat('p', 5000), MonitorStatus::Down);
+    $long = new MonitorView('01m', '01o', str_repeat('n', 400), 'https://example.com/'.str_repeat('p', 5000), MonitorStatus::Down, null);
     $payload = app(DiscordSender::class)->payload(app(AlertMessageBuilder::class)->down($long, '01i', CarbonImmutable::now(), 'timeout', null));
 
     expect(mb_strlen($payload['embeds'][0]['title']))->toBe(256)

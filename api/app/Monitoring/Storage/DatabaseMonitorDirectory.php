@@ -11,7 +11,7 @@ use App\Monitoring\Models\Monitor;
 
 final class DatabaseMonitorDirectory implements MonitorDirectory
 {
-    private const array COLUMNS = ['id', 'organization_id', 'name', 'url', 'state', 'is_paused'];
+    private const array COLUMNS = ['id', 'organization_id', 'name', 'url', 'state', 'is_paused', 'flapping_since'];
 
     public function find(string $monitorId): ?MonitorView
     {
@@ -42,6 +42,7 @@ final class DatabaseMonitorDirectory implements MonitorDirectory
             $monitor->name,
             $monitor->url,
             MonitorStatus::of($monitor->state, $monitor->is_paused),
+            $monitor->flapping_since,
         );
     }
 }

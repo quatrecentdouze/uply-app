@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Monitoring\Contracts;
 
+use Carbon\CarbonImmutable;
+
 final readonly class MonitorView
 {
     public function __construct(
@@ -12,5 +14,6 @@ final readonly class MonitorView
         public string $name,
         public string $url,
         public MonitorStatus $status,
+        public ?CarbonImmutable $flappingSince,
     ) {}
 }

@@ -14,7 +14,7 @@ it('gives other families a read only view of a monitor', function (): void {
 
     $view = app(MonitorDirectory::class)->find($monitor->id);
 
-    expect($view)->toEqual(new MonitorView($monitor->id, $monitor->organization_id, 'Billing API', 'https://billing.example.com/health', MonitorStatus::Pending));
+    expect($view)->toEqual(new MonitorView($monitor->id, $monitor->organization_id, 'Billing API', 'https://billing.example.com/health', MonitorStatus::Pending, null));
 });
 
 it('finds nothing for an unknown monitor', function (): void {
