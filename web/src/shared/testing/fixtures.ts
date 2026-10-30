@@ -106,6 +106,14 @@ export function metaFixture(overrides: Partial<Meta> = {}): Meta {
       lengths: { channel_name: { min: 1, max: 80 }, webhook_url: { max: 2048 } },
     },
     api: { pagination: { default_per_page: 25, max_per_page: 100 }, rate_limit_per_minute: 120 },
+    maintenance: {
+      lengths: { name: { min: 1, max: 100 } },
+      limits: { max_open_windows: 50, min_monitors: 1, max_monitors: 100 },
+      max_duration_hours: 168,
+      max_days_ahead: 90,
+      start_grace_seconds: 60,
+      states: ['upcoming', 'active', 'ended'],
+    },
     monitoring: {
       intervals: { allowed_seconds: [30, 60, 120, 300, 600, 900, 1800, 3600], default_seconds: 60 },
       timeouts: { min_seconds: 1, max_seconds: 30, default_seconds: 10 },
