@@ -5766,6 +5766,12 @@
                             "null"
                         ]
                     },
+                    "flapping_since": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
                     "uptime_24h": {
                         "type": [
                             "number",
@@ -5816,6 +5822,7 @@
                     "last_checked_at",
                     "last_response_ms",
                     "tls_expires_at",
+                    "flapping_since",
                     "uptime_24h",
                     "maintenance",
                     "created_at",

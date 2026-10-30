@@ -916,6 +916,7 @@ export interface components {
             last_checked_at: string | null;
             last_response_ms: number | null;
             tls_expires_at: string | null;
+            flapping_since: string | null;
             uptime_24h: number | null;
             maintenance: components["schemas"]["MonitorMaintenanceResource"] | null;
             created_at: string | null;

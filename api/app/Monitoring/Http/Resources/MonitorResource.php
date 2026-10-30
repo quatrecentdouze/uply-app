@@ -45,6 +45,7 @@ final class MonitorResource extends JsonResource
             'last_checked_at' => IsoTime::format($this->monitor->last_checked_at),
             'last_response_ms' => $this->monitor->last_response_ms,
             'tls_expires_at' => IsoTime::format($this->monitor->tls_expires_at),
+            'flapping_since' => IsoTime::format($this->monitor->flapping_since),
             'uptime_24h' => $this->uptimes->of($this->monitor->id),
             'maintenance' => $this->maintenance(),
             'created_at' => IsoTime::format($this->monitor->created_at),

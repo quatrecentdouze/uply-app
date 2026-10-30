@@ -46,3 +46,10 @@ it('keeps the flapping on a rename, a new interval or a pause', function (array 
     'interval' => [['interval_seconds' => 300]],
     'pause' => [['is_paused' => true]],
 ]);
+
+it('tells since when a monitor flaps in its answers', function (): void {
+    $this->getJson($this->monitorUrl)->assertOk()->assertJsonPath('data.flapping_since', '2027-03-10T12:04:00Z');
+    $this->getJson("/api/v1/organizations/{$this->organization->id}/monitors")->assertOk()->assertJsonPath('data.0.flapping_since', '2027-03-10T12:04:00Z');
+
+    $this->patchJson($this->monitorUrl, ['url' => 'https://api.example.com/ready'])->assertOk()->assertJsonPath('data.flapping_since', null);
+});
