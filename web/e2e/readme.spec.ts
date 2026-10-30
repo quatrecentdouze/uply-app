@@ -35,9 +35,6 @@ async function capture(page: Page, name: string): Promise<void> {
 test('the README screenshots', async ({ page, context, browser }) => {
   await ensureDemoStatusPage(browser);
 
-  await page.goto('/');
-  await capture(page, 'landing');
-
   await page.goto(`/status/${demoStatusPageSlug}`);
   await capture(page, 'status-page');
 
@@ -50,17 +47,4 @@ test('the README screenshots', async ({ page, context, browser }) => {
   await page.getByRole('table', { name: 'Monitors of the organization' }).getByRole('link').first().click();
   await expect(page.getByRole('table', { name: 'Recent checks of the monitor' })).toBeVisible();
   await capture(page, 'monitor');
-
-  await page.goto('/incidents');
-  await expect(page.getByRole('table', { name: 'Incidents of the organization' })).toBeVisible();
-  await capture(page, 'incidents');
-
-  await page.goto('/status-pages');
-  await page.getByRole('link', { name: 'Demo services' }).click();
-  await expect(page.getByLabel('Title')).toHaveValue('Demo services');
-  await capture(page, 'status-page-editor');
-
-  await page.setViewportSize({ width: 375, height: 812 });
-  await page.goto('/dashboard');
-  await capture(page, 'dashboard-mobile');
 });
