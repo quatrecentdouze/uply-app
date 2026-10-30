@@ -47,7 +47,7 @@ Made by `npm run screenshots` in `web` from the local demo data. The demo target
 | 4b | Management screens: monitors, incidents, alert channels, status pages, settings (Web) | done |
 | 5 | Public status pages, landing page, mobile, end to end tests and polish (Web) | done |
 | 6 | Check depth: keyword, request headers and body, thresholds per monitor, TLS expiry alert (API, then Web) | done |
-| 7 | Alert depth: maintenance windows, reminders while an incident is open, flapping (API, then Web) | planned |
+| 7 | Alert depth: maintenance windows, reminders while an incident is open, flapping (API, then Web) | API done, Web next |
 
 ## Check engine
 
@@ -66,13 +66,21 @@ Made by `npm run screenshots` in `web` from the local demo data. The demo target
 - Each monitor confirms a failure or a recovery after its own number of results, 1 to 10. With 1 there is no recheck.
 - The probe reads the end of the leaf certificate of the first https hop. A `certificate_expiring` alert goes once at 14, 7 and 1 days before that end, to every enabled channel of the monitor, without an incident. A renewed certificate starts again.
 
+## Alert depth
+
+- A maintenance window has a name, a start (now when none is given), an end at most 7 days later and up to 100 monitors. It can be scheduled up to 90 days ahead, changed until it ends, ended early once active and deleted while upcoming. Ended windows stay as history.
+- Checks keep running in a window, but they leave the state, the counters and the flapping history alone: no incident opens or closes and no alert leaves. Their results are flagged `in_maintenance` and kept out of the uptime and the latency. The first check after the window starts again from the frozen state, so a service still down opens its incident then.
+- Monitor answers give their active or next window. The public status page shows a monitor in an active window as `maintenance`, leaves it out of the overall state and flags the days with maintenance results on its bars.
+- A channel can send reminders every 15 minutes to 24 hours while an incident stays open, up to 24 per incident. `alerts:remind` runs every minute and queues a `{name} is still down` reminder once the interval has passed since the latest alert of that channel. Nothing goes out during a window, while the monitor is paused or while it flaps, and nothing is caught up.
+- A monitor whose confirmed state changes 5 times within 30 minutes is flapping: one `{name} is flapping` alert, no down or up alert while it flaps (incidents still open and close), then one `{name} is stable again` alert after 30 minutes without a change. Changing the check of a monitor forgets its flapping.
+
 ## Alerts and real time
 
 - An opened incident creates one `down` delivery per enabled channel linked to the monitor, a resolved one an `up` delivery. A unique key per channel, incident and kind means a replayed event never sends twice.
 - Each delivery is a queued job on the `alerts` queue that carries its message, so a retry sends the same text. Discord gets an embed that pings nobody, Slack an attachment with escaped texts and reader time zones, email a Markdown mail.
 - Pure rules read each answer: 2xx is sent, 429 waits the delay the provider asks, 401, 403, 404 and 410 disable the channel, 5xx and transport errors retry 5 times with a growing delay. At most one message per second goes to a webhook, without spending a try.
 - Webhook URLs are stored encrypted and never logged.
-- Reverb broadcasts `monitor.checked`, `monitor.state-changed`, `monitor.changed`, `incident.opened` and `incident.resolved` on the private channel `organization.{id}` through the `realtime` queue.
+- Reverb broadcasts `monitor.checked`, `monitor.state-changed`, `monitor.changed`, `monitor.flapping`, `incident.opened`, `incident.resolved` and `maintenance.changed` on the private channel `organization.{id}` through the `realtime` queue.
 
 ## Auth and organizations
 
@@ -82,7 +90,7 @@ Made by `npm run screenshots` in `web` from the local demo data. The demo target
 - Invitations go by mail and expire after 7 days. Only the SHA-256 of their token is stored.
 - Domain errors answer `{"message": "...", "code": "last_owner"}` with a stable code. The API allows 120 requests per minute per user, per address for guests.
 - `POST /api/broadcasting/auth` signs the private channel `organization.{id}` for its members only.
-- `GET /api/v1/meta` gives the forms their limits: intervals, timeouts, methods, keyword matches, thresholds, certificate alert days, refused header names, roles and abilities, channel types and lengths.
+- `GET /api/v1/meta` gives the forms their limits: intervals, timeouts, methods, keyword matches, thresholds, certificate alert days, flapping settings, refused header names, roles and abilities, channel types, reminder intervals, maintenance bounds and lengths.
 
 ## Product API
 
@@ -118,12 +126,13 @@ php artisan schedule:work
 php artisan queue:work --queue=alerts,realtime,checks,default
 ```
 
-One dispatch tick, the storage maintenance and a test alert for one channel can also run by hand:
+One dispatch tick, the storage maintenance, a test alert for one channel and the due reminders can also run by hand:
 
 ```bash
 php artisan checks:dispatch
 php artisan monitoring:maintain
 php artisan alerting:test 01jexamplechannelid0000000
+php artisan alerts:remind
 ```
 
 ## Demo
