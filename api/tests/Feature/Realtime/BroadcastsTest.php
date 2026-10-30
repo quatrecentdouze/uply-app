@@ -9,6 +9,8 @@ use App\Maintenance\Events\MaintenanceChangedEvent;
 use App\Monitoring\Enums\CheckOutcome;
 use App\Monitoring\Enums\MonitorState;
 use App\Monitoring\Events\CheckCompletedEvent;
+use App\Monitoring\Events\MonitorFlappingEndedEvent;
+use App\Monitoring\Events\MonitorFlappingStartedEvent;
 use App\Monitoring\Jobs\RunCheckJob;
 use App\Monitoring\Models\Monitor;
 use App\Monitoring\Probe\HostResolver;
@@ -20,6 +22,7 @@ use App\Realtime\Broadcasts\IncidentResolvedBroadcast;
 use App\Realtime\Broadcasts\MaintenanceChangedBroadcast;
 use App\Realtime\Broadcasts\MonitorChangedBroadcast;
 use App\Realtime\Broadcasts\MonitorCheckedBroadcast;
+use App\Realtime\Broadcasts\MonitorFlappingBroadcast;
 use App\Realtime\Broadcasts\MonitorStateChangedBroadcast;
 use Carbon\CarbonImmutable;
 use Illuminate\Broadcasting\BroadcastEvent;
@@ -67,6 +70,11 @@ it('names each broadcast, its payload, its private organization channel and its 
         new IncidentResolvedBroadcast('01organization', '01incident', '01monitor', '2027-03-10T12:02:40Z', 80),
         'incident.resolved',
         ['incident_id' => '01incident', 'monitor_id' => '01monitor', 'resolved_at' => '2027-03-10T12:02:40Z', 'duration_seconds' => 80],
+    ],
+    'monitor flapping' => [
+        new MonitorFlappingBroadcast('01organization', '01monitor', '2027-03-10T12:04:00Z'),
+        'monitor.flapping',
+        ['monitor_id' => '01monitor', 'flapping_since' => '2027-03-10T12:04:00Z'],
     ],
     'maintenance changed' => [
         new MaintenanceChangedBroadcast('01organization', '01window', 'ended', ['01monitor', '02monitor']),
@@ -147,4 +155,23 @@ it('broadcasts each change of a maintenance window with the monitors it touches'
 
     Event::assertDispatched(MaintenanceChangedBroadcast::class, fn (MaintenanceChangedBroadcast $broadcast): bool => $broadcast->organizationId === '01organization'
         && $broadcast->broadcastWith() === ['window_id' => '01window', 'change' => 'updated', 'monitor_ids' => ['01monitor', '02monitor']]);
+});
+
+it('broadcasts the start of a flapping with its time and its end without one', function (): void {
+    Event::fake([MonitorFlappingBroadcast::class]);
+    $since = CarbonImmutable::parse('2027-03-10 13:04:00', 'Europe/Paris');
+
+    event(new MonitorFlappingStartedEvent('01monitor', '01organization', $since, 5, 30));
+    event(new MonitorFlappingEndedEvent('01monitor', '01organization', $since, $since->addMinutes(31), MonitorState::Up, 30));
+
+    $payloads = [];
+    Event::assertDispatched(MonitorFlappingBroadcast::class, function (MonitorFlappingBroadcast $broadcast) use (&$payloads): bool {
+        $payloads[] = $broadcast->broadcastWith();
+
+        return $broadcast->organizationId === '01organization';
+    });
+    expect($payloads)->toBe([
+        ['monitor_id' => '01monitor', 'flapping_since' => '2027-03-10T12:04:00Z'],
+        ['monitor_id' => '01monitor', 'flapping_since' => null],
+    ]);
 });

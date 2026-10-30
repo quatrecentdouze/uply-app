@@ -9,12 +9,15 @@ use App\Incidents\Events\IncidentResolvedEvent;
 use App\Maintenance\Events\MaintenanceChangedEvent;
 use App\Monitoring\Events\CheckCompletedEvent;
 use App\Monitoring\Events\MonitorChangedEvent;
+use App\Monitoring\Events\MonitorFlappingEndedEvent;
+use App\Monitoring\Events\MonitorFlappingStartedEvent;
 use App\Realtime\Http\RealtimeMetaSection;
 use App\Realtime\Listeners\BroadcastCheckCompleted;
 use App\Realtime\Listeners\BroadcastIncidentOpened;
 use App\Realtime\Listeners\BroadcastIncidentResolved;
 use App\Realtime\Listeners\BroadcastMaintenanceChanged;
 use App\Realtime\Listeners\BroadcastMonitorChanged;
+use App\Realtime\Listeners\BroadcastMonitorFlapping;
 use App\Realtime\Settings\RealtimeSettings;
 use App\Realtime\Settings\RealtimeSettingsParser;
 use App\Shared\Meta\MetaSection;
@@ -46,5 +49,7 @@ final class RealtimeServiceProvider extends ServiceProvider
         Event::listen(IncidentOpenedEvent::class, BroadcastIncidentOpened::class);
         Event::listen(IncidentResolvedEvent::class, BroadcastIncidentResolved::class);
         Event::listen(MaintenanceChangedEvent::class, BroadcastMaintenanceChanged::class);
+        Event::listen(MonitorFlappingStartedEvent::class, [BroadcastMonitorFlapping::class, 'started']);
+        Event::listen(MonitorFlappingEndedEvent::class, [BroadcastMonitorFlapping::class, 'ended']);
     }
 }
