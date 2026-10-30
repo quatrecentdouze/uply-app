@@ -127,6 +127,7 @@ export function metaFixture(overrides: Partial<Meta> = {}): Meta {
       default_keyword_match: 'present',
       thresholds: { min: 1, max: 10, default_failure: 2, default_recovery: 2 },
       tls: { expiry_alert_days: [14, 7, 1] },
+      flapping: { changes: 5, window_minutes: 30, stable_minutes: 30 },
       refused_header_names: ['host', 'content-length', 'transfer-encoding', 'connection', 'keep-alive', 'upgrade', 'te', 'trailer', 'expect', 'proxy-authorization', 'proxy-connection'],
       windows: ['24h', '7d', '30d'],
       limits: { max_monitors_per_organization: 100, max_accepted_status_ranges: 20, max_request_headers: 20 },
