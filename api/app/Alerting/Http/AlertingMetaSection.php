@@ -32,6 +32,17 @@ final readonly class AlertingMetaSection implements MetaSection
                 'channel_name' => ['min' => AlertChannelFields::NAME_MIN_LENGTH, 'max' => $this->settings->channels->nameMaxLength],
                 'webhook_url' => ['max' => $this->settings->channels->webhookUrlMaxLength],
             ],
+            'reminder_intervals_minutes' => $this->reminderIntervals(),
+            'limits' => [
+                'max_reminders_per_incident' => $this->settings->reminders->maxPerIncident,
+            ],
         ];
+    }
+
+    private function reminderIntervals(): array
+    {
+        $minutes = array_values(array_filter($this->settings->reminders->intervalsMinutes, is_int(...)));
+
+        return array_map(fn (int $interval): int => $interval, $minutes);
     }
 }

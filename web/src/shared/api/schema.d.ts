@@ -2376,6 +2376,10 @@ export interface operations {
                                         max: number;
                                     };
                                 };
+                                reminder_intervals_minutes: number[];
+                                limits: {
+                                    max_reminders_per_incident: number;
+                                };
                             };
                             api: {
                                 pagination: {

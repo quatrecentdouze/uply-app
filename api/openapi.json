@@ -2519,6 +2519,23 @@
                                                                 "channel_name",
                                                                 "webhook_url"
                                                             ]
+                                                        },
+                                                        "reminder_intervals_minutes": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "limits": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "max_reminders_per_incident": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "max_reminders_per_incident"
+                                                            ]
                                                         }
                                                     },
                                                     "required": [
@@ -2526,7 +2543,9 @@
                                                         "email_recipients",
                                                         "test_sends_per_minute",
                                                         "max_channels_per_monitor",
-                                                        "lengths"
+                                                        "lengths",
+                                                        "reminder_intervals_minutes",
+                                                        "limits"
                                                     ]
                                                 },
                                                 "api": {
