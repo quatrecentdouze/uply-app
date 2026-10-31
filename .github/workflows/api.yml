@@ -5,12 +5,10 @@ on:
     branches: [master]
     paths:
       - 'api/**'
-      - 'README.md'
       - '.github/workflows/api.yml'
   pull_request:
     paths:
       - 'api/**'
-      - 'README.md'
       - '.github/workflows/api.yml'
 
 concurrency:

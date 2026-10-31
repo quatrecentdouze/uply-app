@@ -6,14 +6,12 @@ on:
     paths:
       - 'web/**'
       - 'api/openapi.json'
-      - 'README.md'
       - '.github/readme/**'
       - '.github/workflows/web.yml'
   pull_request:
     paths:
       - 'web/**'
       - 'api/openapi.json'
-      - 'README.md'
       - '.github/readme/**'
       - '.github/workflows/web.yml'
 
